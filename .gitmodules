@@ -1,0 +1,3 @@
+[submodule "Arducom"]
+	path = Arducom
+	url = https://github.com/leomeyer/Arducom.git

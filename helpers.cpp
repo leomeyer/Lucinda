@@ -7,7 +7,6 @@
 bool fillTimerMap(timermap_t* timerMap, uint8_t pin) {
 
 #define mapTimer(timer, com) timerMap->timerReg = (uint16_t)&(timer); timerMap->outputMode = com;
-#define cbi broken
 
   switch(digitalPinToTimer(pin))
   {
@@ -113,7 +112,7 @@ bool fillTimerMap(timermap_t* timerMap, uint8_t pin) {
       //connect pwm to pin on timer 4, channel A
       mapTimer(TCCR4A, COM4A1);
       #if defined(COM4A0)   // only used on 32U4
-      cbi(TCCR4A, COM4A0);
+      // cbi(TCCR4A, COM4A0);
       #endif
       timerMap->ocrReg = (uint16_t)&OCR4A;
       break;

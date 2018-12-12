@@ -4,3 +4,17 @@
 /LucindaGUI/*.db
 /LucindaGUI/LucindaGUI/~AutoRecover.LucindaGUI.vcxproj
 /LucindaGUI/LucindaGUI/*.aps
+/TableGenerator/.vs/TableGenerator/v14/*.suo
+/TableGenerator/Debug/*.exe
+/TableGenerator/Debug/*.ilk
+/TableGenerator/Debug/*.log
+/TableGenerator/Debug/*.obj
+/TableGenerator/Debug/*.pch
+/TableGenerator/Debug/*.pdb
+/TableGenerator/Debug/TableGenerator.tlog/*.tlog
+/TableGenerator/Debug/TableGenerator.tlog/*.lastbuildstate
+/TableGenerator/Debug/*.txt
+/TableGenerator/Debug/*.idb
+/TableGenerator/*.opendb
+/TableGenerator/*.db
+/TableGenerator/ipch/TABLEGENERATOR-cdb90185/*.ipch

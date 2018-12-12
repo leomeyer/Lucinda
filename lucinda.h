@@ -6,11 +6,16 @@
 #define APP_NAME "Lucinda v2"
 #define WAVETABLE_SIZE  1024
 
+#define CHANNELFLAG_NO_EYE_CORRECTION   1   // no not apply the eye correction table
+#define CHANNELFLAG_INVERT              2   // invert the channel brightness
+#define CHANNELFLAG_REVERSE             4   // when using a wave table, index from the end
+
+#define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE)
 /*******************************************************
 * Board-specific defines
 *******************************************************/
 #define LUCINDA_NUMLEDS 8
-#define LUCINDA_MAXCHANNELS (LUCINDA_NUMLEDS + 1) // one for the halogen lamp
+#define LUCINDA_MAXCHANNELS (LUCINDA_NUMLEDS + 1) // plus one for the halogen lamp
 
 #if defined(__AVR_ATmega2560__)
 
@@ -41,19 +46,13 @@
 #endif
 
 /*******************************************************
-* Arducom defines
-*******************************************************/
-#define ARDUCOM_COMMAND_GETCONFIG 1
-#define ARDUCOM_COMMAND_DEFINECHANNEL 2
-
-
-/*******************************************************
 * Types
 *******************************************************/
-typedef uint8_t wavetable_t[WAVETABLE_SIZE];
+typedef const uint8_t wavetable_t[WAVETABLE_SIZE];
 
 // Defines a PWM channel. It can be mapped to multiple outputs.
 typedef struct {
+  // externally settable variables
   uint8_t enabled;
   uint8_t bitmask;
   uint16_t period;
@@ -62,7 +61,10 @@ typedef struct {
   uint8_t brightness;
   uint8_t dutycycle;
   uint16_t phaseshift;
-  wavetable_t* wavetable;
+  const wavetable_t* wavetable;
+  uint8_t flags;
+  // internal management
+  uint8_t update_required;  // this flag is set when the settings need to be copied from the buffer at the end of the period
 } channel_t;
 
 // Defines the relation of timer and OCR register and output mode.

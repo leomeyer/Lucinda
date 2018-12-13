@@ -1,4 +1,7 @@
+#ifndef __LUCINDA_H
+#define __LUCINDA_H
 
+#include "Arduino.h"
 
 /*******************************************************
 * Application-specific defines
@@ -11,6 +14,7 @@
 #define CHANNELFLAG_REVERSE             4   // when using a wave table, index from the end
 
 #define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE)
+
 /*******************************************************
 * Board-specific defines
 *******************************************************/
@@ -73,3 +77,11 @@ typedef struct {
   uint8_t outputMode;
   uint16_t ocrReg;
 } timermap_t;
+
+/*******************************************************
+* Forward Declarations
+*******************************************************/
+
+bool fillTimerMap(timermap_t* timerMap, uint8_t pin);
+
+#endif    // defined __LUCINDA_H

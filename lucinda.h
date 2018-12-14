@@ -17,8 +17,9 @@
 #define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE)
 
 // definitions of internal flags
-#define CHANNEL_IFLAG_COPY      1     // copying from the buffer is required at the end of a period
-#define CHANNEL_IFLAG_PHASE_OK  2     // set when the start of a phase has been detected
+#define CHANNEL_IFLAG_COPY      1         // copying from the buffer is required at the end of a period
+#define CHANNEL_IFLAG_PHASE_OK  2         // set when the start of a phase has been detected
+#define CHANNEL_IFLAG_MACROCYCLE_OK  4    // set when the start of a macrocycle has been detected
 
 /*******************************************************
 * Board-specific defines

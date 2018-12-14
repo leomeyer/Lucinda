@@ -115,18 +115,29 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
       // a disabled channel's lights will be switched off
       setChannelValues(&(channels[i]), 0);
     } else {
-/*      
-      bool activeCycle = channels[i].macrocycle_length <= 1;
-      // macrocycling active?
+      // assume an active cycle when macrocycle length is less than 2
+      bool activeCycle = channels[i].macrocycle_length < 2;
+      // macrocycling enabled?
       if (!activeCycle && channels[i].macrocycle_count > 0) {
         uint8_t macrocycleEnd = channels[i].macrocycle_shift + channels[i].macrocycle_count;
-        // correct for wrapover
-        int8_t macrocycleStart = channels[i].macrocycle_shift > macrocycleEnd ? macrocycleEnd - channels[i].macrocycle_length : channels[i].macrocycle_shift;
-        activeCycle = ((int16_t)channels[i].macrocycle_counter >= macrocycleStart) && (channels[i].macrocycle_counter < macrocycleEnd);
+        activeCycle = (macrocycleEnd <= channels[i].macrocycle_length
+                        ? (channels[i].macrocycle_counter >= channels[i].macrocycle_shift) && (channels[i].macrocycle_counter < macrocycleEnd)
+                        : (channels[i].macrocycle_counter < macrocycleEnd - channels[i].macrocycle_length) || (channels[i].macrocycle_counter >= channels[i].macrocycle_shift));
+        // special case: a wrapped-over macrocycle has not yet "begun"; to avoid undesired starting in the middle of such a macrocycle
+        // detect whether the macrocycle has started at least once
+        if (macrocycleEnd > channels[i].macrocycle_length) {
+          // in the "middle" of a macrocycle?
+          if (channels[i].macrocycle_counter < macrocycleEnd - channels[i].macrocycle_length) {
+            // allow this only if the start of a macrocycle has already been detected
+            activeCycle = (channels[i].internal_flags & CHANNEL_IFLAG_MACROCYCLE_OK) == CHANNEL_IFLAG_MACROCYCLE_OK;
+          } else {
+            // at start of the phase, set the flag to remember this
+            channels[i].internal_flags |= CHANNEL_IFLAG_MACROCYCLE_OK;
+          }
+        }
       }
-*/      
       // calculate end of cycle if the duty cycle is > 0
-      if (/*activeCycle && */(channels[i].dutycycle > 0) && (channels[i].period > 0)) {
+      if (activeCycle && (channels[i].dutycycle > 0) && (channels[i].period > 0)) {
         val = channels[i].brightness;  // assume square
         // calculate length of in-phase cycle in ticks
         int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;
@@ -145,7 +156,7 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
             // allow this only if the start of a phase has already been detected
             onPhase = (channels[i].internal_flags & CHANNEL_IFLAG_PHASE_OK) == CHANNEL_IFLAG_PHASE_OK;
           } else {
-            // at start o the phase, set the flag to remember this
+            // at start of the phase, set the flag to remember this
             channels[i].internal_flags |= CHANNEL_IFLAG_PHASE_OK;
           }
         }
@@ -194,21 +205,32 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
       // set value to all controlled outputs
       setChannelValues(&(channels[i]), val);
   
-      channels[i].counter += global_speed;
-      // period end reached?
-      if (channels[i].counter > channels[i].period) {
-        // copy from buffer requested?
-        if ((channels[i].internal_flags & CHANNEL_IFLAG_COPY) == CHANNEL_IFLAG_COPY) {
-          channels[i] = channel_buffers[i];
-        } else {
-          channels[i].counter = 0;
-          channels[i].macrocycle_counter++;
-          // macrocycle end reached?
-          if (channels[i].macrocycle_counter >= channels[i].macrocycle_length)
-            channels[i].macrocycle_counter = 0;
+    }  // if (channel enabled)
+
+    channels[i].counter += global_speed;
+    // period end reached?
+    if (channels[i].counter > channels[i].period) {
+      // copy from buffer requested?
+      if ((channels[i].internal_flags & CHANNEL_IFLAG_COPY) == CHANNEL_IFLAG_COPY) {
+        channels[i] = channel_buffers[i];
+      } else {
+        channels[i].counter = 0;
+        channels[i].macrocycle_counter++;
+
+        // at end of macrocycle?
+        uint8_t macrocycleEnd = channels[i].macrocycle_shift + channels[i].macrocycle_count;
+        bool atEnd = (macrocycleEnd <= channels[i].macrocycle_length
+                      ? (channels[i].macrocycle_counter < macrocycleEnd)
+                      : (channels[i].macrocycle_counter >= channels[i].macrocycle_shift));
+        if (atEnd)
+          // clear PHASE_OK to prevent undesired flickering
+          channels[i].internal_flags &= ~CHANNEL_IFLAG_PHASE_OK;
+
+        if (channels[i].macrocycle_counter >= channels[i].macrocycle_length) {
+          channels[i].macrocycle_counter = 0;
         }
       }
-    }  // if (channel enabled)
+    }   // period end
   }  // for (channels)
 }
 
@@ -637,14 +659,18 @@ void setup()
   channel_buffers[0].enabled = 0;
   channel_buffers[0].dutycycle = 127;
 
+#define TESTSPEED  / 2
   for (int i = 1; i < LUCINDA_MAXCHANNELS; i++) {
-    channel_buffers[i].period = WAVETABLE_SIZE * 4;
+    channel_buffers[i].period = WAVETABLE_SIZE TESTSPEED;
     channel_buffers[i].bitmask = 1 << (i - 1);
     channel_buffers[i].enabled = 1;
     channel_buffers[i].brightness = 255;
     channel_buffers[i].dutycycle = 127;
-    channel_buffers[i].phaseshift = ((i - 1) * WAVETABLE_SIZE * 4 / LUCINDA_MAXCHANNELS);
+    channel_buffers[i].phaseshift = ((i - 1) * WAVETABLE_SIZE TESTSPEED / LUCINDA_MAXCHANNELS);
     channel_buffers[i].wavetable = &WAVE_SINE;
+    channel_buffers[i].macrocycle_length = 16;
+    channel_buffers[i].macrocycle_count = 3;
+    channel_buffers[i].macrocycle_shift = i * 2;    
   } 
 
 //    channel_buffers[1].enabled = 1;

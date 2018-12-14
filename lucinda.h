@@ -18,8 +18,12 @@
 
 // definitions of internal flags
 #define CHANNEL_IFLAG_COPY      1         // copying from the buffer is required at the end of a period
-#define CHANNEL_IFLAG_PHASE_OK  2         // set when the start of a phase has been detected
-#define CHANNEL_IFLAG_MACROCYCLE_OK  4    // set when the start of a macrocycle has been detected
+#define CHANNEL_IFLAG_ON_PHASE  2         // set while the channel is within a duty cycle "on" phase
+#define CHANNEL_IFLAG_PHASE_CHANGE  4     // set when the duty cycle phase has changed from "on" to "off" or vice versa
+#define CHANNEL_IFLAG_PHASE_OK      8     // set when the channel has entered the start of a duty cycle at least once
+#define CHANNEL_IFLAG_IN_MACROCYCLE 16    // set while the channel is in an active macrocycle
+#define CHANNEL_IFLAG_MACROCYCLE_CHANGE 32     // set when the channel enters or leaves an active macrocycle
+#define CHANNEL_IFLAG_MACROCYCLE_OK     64     // set when the channel has entered the start of a macrocycle at least once
 
 /*******************************************************
 * Board-specific defines

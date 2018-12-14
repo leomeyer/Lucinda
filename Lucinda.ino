@@ -96,8 +96,200 @@ inline void setChannelValues(channel_t* channel, uint8_t val) {
   }
 }
 
+inline void processChannel(int i) {
+#ifdef LUCINDA_DEBUG  
+    Serial.print("Channel: ");
+    Serial.print(i);
+    Serial.print(" @: ");
+    Serial.println(channels[i].counter);
+#endif          
+  uint8_t val = 0;
+  if (channels[i].enabled == 0) {
+#ifdef LUCINDA_DEBUG  
+    Serial.println("Channel is disabled");
+#endif          
+    // a disabled channel's lights will be switched off
+    setChannelValues(&(channels[i]), 0);
+  } else {
+    // assume an active cycle when macrocycle length is less than 2
+    bool activeCycle = channels[i].macrocycle_length < 2;
+    // or the channel is in an active dutycycle
+    // this ensures that a duty cycle is completed even in case of counter rollover
+    if ((channels[i].internal_flags & CHANNEL_IFLAG_ON_PHASE) == CHANNEL_IFLAG_ON_PHASE)
+      activeCycle |= true;
+    // macrocycling enabled?
+    if (!activeCycle && channels[i].macrocycle_count > 0) {
+      uint8_t macrocycleEnd = channels[i].macrocycle_shift + channels[i].macrocycle_count;
+      activeCycle = (macrocycleEnd <= channels[i].macrocycle_length
+                      ? (channels[i].macrocycle_counter >= channels[i].macrocycle_shift) && (channels[i].macrocycle_counter < macrocycleEnd)
+                      : (channels[i].macrocycle_counter < macrocycleEnd - channels[i].macrocycle_length) || (channels[i].macrocycle_counter >= channels[i].macrocycle_shift));
+      // special case: a wrapped-over macrocycle has not yet "begun"; to avoid undesired starting in the middle of such a macrocycle
+      // detect whether the macrocycle has started at least once
+      if (macrocycleEnd > channels[i].macrocycle_length) {
+        // in the "middle" of a macrocycle?
+        if (channels[i].macrocycle_counter < macrocycleEnd - channels[i].macrocycle_length) {
+          // allow this only if the start of a macrocycle has already been detected
+          activeCycle = (channels[i].internal_flags & CHANNEL_IFLAG_MACROCYCLE_OK) == CHANNEL_IFLAG_MACROCYCLE_OK;
+        } else {
+          // at start of the phase, set the flag to remember this
+          channels[i].internal_flags |= CHANNEL_IFLAG_MACROCYCLE_OK;
+        }
+      }
+    }
+    // macrocycle active?
+    if (activeCycle) {
+#ifdef LUCINDA_DEBUG
+        Serial.println("Active cycle");
+#endif
+      // macrocycle changed?
+      if ((channels[i].internal_flags & CHANNEL_IFLAG_IN_MACROCYCLE) == 0) {
+        channels[i].internal_flags |= CHANNEL_IFLAG_IN_MACROCYCLE | CHANNEL_IFLAG_MACROCYCLE_CHANGE;
+#ifdef LUCINDA_DEBUG
+        Serial.println("Macrocycle change detected");
+#endif
+      } else {
+        // already "on" phase
+        channels[i].internal_flags &= ~CHANNEL_IFLAG_MACROCYCLE_CHANGE;
+      }
+      val = channels[i].brightness;  // assume square
+      // calculate length of in-phase cycle in ticks
+      int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;
+#ifdef LUCINDA_DEBUG
+        Serial.print("phaseLength: " );
+        Serial.println(phaseLength);
+#endif
+      // apply phaseshift
+      int16_t phaseEnd = channels[i].phaseshift + phaseLength;
+#ifdef LUCINDA_DEBUG
+        Serial.print("phaseEnd: " );
+        Serial.println(phaseEnd);
+#endif
+      int16_t phaseStart = channels[i].phaseshift;
+#ifdef LUCINDA_DEBUG
+        Serial.print("phaseStart: " );
+        Serial.println(phaseStart);
+#endif
+      // "on" phase?
+      bool onPhase = (channels[i].dutycycle > 0) && (phaseEnd <= channels[i].period     // no wrapover?
+                        ? (channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd)   // counter must be within phase start and end
+                        : (channels[i].counter < phaseEnd - channels[i].period) || (channels[i].counter >= phaseStart));  // correct for wrapover
+      // special case: a wrapped-over phase has not yet "begun"; to avoid undesired starting in the middle of such a phase
+      // detect whether the phase has started at least once
+      if (phaseEnd > channels[i].period) {
+        // in the "middle" of a phase?
+        if (channels[i].counter < phaseEnd - channels[i].period) {
+          // allow this only if the start of a phase has already been detected
+          onPhase = (channels[i].internal_flags & CHANNEL_IFLAG_PHASE_OK) == CHANNEL_IFLAG_PHASE_OK;
+        } else {
+          // at start of the phase, set the flag to remember this
+          channels[i].internal_flags |= CHANNEL_IFLAG_PHASE_OK;
+        }
+      }
+      if (onPhase) {
+#ifdef LUCINDA_DEBUG
+        Serial.println("On phase");
+#endif
+        // "on" phase
+        // phase changed?
+        if ((channels[i].internal_flags & CHANNEL_IFLAG_ON_PHASE) == 0) {
+          channels[i].internal_flags |= CHANNEL_IFLAG_ON_PHASE | CHANNEL_IFLAG_PHASE_CHANGE;
+#ifdef LUCINDA_DEBUG
+          Serial.println("Phase change detected");
+#endif
+        } else {
+          // already "on" phase
+          channels[i].internal_flags &= ~CHANNEL_IFLAG_PHASE_CHANGE;
+        }
+        // non-square wave?
+        if (channels[i].wavetable != nullptr) {
+          // calculate the index in the wavetable
+          uint16_t index = channels[i].counter >= phaseStart    // no wrapover?
+                            ? (int32_t)(channels[i].counter - phaseStart) * (WAVETABLE_SIZE - 1) / phaseLength
+                            : (int32_t)(channels[i].period - (phaseEnd - channels[i].counter - phaseLength)) * (WAVETABLE_SIZE - 1) / phaseLength;   // correct for wrapover
+          // reverse?
+          if ((channels[i].flags & CHANNELFLAG_REVERSE) == CHANNELFLAG_REVERSE)
+            index = (WAVETABLE_SIZE - 1) - index;
+          val = pgm_read_byte((uint32_t)channels[i].wavetable + index);
+        }
+        // adjust brightness
+        if (channels[i].brightness < 255) {
+          val = ((uint16_t)val * channels[i].brightness) / 256;
+        }
+        // apply offset
+        if (val < channels[i].offset)
+          val = channels[i].offset;
+      } else {
+        // "off" phase
+        // phase changed?
+        if ((channels[i].internal_flags & CHANNEL_IFLAG_ON_PHASE) == CHANNEL_IFLAG_ON_PHASE) {
+          channels[i].internal_flags &= ~CHANNEL_IFLAG_ON_PHASE;
+          channels[i].internal_flags |= CHANNEL_IFLAG_PHASE_CHANGE;
+        } else {
+          // already "off" phase
+          channels[i].internal_flags &= ~CHANNEL_IFLAG_PHASE_CHANGE;
+        }
+        val = channels[i].offset;
+      }
+    } else {
+#ifdef LUCINDA_DEBUG
+        Serial.println("Inactive cycle");
+#endif
+      // macrocycle changed?
+      if ((channels[i].internal_flags & CHANNEL_IFLAG_IN_MACROCYCLE) == CHANNEL_IFLAG_IN_MACROCYCLE) {
+        channels[i].internal_flags &= ~CHANNEL_IFLAG_IN_MACROCYCLE;
+        channels[i].internal_flags |= CHANNEL_IFLAG_MACROCYCLE_CHANGE;
+        // clear PHASE_OK to prevent undesired flickering
+        channels[i].internal_flags &= ~CHANNEL_IFLAG_PHASE_OK;
+      } else {
+        // already "off" phase
+        channels[i].internal_flags &= ~CHANNEL_IFLAG_MACROCYCLE_CHANGE;
+      }
+      // no active macrocycle, always at base level
+      val = channels[i].offset;
+    }
+
+    // inversion?
+    if ((channels[i].flags & CHANNELFLAG_INVERT) == CHANNELFLAG_INVERT)
+      val = 255 - val;
+
+    // apply global brightness
+    if (global_brightness < 255) {
+      val = ((uint16_t)val * global_brightness) / 256;
+    }
+    
+    // apply eye correction?
+    if ((channels[i].flags & CHANNELFLAG_NO_EYE_CORRECTION) == 0)
+      val = pgm_read_byte((uint32_t)&eye_correction + val);
+
+#ifdef LUCINDA_DEBUG
+        Serial.print("val: " );
+        Serial.println(val);
+#endif
+
+    // set value to all controlled outputs
+    setChannelValues(&(channels[i]), val);
+  }  // if (channel enabled)
+
+  channels[i].counter += global_speed;
+  // period end reached?
+  if (channels[i].counter > channels[i].period) {
+    // copy from buffer requested?
+    if ((channels[i].internal_flags & CHANNEL_IFLAG_COPY) == CHANNEL_IFLAG_COPY) {
+      channels[i] = channel_buffers[i];
+    } else {
+      channels[i].counter = 0;
+      // increase macrocycle counter at end of period
+      channels[i].macrocycle_counter++;
+      if (channels[i].macrocycle_counter >= channels[i].macrocycle_length) {
+        channels[i].macrocycle_counter = 0;
+      }
+    }
+  }   // period end
+}
+
 ISR(PWM_TIMER_VECTOR)        // interrupt service routine 
 {
+#ifndef LUCINDA_DEBUG  
   PWM_TIMER_COUNTER = PWM_TIMER_PRELOAD;   // preload timer
 
   // disable all LEDs when the speed is 0
@@ -110,128 +302,9 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
   // regular running mode
   // go through all channels
   for (int i = 0; i < LUCINDA_MAXCHANNELS; i++) {
-    uint8_t val = 0;
-    if (channels[i].enabled == 0) {
-      // a disabled channel's lights will be switched off
-      setChannelValues(&(channels[i]), 0);
-    } else {
-      // assume an active cycle when macrocycle length is less than 2
-      bool activeCycle = channels[i].macrocycle_length < 2;
-      // macrocycling enabled?
-      if (!activeCycle && channels[i].macrocycle_count > 0) {
-        uint8_t macrocycleEnd = channels[i].macrocycle_shift + channels[i].macrocycle_count;
-        activeCycle = (macrocycleEnd <= channels[i].macrocycle_length
-                        ? (channels[i].macrocycle_counter >= channels[i].macrocycle_shift) && (channels[i].macrocycle_counter < macrocycleEnd)
-                        : (channels[i].macrocycle_counter < macrocycleEnd - channels[i].macrocycle_length) || (channels[i].macrocycle_counter >= channels[i].macrocycle_shift));
-        // special case: a wrapped-over macrocycle has not yet "begun"; to avoid undesired starting in the middle of such a macrocycle
-        // detect whether the macrocycle has started at least once
-        if (macrocycleEnd > channels[i].macrocycle_length) {
-          // in the "middle" of a macrocycle?
-          if (channels[i].macrocycle_counter < macrocycleEnd - channels[i].macrocycle_length) {
-            // allow this only if the start of a macrocycle has already been detected
-            activeCycle = (channels[i].internal_flags & CHANNEL_IFLAG_MACROCYCLE_OK) == CHANNEL_IFLAG_MACROCYCLE_OK;
-          } else {
-            // at start of the phase, set the flag to remember this
-            channels[i].internal_flags |= CHANNEL_IFLAG_MACROCYCLE_OK;
-          }
-        }
-      }
-      // calculate end of cycle if the duty cycle is > 0
-      if (activeCycle && (channels[i].dutycycle > 0) && (channels[i].period > 0)) {
-        val = channels[i].brightness;  // assume square
-        // calculate length of in-phase cycle in ticks
-        int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;
-        // apply phaseshift
-        int16_t phaseEnd = channels[i].phaseshift + phaseLength;
-        int16_t phaseStart = channels[i].phaseshift;
-        // "on" phase?
-        bool onPhase = (phaseEnd <= channels[i].period     // no wrapover?
-                          ? (channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd)   // counter must be within phase start and end
-                          : (channels[i].counter < phaseEnd - channels[i].period) || (channels[i].counter >= phaseStart));  // correct for wrapover
-        // special case: a wrapped-over phase has not yet "begun"; to avoid undesired starting in the middle of such a phase
-        // detect whether the phase has started at least once
-        if (phaseEnd > channels[i].period) {
-          // in the "middle" of a phase?
-          if (channels[i].counter < phaseEnd - channels[i].period) {
-            // allow this only if the start of a phase has already been detected
-            onPhase = (channels[i].internal_flags & CHANNEL_IFLAG_PHASE_OK) == CHANNEL_IFLAG_PHASE_OK;
-          } else {
-            // at start of the phase, set the flag to remember this
-            channels[i].internal_flags |= CHANNEL_IFLAG_PHASE_OK;
-          }
-        }
-        if (onPhase) {
-          // "on" phase
-          // non-square wave?
-          if (channels[i].wavetable != nullptr) {
-            // calculate the index in the wavetable
-            uint16_t index = channels[i].counter >= phaseStart    // no wrapover?
-                              ? (int32_t)(channels[i].counter - phaseStart) * (WAVETABLE_SIZE - 1) / phaseLength
-                              : (int32_t)(channels[i].period - (phaseEnd - channels[i].counter - phaseLength)) * (WAVETABLE_SIZE - 1) / phaseLength;   // correct for wrapover
-            // reverse?
-            if ((channels[i].flags & CHANNELFLAG_REVERSE) == CHANNELFLAG_REVERSE)
-              index = (WAVETABLE_SIZE - 1) - index;
-            val = pgm_read_byte((uint32_t)channels[i].wavetable + index);
-          }
-          // adjust brightness
-          if (channels[i].brightness < 255) {
-            val = ((uint16_t)val * channels[i].brightness) / 256;
-          }
-          // apply offset
-          if (val < channels[i].offset)
-            val = channels[i].offset;
-        } else {
-          // "off" phase
-          val = channels[i].offset;
-        }
-      } else {
-        // no active cycle, always at base level
-        val = channels[i].offset;
-      }
-
-      // inversion?
-      if ((channels[i].flags & CHANNELFLAG_INVERT) == CHANNELFLAG_INVERT)
-        val = 255 - val;
-
-      // apply global brightness
-      if (global_brightness < 255) {
-        val = ((uint16_t)val * global_brightness) / 256;
-      }
-      
-      // apply eye correction?
-      if ((channels[i].flags & CHANNELFLAG_NO_EYE_CORRECTION) == 0)
-        val = pgm_read_byte((uint32_t)&eye_correction + val);
-      
-      // set value to all controlled outputs
-      setChannelValues(&(channels[i]), val);
-  
-    }  // if (channel enabled)
-
-    channels[i].counter += global_speed;
-    // period end reached?
-    if (channels[i].counter > channels[i].period) {
-      // copy from buffer requested?
-      if ((channels[i].internal_flags & CHANNEL_IFLAG_COPY) == CHANNEL_IFLAG_COPY) {
-        channels[i] = channel_buffers[i];
-      } else {
-        channels[i].counter = 0;
-        channels[i].macrocycle_counter++;
-
-        // at end of macrocycle?
-        uint8_t macrocycleEnd = channels[i].macrocycle_shift + channels[i].macrocycle_count;
-        bool atEnd = (macrocycleEnd <= channels[i].macrocycle_length
-                      ? (channels[i].macrocycle_counter < macrocycleEnd)
-                      : (channels[i].macrocycle_counter >= channels[i].macrocycle_shift));
-        if (atEnd)
-          // clear PHASE_OK to prevent undesired flickering
-          channels[i].internal_flags &= ~CHANNEL_IFLAG_PHASE_OK;
-
-        if (channels[i].macrocycle_counter >= channels[i].macrocycle_length) {
-          channels[i].macrocycle_counter = 0;
-        }
-      }
-    }   // period end
-  }  // for (channels)
+    processChannel(i);
+  }
+#endif
 }
 
 /*******************************************************
@@ -484,82 +557,6 @@ public:
   }
 };
 
-// This command sets the macrocycle length of a channel.
-class ArducomSetMacrocycleLength: public ArducomCommand {
-public:
-  ArducomSetMacrocycleLength() : ArducomCommand(ARDUCOM_CMD_SET_MACROCYCLE_LENGTH, 2) {}   // this command expects two parameters
-  
-  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
-    uint8_t channelNo = dataBuffer[0];
-    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
-      *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
-    }
-    // modify channel directly
-    channels[channelNo].macrocycle_length = dataBuffer[1];
-    noInterrupts();
-    // limit count
-    if (channels[channelNo].macrocycle_count > channels[channelNo].macrocycle_length)
-      channels[channelNo].macrocycle_count = channels[channelNo].macrocycle_length;
-    interrupts();
-    channel_buffers[channelNo].macrocycle_length = dataBuffer[1];
-    // limit count
-    if (channel_buffers[channelNo].macrocycle_count > channel_buffers[channelNo].macrocycle_length)
-      channel_buffers[channelNo].macrocycle_count = channel_buffers[channelNo].macrocycle_length;
-    resetCounters(&(channels[channelNo]));
-     *dataSize = 0;
-    return ARDUCOM_OK;
-  }
-};
-
-// This command sets the macrocycle count of a channel. count is guaranteed to be lesser than the length.
-class ArducomSetMacrocycleCount: public ArducomCommand {
-public:
-  ArducomSetMacrocycleCount() : ArducomCommand(ARDUCOM_CMD_SET_MACROCYCLE_COUNT, 2) {}   // this command expects two parameters
-  
-  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
-    uint8_t channelNo = dataBuffer[0];
-    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
-      *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
-    }
-    // modify channel directly
-    noInterrupts();
-    channels[channelNo].macrocycle_count = dataBuffer[1];
-    // limit size
-    if (channels[channelNo].macrocycle_count > channels[channelNo].macrocycle_length)
-      channels[channelNo].macrocycle_count = channels[channelNo].macrocycle_length;
-    interrupts();
-    channel_buffers[channelNo].macrocycle_count = dataBuffer[1];
-    // limit size
-    if (channel_buffers[channelNo].macrocycle_count > channel_buffers[channelNo].macrocycle_length)
-      channel_buffers[channelNo].macrocycle_count = channel_buffers[channelNo].macrocycle_length;
-    resetCounters(&(channels[channelNo]));
-    *dataSize = 0;
-    return ARDUCOM_OK;
-  }
-};
-
-// This command sets the macrocycle shift of a channel.
-class ArducomSetMacrocycleShift: public ArducomCommand {
-public:
-  ArducomSetMacrocycleShift() : ArducomCommand(ARDUCOM_CMD_SET_MACROCYCLE_SHIFT, 2) {}   // this command expects two parameters
-  
-  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
-    uint8_t channelNo = dataBuffer[0];
-    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
-      *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
-    }
-    // modify channel directly
-    channels[channelNo].macrocycle_shift = dataBuffer[1];
-    channel_buffers[channelNo].macrocycle_shift = dataBuffer[1];
-    resetCounters(&(channels[channelNo]));
-    *dataSize = 0;
-    return ARDUCOM_OK;
-  }
-};
-
 
 /*******************************************************
 * Arducom system variables
@@ -644,9 +641,6 @@ void setup()
   addCommand(new ArducomSetOffset());
   addCommand(new ArducomSetBrightness());
   addCommand(new ArducomSetDutyCycle());
-  addCommand(new ArducomSetMacrocycleLength());
-  addCommand(new ArducomSetMacrocycleCount());
-  addCommand(new ArducomSetMacrocycleShift());
 
 #ifdef LUCINDA_DEBUG
   Serial.println(F("Setup complete."));
@@ -659,12 +653,12 @@ void setup()
   channel_buffers[0].enabled = 0;
   channel_buffers[0].dutycycle = 127;
 
-#define TESTSPEED  / 2
+#define TESTSPEED / 11
   for (int i = 1; i < LUCINDA_MAXCHANNELS; i++) {
     channel_buffers[i].period = WAVETABLE_SIZE TESTSPEED;
     channel_buffers[i].bitmask = 1 << (i - 1);
     channel_buffers[i].enabled = 1;
-    channel_buffers[i].brightness = 255;
+    channel_buffers[i].brightness = 127;
     channel_buffers[i].dutycycle = 127;
     channel_buffers[i].phaseshift = ((i - 1) * WAVETABLE_SIZE TESTSPEED / LUCINDA_MAXCHANNELS);
     channel_buffers[i].wavetable = &WAVE_SINE;
@@ -679,64 +673,16 @@ void setup()
   // copy buffers to channels
   memcpy(channels, channel_buffers, sizeof(channel_t) * LUCINDA_MAXCHANNELS);
 
-//  Serial.println("Start debug");
-/*
-  int i = 6;
-  // debug
-  for (channels[i].counter = 0; channels[i].counter < channels[i].period; channels[i].counter += 10) {
-      uint8_t val = channels[i].brightness;  // assume square
-          Serial.print("counter: " );
-          Serial.println(channels[i].counter);
-        // calculate length of in-phase cycle in ticks
-        int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;   // 512
-        Serial.print("phaseLength: " );
-        Serial.println(phaseLength);
-        // apply phaseshift
-        // phaseshift is guaranteed to be less or equal than the period
-//        int16_t phaseEnd = (channels[i].phaseshift + phaseLength) % (channels[i].period + 1);       // 55
-        int16_t phaseEnd = channels[i].phaseshift + phaseLength;       // 
-        Serial.print("phaseEnd: " );
-        Serial.println(phaseEnd);
-        // correct for wrapover
-//        int16_t phaseStart = channels[i].phaseshift > phaseEnd ? (phaseEnd - phaseLength) : channels[i].phaseshift; // -457
-        int16_t phaseStart = channels[i].phaseshift; //
-        Serial.print("phaseStart: " );
-        Serial.println(phaseStart);
-        // "on" phase?
-        bool onPhase = (phaseEnd < channels[i].period
-                          ? (channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd)
-                          : (channels[i].counter < phaseEnd - channels[i].period) || (channels[i].counter >= phaseStart));
-                          
-        if (onPhase) {
-           // "on" phase
-          // non-square wave?
-          if (channels[i].wavetable != nullptr) {
-            // calculate the index in the wavetable
-            uint16_t index = channels[i].counter >= phaseStart
-                              ? (int32_t)(channels[i].counter - phaseStart) * (WAVETABLE_SIZE - 1) / phaseLength
-                              : (int32_t)(channels[i].period - (phaseEnd - channels[i].counter - phaseLength)) * (WAVETABLE_SIZE - 1) / phaseLength;
-        Serial.print("Index: " );
-        Serial.println(index);
-            // reverse?
-            if ((channels[i].flags & CHANNELFLAG_REVERSE) == CHANNELFLAG_REVERSE)
-              index = (WAVETABLE_SIZE - 1) - index;
-            val = pgm_read_byte((uint32_t)channels[i].wavetable + index);
-          }
-          // adjust brightness
-          if (channels[i].brightness < 255) {
-            val = ((uint16_t)val * channels[i].brightness) / 256;
-          }
-          // apply offset
-          if (val < channels[i].offset)
-            val = channels[i].offset;
-         } else {
-          // "off" phase
-          val = channels[i].offset;
-        }
-      Serial.print("val: " );
-        Serial.println(val);
+#ifdef LUCINDA_DEBUG
+  Serial.println("Start debug");
+
+  int i = 8;
+
+  int j = 0;
+  while (j++ < 20 * channels[i].period) {
+      processChannel(i);
   }
- */
+#endif
 /*  
   channels[2].period = WAVETABLE_SIZE * 2;
   channels[2].bitmask = 4;

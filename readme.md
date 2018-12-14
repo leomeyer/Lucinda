@@ -62,6 +62,7 @@ An important aspect is the synchronization of the lights. The hypnagogic experie
 
 Channel properties that can be changed at all times are:
 - enabled
+- period (channel frequency)
 - offset (minimum brightness)
 - channel brightness
 - duty cycle

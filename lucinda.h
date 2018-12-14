@@ -12,8 +12,13 @@
 #define CHANNELFLAG_NO_EYE_CORRECTION   1   // no not apply the eye correction table
 #define CHANNELFLAG_INVERT              2   // invert the channel brightness
 #define CHANNELFLAG_REVERSE             4   // when using a wave table, index from the end
+#define CHANNELFLAG_APPLY               128   // when this flag is set all channel modifications of command DEFINE_CHANNEL are applied directly
 
 #define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE)
+
+// definitions of internal flags
+#define CHANNEL_IFLAG_COPY      1     // copying from the buffer is required at the end of a period
+#define CHANNEL_IFLAG_PHASE_OK  2     // set when the start of a phase has been detected
 
 /*******************************************************
 * Board-specific defines
@@ -60,15 +65,20 @@ typedef struct {
   uint8_t enabled;
   uint8_t bitmask;
   uint16_t period;
-  uint16_t counter;
   uint8_t offset;
   uint8_t brightness;
   uint8_t dutycycle;
   uint16_t phaseshift;
   const wavetable_t* wavetable;
   uint8_t flags;
+  uint8_t macrocycle_length;
+  uint8_t macrocycle_count;
+  uint8_t macrocycle_shift;
+    
   // internal management
-  uint8_t update_required;  // this flag is set when the settings need to be copied from the buffer at the end of the period
+  uint16_t counter;
+  uint8_t macrocycle_counter;
+  uint8_t internal_flags;
 } channel_t;
 
 // Defines the relation of timer and OCR register and output mode.

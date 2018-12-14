@@ -1,6 +1,10 @@
 // Lucinda v2
 // by Leo Meyer <leo@leomeyer.de>
 
+#if not defined(__AVR_ATmega2560__)
+#error This sketch is designed to run on an Arduino Mega with an ATmega 2560 processor.
+#endif
+
 #include "lucinda.h"
 
 #include <Arducom.h>
@@ -8,8 +12,7 @@
 // #define LUCINDA_DEBUG 1
 
 // for some reason this forward declaration is necessary
-void addCommand(ArducomCommand* cmd);
-//extern wavetable_t WAVE_SINE;     // defined in tables.cpp
+// void addCommand(ArducomCommand* cmd);
 
 /*******************************************************
 * Data Structures
@@ -22,6 +25,9 @@ timermap_t timerMaps[LUCINDA_MAXCHANNELS];
 // Holds the PWM definition and counter for each channel.
 channel_t channels[LUCINDA_MAXCHANNELS];
 
+// Buffer for each channel with changes to apply at the end of a period.
+channel_t channel_buffers[LUCINDA_MAXCHANNELS];
+
 volatile uint8_t global_brightness = 255;
 volatile uint8_t global_speed = 1;
 
@@ -32,16 +38,22 @@ volatile uint8_t global_speed = 1;
 // Defines the pins of the connected lamps.
 // The first pin is for the halogen lamp.
 // The others are for the LEDs. If a lamp is not connected use 0.
-#if defined(__AVR_ATmega2560__)
-// the Mega supports more PWM pins
 uint8_t outputPins[LUCINDA_MAXCHANNELS] = {11, 2, 3, 4, 5, 6, 7, 8, 9};
-#else
+
 // minimal test definitions for Uno etc.
-uint8_t outputPins[LUCINDA_MAXCHANNELS] = {11, 3, 5, 6, 9, 10, 0, 0, 0};
-#endif
+// uint8_t outputPins[LUCINDA_MAXCHANNELS] = {11, 3, 5, 6, 9, 10, 0, 0, 0};
 
 // include constant table definitions
 #include "tables.h"
+
+/*******************************************************
+* Internal functions
+*******************************************************/
+
+inline void resetCounters(channel_t* channel) {
+  channel->counter = 0;
+  channel->macrocycle_counter = 0;
+}
 
 /*******************************************************
 * PWM Control
@@ -99,25 +111,52 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
   // go through all channels
   for (int i = 0; i < LUCINDA_MAXCHANNELS; i++) {
     uint8_t val = 0;
-    if (channels[i].enabled == 1 && channels[i].period > 0) {
-      uint8_t val = channels[i].brightness;  // assume square
+    if (channels[i].enabled == 0) {
+      // a disabled channel's lights will be switched off
+      setChannelValues(&(channels[i]), 0);
+    } else {
+/*      
+      bool activeCycle = channels[i].macrocycle_length <= 1;
+      // macrocycling active?
+      if (!activeCycle && channels[i].macrocycle_count > 0) {
+        uint8_t macrocycleEnd = channels[i].macrocycle_shift + channels[i].macrocycle_count;
+        // correct for wrapover
+        int8_t macrocycleStart = channels[i].macrocycle_shift > macrocycleEnd ? macrocycleEnd - channels[i].macrocycle_length : channels[i].macrocycle_shift;
+        activeCycle = ((int16_t)channels[i].macrocycle_counter >= macrocycleStart) && (channels[i].macrocycle_counter < macrocycleEnd);
+      }
+*/      
       // calculate end of cycle if the duty cycle is > 0
-      if (channels[i].dutycycle > 0) {
-        // calculate length of in-phase cycle
+      if (/*activeCycle && */(channels[i].dutycycle > 0) && (channels[i].period > 0)) {
+        val = channels[i].brightness;  // assume square
+        // calculate length of in-phase cycle in ticks
         int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;
         // apply phaseshift
-        // phaseshift is guaranteed to be less or equal than the period
-        int16_t phaseEnd = (channels[i].phaseshift + phaseLength) % (channels[i].period + 1);
-        // correct for wrapover
-        int16_t phaseStart = channels[i].phaseshift > phaseEnd ? (phaseEnd - phaseLength) : channels[i].phaseshift;
+        int16_t phaseEnd = channels[i].phaseshift + phaseLength;
+        int16_t phaseStart = channels[i].phaseshift;
         // "on" phase?
-        bool onPhase = ((int16_t)channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd);
+        bool onPhase = (phaseEnd <= channels[i].period     // no wrapover?
+                          ? (channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd)   // counter must be within phase start and end
+                          : (channels[i].counter < phaseEnd - channels[i].period) || (channels[i].counter >= phaseStart));  // correct for wrapover
+        // special case: a wrapped-over phase has not yet "begun"; to avoid undesired starting in the middle of such a phase
+        // detect whether the phase has started at least once
+        if (phaseEnd > channels[i].period) {
+          // in the "middle" of a phase?
+          if (channels[i].counter < phaseEnd - channels[i].period) {
+            // allow this only if the start of a phase has already been detected
+            onPhase = (channels[i].internal_flags & CHANNEL_IFLAG_PHASE_OK) == CHANNEL_IFLAG_PHASE_OK;
+          } else {
+            // at start o the phase, set the flag to remember this
+            channels[i].internal_flags |= CHANNEL_IFLAG_PHASE_OK;
+          }
+        }
         if (onPhase) {
           // "on" phase
           // non-square wave?
           if (channels[i].wavetable != nullptr) {
             // calculate the index in the wavetable
-            uint16_t index = (int32_t)(channels[i].counter - phaseStart) * (WAVETABLE_SIZE - 1) / phaseLength;
+            uint16_t index = channels[i].counter >= phaseStart    // no wrapover?
+                              ? (int32_t)(channels[i].counter - phaseStart) * (WAVETABLE_SIZE - 1) / phaseLength
+                              : (int32_t)(channels[i].period - (phaseEnd - channels[i].counter - phaseLength)) * (WAVETABLE_SIZE - 1) / phaseLength;   // correct for wrapover
             // reverse?
             if ((channels[i].flags & CHANNELFLAG_REVERSE) == CHANNELFLAG_REVERSE)
               index = (WAVETABLE_SIZE - 1) - index;
@@ -135,7 +174,7 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
           val = channels[i].offset;
         }
       } else {
-        // duty cycle is 0, always at base level
+        // no active cycle, always at base level
         val = channels[i].offset;
       }
 
@@ -156,23 +195,32 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
       setChannelValues(&(channels[i]), val);
   
       channels[i].counter += global_speed;
-      if (channels[i].counter > channels[i].period)
-        channels[i].counter = 0;
-    }
+      // period end reached?
+      if (channels[i].counter > channels[i].period) {
+        // copy from buffer requested?
+        if ((channels[i].internal_flags & CHANNEL_IFLAG_COPY) == CHANNEL_IFLAG_COPY) {
+          channels[i] = channel_buffers[i];
+        } else {
+          channels[i].counter = 0;
+          channels[i].macrocycle_counter++;
+          // macrocycle end reached?
+          if (channels[i].macrocycle_counter >= channels[i].macrocycle_length)
+            channels[i].macrocycle_counter = 0;
+        }
+      }
+    }  // if (channel enabled)
   }  // for (channels)
 }
 
 /*******************************************************
 * Arducom commands
 *******************************************************/
-#define ARDUCOM_COMMAND_GETCONFIG 1
-#define ARDUCOM_COMMAND_DEFINECHANNEL 2
-#define ARDUCOM_COMMAND_SETSPEED 3
+#include "commands.h"
 
 // This command returns the configuration of the Lucinda setup.
 class ArducomGetConfig: public ArducomCommand {
 public:
-  ArducomGetConfig(uint8_t commandCode) : ArducomCommand(commandCode, 0) {}   // this command expects zero parameters
+  ArducomGetConfig() : ArducomCommand(ARDUCOM_CMD_GET_CONFIG, 0) {}   // this command expects zero parameters
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     const char* configStr = "Cl";
@@ -193,14 +241,15 @@ public:
 // byte 6: brightness factor
 // byte 7: duty cycle
 // bytes 8 and 9: phase shift (LSB first)
-// byte 10: wavetable to use (0: square, 1: sine, 2: triangle, 3: flicker, 4: linear/sawtooth)
+// byte 10: waveform to use (0: square, 1: sine, 2: triangle, 3: flicker, 4: linear/sawtooth)
 // byte 11: flags that control additional behavior
-// The channel is disabled and all pins are set to 0.
-// After all values have been applied the channel is switched on again.
-// If an error occurs the channel remains switched off.
+// byte 12: macrocycle length
+// byte 13: macrocycle count
+// byte 14: macrocycle shift
+// If an error occurs the requested changes are not applied.
 class ArducomDefineChannel: public ArducomCommand {
 public:
-  ArducomDefineChannel(uint8_t commandCode) : ArducomCommand(commandCode, 12) {}   // number of expected parameter bytes
+  ArducomDefineChannel() : ArducomCommand(ARDUCOM_CMD_DEFINE_CHANNEL, 15) {}   // number of expected parameter bytes
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -208,46 +257,71 @@ public:
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
       return ARDUCOM_LIMIT_EXCEEDED;
     }
-    // disable channel during aplication
-    channels[channelNo].enabled = 0;
-    // reset counter
-    channels[channelNo].counter = 0;
-    // switch off all LEDs
-    setChannelValues(&(channels[channelNo]), 0);
-    channels[channelNo].bitmask = dataBuffer[2];
-    channels[channelNo].period = dataBuffer[3] + dataBuffer[4] * 256;
-    if (channels[channelNo].period > WAVETABLE_SIZE * 10) {
+    channel_t local;    // local buffer
+    local.enabled = dataBuffer[1] & 0x01; // the lowest bit decides
+    local.bitmask = dataBuffer[2];
+    local.period = dataBuffer[3] + dataBuffer[4] * 256;
+    if (local.period > WAVETABLE_SIZE * 10) {
       *errorInfo = 3;
       return ARDUCOM_FUNCTION_ERROR;
     }
-    channels[channelNo].offset = dataBuffer[5];
-    channels[channelNo].brightness = dataBuffer[6];
-    channels[channelNo].dutycycle = dataBuffer[7];
-    channels[channelNo].phaseshift = (dataBuffer[8] + dataBuffer[9] * 256) % channels[channelNo].period;
+    local.offset = dataBuffer[5];
+    local.brightness = dataBuffer[6];
+    local.dutycycle = dataBuffer[7];
+    local.phaseshift = (dataBuffer[8] + dataBuffer[9] * 256) % local.period;
     uint8_t wavetable = dataBuffer[10];
     switch (wavetable) {
       case 0: // square
-        channels[channelNo].wavetable = nullptr;
+        local.wavetable = nullptr;
         break;
       case 1: // sine
-        channels[channelNo].wavetable = &WAVE_SINE;
+        local.wavetable = &WAVE_SINE;
         break;
       case 2: // triangle
-        channels[channelNo].wavetable = &WAVE_TRIANGLE;
+        local.wavetable = &WAVE_TRIANGLE;
         break;
       case 3: // flicker
-        channels[channelNo].wavetable = &WAVE_FLICKER;
+        local.wavetable = &WAVE_FLICKER;
         break;
       case 4: // linear (sawtooth)
-        channels[channelNo].wavetable = &WAVE_LINEAR;
+        local.wavetable = &WAVE_LINEAR;
         break;
       default:  {
         *errorInfo = 10;
         return ARDUCOM_FUNCTION_ERROR;
       }
     }
-    channels[channelNo].flags = dataBuffer[11] & CHANNELFLAG_ALL;
-    channels[channelNo].enabled = dataBuffer[1] & 0x01; // the lowest bit decides
+    local.flags = dataBuffer[11] & CHANNELFLAG_ALL;
+    local.macrocycle_length = dataBuffer[12];
+    local.macrocycle_count = dataBuffer[13];
+    local.macrocycle_shift = dataBuffer[14];
+    // limit count
+    if (local.macrocycle_count > local.macrocycle_length)
+      local.macrocycle_count = local.macrocycle_length;
+    // limit shift
+    if (local.macrocycle_shift > local.macrocycle_length)
+      local.macrocycle_shift = local.macrocycle_length > 0 ? local.macrocycle_shift % local.macrocycle_length : 0;
+
+    // reset internal management data
+    resetCounters(&local);
+    local.internal_flags = 0;
+
+    // copy local changes to the buffer
+    channel_buffers[channelNo] = local;
+    // apply directly?
+    if ((dataBuffer[11] & CHANNELFLAG_APPLY) == CHANNELFLAG_APPLY) {
+      // copy the local changes to the channel
+      // disable interrupts during copy
+      noInterrupts();
+      channels[channelNo] = local;
+      interrupts();
+    } else {
+      // request the interrupt routine to copy the data after the next period
+      noInterrupts();
+      channels[channelNo].internal_flags |= CHANNEL_IFLAG_COPY;
+      interrupts();
+    }
+    
     *dataSize = 0;
     return ARDUCOM_OK;
   }
@@ -256,10 +330,209 @@ public:
 // This command sets the global speed of the channels in ticks. One tick corresponds to one millisecond.
 class ArducomSetSpeed: public ArducomCommand {
 public:
-  ArducomSetSpeed(uint8_t commandCode) : ArducomCommand(commandCode, 1) {}   // this command expects one parameter
+  ArducomSetSpeed() : ArducomCommand(ARDUCOM_CMD_SET_SPEED, 1) {}   // this command expects one parameter
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    // speed increased after processing has been disabled?
+    if ((global_speed == 0) && (dataBuffer[0] > 0)) {
+      // need to reset all counters
+      for (int i = 0; i < LUCINDA_MAXCHANNELS; i++) {
+        resetCounters(&(channel_buffers[i]));
+      }
+      // copy all buffers to actual definitions
+      noInterrupts();
+      memcpy(channels, channel_buffers, sizeof(channel_t) * LUCINDA_MAXCHANNELS);
+      interrupts();
+    }
     global_speed = dataBuffer[0];
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the global brightness.
+class ArducomSetGlobalBrightness: public ArducomCommand {
+public:
+  ArducomSetGlobalBrightness() : ArducomCommand(ARDUCOM_CMD_SET_GLOBAL_BRIGHTNESS, 1) {}   // this command expects one parameter
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    global_brightness = dataBuffer[0];
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command enables a channel.
+class ArducomEnableChannel : public ArducomCommand {
+public:
+  ArducomEnableChannel() : ArducomCommand(ARDUCOM_CMD_ENABLE_CHANNEL, 1) {}   // this command expects one parameter
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // need to reset counters?
+    if (channels[channelNo].enabled == 0) {
+      // no need to disable interrupts here because the channel is not yet enabled
+      resetCounters(&(channels[channelNo]));
+    }
+    // modify channel directly
+    channels[channelNo].enabled = 1;
+    channel_buffers[channelNo].enabled = 1;
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command disables a channel.
+class ArducomDisableChannel : public ArducomCommand {
+public:
+  ArducomDisableChannel() : ArducomCommand(ARDUCOM_CMD_DISABLE_CHANNEL, 1) {}   // this command expects one parameter
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    channel_buffers[channelNo].enabled = 0;
+    // modify channel directly
+    channels[channelNo].enabled = 0;
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the offset (lowest brightness) of a channel.
+class ArducomSetOffset: public ArducomCommand {
+public:
+  ArducomSetOffset() : ArducomCommand(ARDUCOM_CMD_SET_OFFSET, 2) {}   // this command expects two parameters
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    channels[channelNo].offset = dataBuffer[1];
+    channel_buffers[channelNo].offset = dataBuffer[1];
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the brightness of a channel.
+class ArducomSetBrightness: public ArducomCommand {
+public:
+  ArducomSetBrightness() : ArducomCommand(ARDUCOM_CMD_SET_BRIGHTNESS, 2) {}   // this command expects two parameters
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    channels[channelNo].brightness = dataBuffer[1];
+    channel_buffers[channelNo].brightness = dataBuffer[1];
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the duty cycle of a channel.
+class ArducomSetDutyCycle: public ArducomCommand {
+public:
+  ArducomSetDutyCycle() : ArducomCommand(ARDUCOM_CMD_SET_DUTYCYCLE, 2) {}   // this command expects two parameters
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    channels[channelNo].dutycycle = dataBuffer[1];
+    channel_buffers[channelNo].dutycycle = dataBuffer[1];
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the macrocycle length of a channel.
+class ArducomSetMacrocycleLength: public ArducomCommand {
+public:
+  ArducomSetMacrocycleLength() : ArducomCommand(ARDUCOM_CMD_SET_MACROCYCLE_LENGTH, 2) {}   // this command expects two parameters
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    channels[channelNo].macrocycle_length = dataBuffer[1];
+    noInterrupts();
+    // limit count
+    if (channels[channelNo].macrocycle_count > channels[channelNo].macrocycle_length)
+      channels[channelNo].macrocycle_count = channels[channelNo].macrocycle_length;
+    interrupts();
+    channel_buffers[channelNo].macrocycle_length = dataBuffer[1];
+    // limit count
+    if (channel_buffers[channelNo].macrocycle_count > channel_buffers[channelNo].macrocycle_length)
+      channel_buffers[channelNo].macrocycle_count = channel_buffers[channelNo].macrocycle_length;
+    resetCounters(&(channels[channelNo]));
+     *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the macrocycle count of a channel. count is guaranteed to be lesser than the length.
+class ArducomSetMacrocycleCount: public ArducomCommand {
+public:
+  ArducomSetMacrocycleCount() : ArducomCommand(ARDUCOM_CMD_SET_MACROCYCLE_COUNT, 2) {}   // this command expects two parameters
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    noInterrupts();
+    channels[channelNo].macrocycle_count = dataBuffer[1];
+    // limit size
+    if (channels[channelNo].macrocycle_count > channels[channelNo].macrocycle_length)
+      channels[channelNo].macrocycle_count = channels[channelNo].macrocycle_length;
+    interrupts();
+    channel_buffers[channelNo].macrocycle_count = dataBuffer[1];
+    // limit size
+    if (channel_buffers[channelNo].macrocycle_count > channel_buffers[channelNo].macrocycle_length)
+      channel_buffers[channelNo].macrocycle_count = channel_buffers[channelNo].macrocycle_length;
+    resetCounters(&(channels[channelNo]));
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the macrocycle shift of a channel.
+class ArducomSetMacrocycleShift: public ArducomCommand {
+public:
+  ArducomSetMacrocycleShift() : ArducomCommand(ARDUCOM_CMD_SET_MACROCYCLE_SHIFT, 2) {}   // this command expects two parameters
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    channels[channelNo].macrocycle_shift = dataBuffer[1];
+    channel_buffers[channelNo].macrocycle_shift = dataBuffer[1];
+    resetCounters(&(channels[channelNo]));
     *dataSize = 0;
     return ARDUCOM_OK;
   }
@@ -270,6 +543,7 @@ public:
 * Arducom system variables
 *******************************************************/
 
+// setup Arducom communication on the Serial stream
 ArducomTransportStream arducomTransport(&Serial);
 Arducom arducom(&arducomTransport);
 
@@ -311,9 +585,14 @@ void fillTimerMaps() {
 }
 
 void setup()
-{	
+{
+  
+#if defined(__AVR_ATmega2560__)
+
+#endif
+
   // setup pins
-  // special treatment for halogen pin
+  // special treatment for halogen pin (hardware version 1 which inverts the halogen pin)
   pinMode(outputPins[0], OUTPUT);
   analogWrite(outputPins[0], 255);
   for (int i = 1; i < LUCINDA_MAXCHANNELS; i++)
@@ -322,7 +601,7 @@ void setup()
       analogWrite(outputPins[i], 0);
     }
   
-	// initialize hardware
+	// initialize communication
 	Serial.begin(57600);
 
 #ifdef LUCINDA_DEBUG
@@ -334,55 +613,89 @@ void setup()
   uint8_t code;
 	// setup Arducom system
   addCommand(new ArducomVersionCommand(APP_NAME));
-  addCommand(new ArducomGetConfig(ARDUCOM_COMMAND_GETCONFIG));
-  addCommand(new ArducomDefineChannel(ARDUCOM_COMMAND_DEFINECHANNEL));
-  addCommand(new ArducomSetSpeed(ARDUCOM_COMMAND_SETSPEED));
+  addCommand(new ArducomGetConfig());
+  addCommand(new ArducomDefineChannel());
+  addCommand(new ArducomSetSpeed());
+  addCommand(new ArducomSetGlobalBrightness());
+  addCommand(new ArducomEnableChannel());
+  addCommand(new ArducomDisableChannel());
+  addCommand(new ArducomSetOffset());
+  addCommand(new ArducomSetBrightness());
+  addCommand(new ArducomSetDutyCycle());
+  addCommand(new ArducomSetMacrocycleLength());
+  addCommand(new ArducomSetMacrocycleCount());
+  addCommand(new ArducomSetMacrocycleShift());
 
 #ifdef LUCINDA_DEBUG
   Serial.println(F("Setup complete."));
 #endif
 
+  noInterrupts();
+
   // test: initialize channel 0
-  channels[0].period = WAVETABLE_SIZE;
-  channels[0].enabled = 0;
-  channels[0].dutycycle = 127;
+  channel_buffers[0].period = WAVETABLE_SIZE;
+  channel_buffers[0].enabled = 0;
+  channel_buffers[0].dutycycle = 127;
 
   for (int i = 1; i < LUCINDA_MAXCHANNELS; i++) {
-    channels[i].period = WAVETABLE_SIZE * 2;
-    channels[i].bitmask = 1 << (i - 1);
-    channels[i].enabled = 1;
-    channels[i].brightness = 255;
-    channels[i].dutycycle = 127;
-    channels[i].phaseshift = i * WAVETABLE_SIZE / LUCINDA_MAXCHANNELS;
-    channels[i].wavetable = &WAVE_SINE;
+    channel_buffers[i].period = WAVETABLE_SIZE * 4;
+    channel_buffers[i].bitmask = 1 << (i - 1);
+    channel_buffers[i].enabled = 1;
+    channel_buffers[i].brightness = 255;
+    channel_buffers[i].dutycycle = 127;
+    channel_buffers[i].phaseshift = ((i - 1) * WAVETABLE_SIZE * 4 / LUCINDA_MAXCHANNELS);
+    channel_buffers[i].wavetable = &WAVE_SINE;
   } 
 
+//    channel_buffers[1].enabled = 1;
+//    channel_buffers[6].enabled = 1;
+
+  // copy buffers to channels
+  memcpy(channels, channel_buffers, sizeof(channel_t) * LUCINDA_MAXCHANNELS);
+
+//  Serial.println("Start debug");
 /*
-    // debug
-  channels[8].period = 0x800;
-  channels[8].phaseshift = 0x500;
-  channels[8].dutycycle = 0x2F;
-  int i = 8;
-  for (channels[8].counter = 0; channels[8].counter < channels[8].period; channels[8].counter += 10) {
+  int i = 6;
+  // debug
+  for (channels[i].counter = 0; channels[i].counter < channels[i].period; channels[i].counter += 10) {
       uint8_t val = channels[i].brightness;  // assume square
-        // calculate length of in-phase cycle
-        int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;
+          Serial.print("counter: " );
+          Serial.println(channels[i].counter);
+        // calculate length of in-phase cycle in ticks
+        int16_t phaseLength = ((uint32_t)channels[i].period * (channels[i].dutycycle + 1)) / 256;   // 512
         Serial.print("phaseLength: " );
         Serial.println(phaseLength);
         // apply phaseshift
         // phaseshift is guaranteed to be less or equal than the period
-        int16_t phaseEnd = (channels[i].phaseshift + phaseLength) % (channels[i].period + 1);
+//        int16_t phaseEnd = (channels[i].phaseshift + phaseLength) % (channels[i].period + 1);       // 55
+        int16_t phaseEnd = channels[i].phaseshift + phaseLength;       // 
         Serial.print("phaseEnd: " );
         Serial.println(phaseEnd);
         // correct for wrapover
-        int16_t phaseStart = channels[i].phaseshift > phaseEnd ? (phaseEnd - phaseLength) : channels[i].phaseshift;
+//        int16_t phaseStart = channels[i].phaseshift > phaseEnd ? (phaseEnd - phaseLength) : channels[i].phaseshift; // -457
+        int16_t phaseStart = channels[i].phaseshift; //
         Serial.print("phaseStart: " );
         Serial.println(phaseStart);
         // "on" phase?
-          Serial.print("counter: " );
-          Serial.println(channels[i].counter);
-        if ((((int16_t)channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd))) {
-          // "on" phase
+        bool onPhase = (phaseEnd < channels[i].period
+                          ? (channels[i].counter >= phaseStart) && (channels[i].counter < phaseEnd)
+                          : (channels[i].counter < phaseEnd - channels[i].period) || (channels[i].counter >= phaseStart));
+                          
+        if (onPhase) {
+           // "on" phase
+          // non-square wave?
+          if (channels[i].wavetable != nullptr) {
+            // calculate the index in the wavetable
+            uint16_t index = channels[i].counter >= phaseStart
+                              ? (int32_t)(channels[i].counter - phaseStart) * (WAVETABLE_SIZE - 1) / phaseLength
+                              : (int32_t)(channels[i].period - (phaseEnd - channels[i].counter - phaseLength)) * (WAVETABLE_SIZE - 1) / phaseLength;
+        Serial.print("Index: " );
+        Serial.println(index);
+            // reverse?
+            if ((channels[i].flags & CHANNELFLAG_REVERSE) == CHANNELFLAG_REVERSE)
+              index = (WAVETABLE_SIZE - 1) - index;
+            val = pgm_read_byte((uint32_t)channels[i].wavetable + index);
+          }
           // adjust brightness
           if (channels[i].brightness < 255) {
             val = ((uint16_t)val * channels[i].brightness) / 256;
@@ -390,14 +703,14 @@ void setup()
           // apply offset
           if (val < channels[i].offset)
             val = channels[i].offset;
-        } else {
+         } else {
           // "off" phase
           val = channels[i].offset;
         }
-        Serial.print("val: " );
+      Serial.print("val: " );
         Serial.println(val);
   }
- */ 
+ */
 /*  
   channels[2].period = WAVETABLE_SIZE * 2;
   channels[2].bitmask = 4;
@@ -406,7 +719,9 @@ void setup()
   channels[2].dutycycle = 127;
   channels[2].phaseshift = WAVETABLE_SIZE;
 */
-  noInterrupts();
+
+  // copy buffers to channels
+  memcpy(channels, channel_buffers, sizeof(channel_t) * LUCINDA_MAXCHANNELS);
   
   PWM_TIMER_INIT
 

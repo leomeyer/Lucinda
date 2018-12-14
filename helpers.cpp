@@ -4,6 +4,7 @@
 
 // Fills a timer map from the given pin.
 // Code adapted from analogWrite.
+// This code is theoretically compatible with processors other than the ATmega 2560.
 bool fillTimerMap(timermap_t* timerMap, uint8_t pin) {
 
 #define mapTimer(timer, com) timerMap->timerReg = (uint16_t)&(timer); timerMap->outputMode = com;

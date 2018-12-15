@@ -621,7 +621,7 @@ void setup()
     }
   
 	// initialize communication
-	Serial.begin(57600);
+	Serial.begin(ARDUCOM_DEFAULT_BAUDRATE);
 
 #ifdef LUCINDA_DEBUG
   Serial.println(F(APP_NAME));

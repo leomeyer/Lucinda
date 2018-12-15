@@ -19,6 +19,12 @@ class Configuration
         /** Reads a string using the specified group. */
         bool getString(const wxString& group, const wxString& key, const wxString& defaultVal, wxString* result);
 
+        /** Reads a long from the main group (APPSETTING_MAINGROUP). */
+        long getLong(const wxString& key, const long defaultVal);
+
+        /** Reads a long using the specified group. */
+        long getLong(const wxString& group, const wxString& key, const long defaultVal);
+
     protected:
         wxFileConfig* config;
 

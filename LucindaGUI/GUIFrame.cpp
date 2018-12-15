@@ -52,3 +52,47 @@ GUIFrame::~GUIFrame()
 	m_mgr.UnInit();
 
 }
+
+LogPanel::LogPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	wxBoxSizer* bSizer1;
+	bSizer1 = new wxBoxSizer( wxVERTICAL );
+
+	logGrid = new wxGrid( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+
+	// Grid
+	logGrid->CreateGrid( 0, 2 );
+	logGrid->EnableEditing( true );
+	logGrid->EnableGridLines( true );
+	logGrid->EnableDragGridSize( false );
+	logGrid->SetMargins( 0, 0 );
+
+	// Columns
+	logGrid->SetColSize( 0, 80 );
+	logGrid->SetColSize( 1, 500 );
+	logGrid->EnableDragColMove( false );
+	logGrid->EnableDragColSize( true );
+	logGrid->SetColLabelSize( 20 );
+	logGrid->SetColLabelValue( 0, wxT("Time") );
+	logGrid->SetColLabelValue( 1, wxT("Message") );
+	logGrid->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Rows
+	logGrid->EnableDragRowSize( true );
+	logGrid->SetRowLabelSize( 0 );
+	logGrid->SetRowLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Label Appearance
+
+	// Cell Defaults
+	logGrid->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
+	bSizer1->Add( logGrid, 1, wxALIGN_LEFT|wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer1 );
+	this->Layout();
+}
+
+LogPanel::~LogPanel()
+{
+}

@@ -1,6 +1,8 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <wx/wx.h>
+
 #include "GlobalDefines.h"
 #include "Configuration.h"
 

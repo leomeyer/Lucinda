@@ -1,4 +1,3 @@
-
 #include "Configuration.h"
 
 namespace APP_NAMESPACE {
@@ -33,5 +32,21 @@ bool Configuration::getString(const wxString& group, const wxString& key, const 
     return bResult;
 }
 
+long Configuration::getLong(const wxString& key, const long defaultVal)
+{
+    return getLong(APPSETTING_MAINGROUP, key, defaultVal);
+}
+
+long Configuration::getLong(const wxString& group, const wxString& key, const long defaultVal)
+{
+    wxString realGroup = group;
+    if (!realGroup.StartsWith("/"))
+        realGroup = "/" + realGroup;
+    config->SetPath(realGroup);
+    long result = config->ReadLong(key, defaultVal);
+    // reset path
+    config->SetPath("");
+    return result;
+}
 
 };  // namespace

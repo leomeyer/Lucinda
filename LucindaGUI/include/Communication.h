@@ -1,11 +1,17 @@
 #ifndef COMMUNICATION_H
 #define COMMUNICATION_H
 
-#include "../Arducom/src/master/ArducomMaster.h"
+#include <wx/vector.h>
 
 #include "Context.h"
 
+#include "readerwriterqueue.h"
+
 namespace APP_NAMESPACE {
+
+using namespace moodycamel;
+
+class ArducomThread;
 
 class Communication
 {
@@ -13,8 +19,29 @@ class Communication
         Communication(Context* context);
         virtual ~Communication();
 
+        void loadFromSettings();
+
+        /** Tells the communication class that something has changed about this thread. */
+        void update(ArducomThread* thread);
+
+        /** Retrieves the next message from the queue if available, else an empty string. */
+        wxString getNextMessage();
+
     protected:
+        class UpdateMessage {
+        public:
+            UpdateMessage();
+            UpdateMessage(ArducomThread* thread);
+
+            ArducomThread* thread;
+        };
+
         Context* context;
+        wxVector<ArducomThread*> threads;
+
+        ReaderWriterQueue<UpdateMessage> queue;
+
+        ArducomThread* addThread(const wxString& parameters);
 
     private:
 };

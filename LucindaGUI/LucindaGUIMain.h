@@ -10,23 +10,32 @@
 #ifndef LUCINDAGUIMAIN_H
 #define LUCINDAGUIMAIN_H
 
-
-
-#include "LucindaGUIApp.h"
+#include "GlobalDefines.h"
 #include "GUIFrame.h"
 
 namespace APP_NAMESPACE {
+
+class ApplicationController;
 
 class LucindaGUIFrame: public GUIFrame
 {
     public:
         LucindaGUIFrame(wxFrame *frame);
         ~LucindaGUIFrame();
+
+        void setAppController(ApplicationController* appController);
+
+        void setStatusText(const wxString& statusText);
     private:
+        ApplicationController* appController;
+        wxTimer* updateTimer;
+
         virtual void OnClose(wxCloseEvent& event);
         virtual void OnQuit(wxCommandEvent& event);
         virtual void OnAbout(wxCommandEvent& event);
-};
+
+        void OnUpdateTimer(wxTimerEvent& event);
+    };
 
 }; // namespace
 

@@ -349,8 +349,8 @@ public:
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
-      *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      *errorInfo = 0;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     channel_t local;    // local buffer
     local.enabled = dataBuffer[1] & 0x01; // the lowest bit decides

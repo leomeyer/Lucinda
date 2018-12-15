@@ -12,16 +12,20 @@
 
 #include <wx/app.h>
 
-#include "Context.h"
+#include "LucindaGUIMain.h"
 
 namespace APP_NAMESPACE {
+
+class Context;
+class ApplicationController;
 
 class LucindaGUIApp : public wxApp
 {
     public:
         virtual bool OnInit();
 
-        Context context;
+        Context* context;
+        ApplicationController* appController;
 };
 
 }; // namespace

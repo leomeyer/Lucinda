@@ -21,6 +21,9 @@
 #include <wx/menu.h>
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
+#include <wx/grid.h>
+#include <wx/sizer.h>
+#include <wx/panel.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +51,23 @@ class GUIFrame : public wxFrame
 		wxAuiManager m_mgr;
 
 		~GUIFrame();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class LogPanel
+///////////////////////////////////////////////////////////////////////////////
+class LogPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxGrid* logGrid;
+
+	public:
+
+		LogPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~LogPanel();
 
 };
 

@@ -18,6 +18,7 @@
 #endif //__BORLANDC__
 
 #include "LucindaGUIMain.h"
+#include "ApplicationController.h"
 
 namespace APP_NAMESPACE {
 
@@ -57,10 +58,23 @@ LucindaGUIFrame::LucindaGUIFrame(wxFrame *frame)
     statusBar->SetStatusText(_("Hello Code::Blocks user!"), 0);
     statusBar->SetStatusText(wxbuildinfo(short_f), 1);
 #endif
+
+    updateTimer = new wxTimer(this, wxID_ANY);
+	Connect(updateTimer->GetId(), wxEVT_TIMER, wxTimerEventHandler(LucindaGUIFrame::OnUpdateTimer));
+    updateTimer->Start(10);
 }
 
 LucindaGUIFrame::~LucindaGUIFrame()
 {
+}
+void LucindaGUIFrame::setAppController(ApplicationController* appController)
+{
+    this->appController = appController;
+}
+
+void LucindaGUIFrame::setStatusText(const wxString& statusText)
+{
+    statusBar->SetStatusText(statusText);
 }
 
 void LucindaGUIFrame::OnClose(wxCloseEvent &event)
@@ -77,6 +91,12 @@ void LucindaGUIFrame::OnAbout(wxCommandEvent &event)
 {
     wxString msg = wxbuildinfo(long_f);
     wxMessageBox(msg, _("Welcome to..."));
+}
+
+void LucindaGUIFrame::OnUpdateTimer(wxTimerEvent& event)
+{
+    // let application logic update GUI data
+    appController->OnUpdateTimer(event);
 }
 
 }; // namespace

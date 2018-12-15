@@ -20,8 +20,12 @@
 #include <wx/dir.h>
 #include <wx/msgdlg.h>
 
+#include "Configuration.h"
+#include "Context.h"
+#include "Communication.h"
+#include "ApplicationController.h"
+
 #include "LucindaGUIApp.h"
-#include "LucindaGUIMain.h"
 
 namespace APP_NAMESPACE {
 
@@ -42,11 +46,13 @@ bool LucindaGUIApp::OnInit()
         return 1;
     }
 
-    context.initialize(userDir + "/" + APP_CONFIG_LOCAL);
+    context = new Context();
+    context->initialize(userDir + "/" + APP_CONFIG_LOCAL);
 
     wxString appTitle;
-    context.config->getString("AppTitle", APP_NAME, &appTitle);
+    context->config->getString("AppTitle", APP_NAME, &appTitle);
 
+    // create main frame
     LucindaGUIFrame* frame = new LucindaGUIFrame(0L);
     frame->SetIcon(wxICON(aaaa)); // To Set App Icon
     frame->SetTitle(appTitle);
@@ -57,6 +63,11 @@ bool LucindaGUIApp::OnInit()
         // anything at all and let the system use the default initial size.
         frame->SetClientSize(frame->FromDIP(wxSize(800, 600)));
     }
+
+    // initialize application controller
+    appController = new ApplicationController(new Communication(context), frame);
+    appController->start();
+    frame->setAppController(appController);
 
     frame->Show();
 

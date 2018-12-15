@@ -14,4 +14,7 @@
 // settings constants
 #define APPSETTING_MAINGROUP    "Application"
 
+#define APPKEY_NR_OF_DEVICES     "DeviceCount"
+#define APPKEY_DEVICENAME_PREFIX "Device"
+
 #endif // GLOBALDEFINES_H_INCLUDED

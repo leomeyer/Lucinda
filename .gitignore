@@ -18,3 +18,8 @@
 /TableGenerator/*.opendb
 /TableGenerator/*.db
 /TableGenerator/ipch/TABLEGENERATOR-cdb90185/*.ipch
+/LucindaGUI/*.bak
+/LucindaGUI/*.depend
+/LucindaGUI/bin
+/LucindaGUI/obj
+/LucindaGUI/*.layout

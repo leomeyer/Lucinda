@@ -148,7 +148,7 @@ PROGMEM const wavetable_t WAVE_LINEAR = {
 };
 
 // exponential correction curve for the human eye
-// formula: (int)(pow(2.0, 8.0 * (i + 1) / 256)) - 1; i = 0..255
+// formula: f0 = 0; fi = max(1, (int)(pow(2.0, 8.0 * (i + 1) / 256)) - 1) for i = 1..255
 PROGMEM const uint8_t eye_correction[256] = {
 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 

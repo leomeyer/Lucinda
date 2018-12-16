@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <minmax.h>
 
 int main()
 {
@@ -49,8 +50,9 @@ int main()
 	std::cout << std::endl;
 
 	std::cout << "Eye Correction" << std::endl;
-	for (int i = 0; i < 256; i++) {
-		std::cout << (int)(pow(2.0, 8.0 * (i + 1) / 256)) - 1 << ", ";
+	std::cout << "0, ";
+	for (int i = 1; i < 256; i++) {
+		std::cout << max(1, (int)(pow(2.0, 8.0 * (i + 1) / 256)) - 1) << ", ";
 		if (i % 32 == 0)
 			std::cout << std::endl;
 	}

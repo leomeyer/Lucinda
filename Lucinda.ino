@@ -658,7 +658,7 @@ void setup()
     channel_buffers[i].period = WAVETABLE_SIZE TESTSPEED;
     channel_buffers[i].bitmask = 1 << (i - 1);
     channel_buffers[i].enabled = 1;
-    channel_buffers[i].brightness = 127;
+    channel_buffers[i].brightness = 255;
     channel_buffers[i].dutycycle = 127;
     channel_buffers[i].phaseshift = ((i - 1) * WAVETABLE_SIZE TESTSPEED / LUCINDA_MAXCHANNELS);
     channel_buffers[i].wavetable = &WAVE_SINE;

@@ -18,6 +18,9 @@
 #endif //__BORLANDC__
 
 #include "MainGUIFrame.h"
+#include "ChannelPanel.h"
+#include "GlobalChannelPanel.h"
+
 #include "ApplicationController.h"
 
 namespace APP_NAMESPACE {
@@ -54,22 +57,38 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 MainGUIFrame::MainGUIFrame(wxFrame *frame)
     : GUIFrame(frame)
 {
-#if wxUSE_STATUSBAR
-    statusBar->SetStatusText(_("Hello Code::Blocks user!"), 0);
-    statusBar->SetStatusText(wxbuildinfo(short_f), 1);
-#endif
-
-    updateTimer = new wxTimer(this, wxID_ANY);
-	Connect(updateTimer->GetId(), wxEVT_TIMER, wxTimerEventHandler(MainGUIFrame::OnUpdateTimer));
-    updateTimer->Start(10);
 }
 
 MainGUIFrame::~MainGUIFrame()
 {
 }
-void MainGUIFrame::setAppController(ApplicationController* appController)
+void MainGUIFrame::initialize(ApplicationController* appController)
 {
     this->appController = appController;
+
+    updateTimer = new wxTimer(this, wxID_ANY);
+	Connect(updateTimer->GetId(), wxEVT_TIMER, wxTimerEventHandler(MainGUIFrame::OnUpdateTimer));
+    updateTimer->Start(10);
+
+    // create GUI elements
+    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pContent, appController->getProcessor());
+    bContentSizer->Add(globalPanel, 0, wxALL|wxEXPAND, 5);
+
+    /*
+    // create GUI elements
+    ChannelPanel* panel = new ChannelPanel(pContent, appController->getProcessor(), "Test", 0);
+    panel->addSlider("Testslider", 0, 100);
+    bContentSizer->Add(panel, 0, wxALL|wxEXPAND, 5);
+*/
+}
+
+void MainGUIFrame::insertLogMessage(const Logger::LogMessage& message) {
+    if (logGrid->InsertRows()) {
+        wxString sTime = message.datetime.FormatISOTime();
+        sTime << "." << message.datetime.GetMillisecond();
+        logGrid->SetCellValue(0, 0, sTime);
+        logGrid->SetCellValue(0, 1, message.text);
+    }
 }
 
 void MainGUIFrame::setStatusText(const wxString& statusText)
@@ -79,14 +98,14 @@ void MainGUIFrame::setStatusText(const wxString& statusText)
 
 void MainGUIFrame::OnClose(wxCloseEvent &event)
 {
+    updateTimer->Stop();
+    // shut down all dependent threads
+    appController->shutdown();
     Destroy();
 }
 
 void MainGUIFrame::OnQuit(wxCommandEvent &event)
 {
-    updateTimer->Stop();
-    // shut down all dependent threads
-    appController->shutdown();
     Destroy();
 }
 
@@ -100,6 +119,12 @@ void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
 {
     // let application logic update GUI data
     appController->OnUpdateTimer(event);
+}
+
+void MainGUIFrame::OnLogPanelSize(wxSizeEvent& event)
+{
+    // adjust log grid size
+    logGrid->SetSize(event.GetSize());
 }
 
 }; // namespace

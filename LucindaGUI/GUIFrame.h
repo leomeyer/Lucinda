@@ -19,11 +19,14 @@
 #include <wx/image.h>
 #include <wx/icon.h>
 #include <wx/menu.h>
-#include <wx/frame.h>
-#include <wx/aui/aui.h>
 #include <wx/grid.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
+#include <wx/frame.h>
+#include <wx/aui/aui.h>
+#include <wx/stattext.h>
+#include <wx/textctrl.h>
+#include <wx/slider.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -37,17 +40,23 @@ class GUIFrame : public wxFrame
 
 	protected:
 		wxStatusBar* statusBar;
-		wxMenuBar* m_menubar2;
+		wxMenuBar* mbMenuBar;
 		wxMenu* m_menu3;
+		wxPanel* pLog;
+		wxGrid* logGrid;
+		wxPanel* pContent;
+		wxFlexGridSizer* fgContentSizer;
+		wxBoxSizer* bContentSizer;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnQuit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		GUIFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Lucinda GUI"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 481,466 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		GUIFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("MainGUI"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 653,590 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 		wxAuiManager m_mgr;
 
 		~GUIFrame();
@@ -55,19 +64,48 @@ class GUIFrame : public wxFrame
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class LogPanel
+/// Class ChannelPanelBase
 ///////////////////////////////////////////////////////////////////////////////
-class LogPanel : public wxPanel
+class ChannelPanelBase : public wxPanel
 {
 	private:
 
 	protected:
-		wxGrid* logGrid;
+		wxBoxSizer* bSizerInternal;
+		wxStaticText* stChannelName;
 
 	public:
 
-		LogPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
-		~LogPanel();
+		ChannelPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 80,501 ), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~ChannelPanelBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class SliderPanelBase
+///////////////////////////////////////////////////////////////////////////////
+class SliderPanelBase : public wxPanel
+{
+	private:
+
+	protected:
+		wxStaticText* stSliderName;
+		wxStaticText* m_staticText7;
+		wxTextCtrl* txtValue;
+		wxStaticText* stMaxValue;
+		wxSlider* slider;
+		wxStaticText* stMinValue;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void OnFocusValue( wxFocusEvent& event ) { event.Skip(); }
+		virtual void OnValueEnter( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSlider( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		SliderPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 80,450 ), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~SliderPanelBase();
 
 };
 

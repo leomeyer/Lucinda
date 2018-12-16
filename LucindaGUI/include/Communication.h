@@ -30,6 +30,8 @@ class Communication
         wxString getNextMessage();
 
         /** Distribute a command to the connected devices. */
+        void send1ByteCommand(uint8_t command, uint8_t data);
+
 
 
         Context* getContext();

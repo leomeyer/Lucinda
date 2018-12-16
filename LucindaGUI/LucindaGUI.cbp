@@ -81,11 +81,7 @@
 		<Unit filename="Arducom/src/master/ArducomMasterSerialWin.cpp" />
 		<Unit filename="GUIFrame.cpp" />
 		<Unit filename="GUIFrame.h" />
-		<Unit filename="LucindaGUIApp.cpp" />
-		<Unit filename="LucindaGUIApp.h" />
-		<Unit filename="LucindaGUIMain.cpp" />
-		<Unit filename="LucindaGUIMain.h" />
-		<Unit filename="WxWizFrame.fbp" />
+		<Unit filename="include/Application.h" />
 		<Unit filename="include/ApplicationController.h" />
 		<Unit filename="include/ArducomThread.h" />
 		<Unit filename="include/Communication.h" />
@@ -93,8 +89,8 @@
 		<Unit filename="include/Context.h" />
 		<Unit filename="include/GlobalDefines.h" />
 		<Unit filename="include/Logger.h" />
+		<Unit filename="include/MainGUIFrame.h" />
 		<Unit filename="include/Processor.h" />
-		<Unit filename="include/atomicops" />
 		<Unit filename="include/atomicops.h" />
 		<Unit filename="include/readerwriterqueue.h">
 			<Option target="&lt;{~None~}&gt;" />
@@ -102,12 +98,14 @@
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="src/Application.cpp" />
 		<Unit filename="src/ApplicationController.cpp" />
 		<Unit filename="src/ArducomThread.cpp" />
 		<Unit filename="src/Communication.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/Context.cpp" />
 		<Unit filename="src/Logger.cpp" />
+		<Unit filename="src/MainGUIFrame.cpp" />
 		<Unit filename="src/Processor.cpp" />
 		<Extensions>
 			<code_completion />

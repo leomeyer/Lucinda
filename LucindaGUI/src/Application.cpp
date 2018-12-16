@@ -65,9 +65,9 @@ bool Application::OnInit()
     }
 
     // initialize application controller
-    appController = new ApplicationController(new Communication(context), frame);
+    appController = new ApplicationController(context, new Communication(context), frame);
     appController->start();
-    frame->setAppController(appController);
+    frame->initialize(appController);
 
     frame->Show();
 

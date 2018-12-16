@@ -5,6 +5,7 @@
 #include <wx/thread.h>
 
 #include "../Arducom/src/master/ArducomMaster.h"
+#include "../Arducom/src/slave/lib/Arducom/Arducom.h"
 
 #include "readerwriterqueue.h"
 
@@ -63,11 +64,14 @@ class ArducomThread : public wxThread
 
         Status getStatus(wxString* message);
 
+        void send1ByteCommand(uint8_t command, uint8_t data);
+
     protected:
         // message types for the message queue
         enum MessageType {
             CONNECT,
             DISCONNECT,
+            SEND_COMMAND,
             TERMINATE
         };
 
@@ -75,6 +79,10 @@ class ArducomThread : public wxThread
 
         public:
             MessageType type;
+            uint8_t command;
+            uint8_t dataLength;
+            uint8_t data[ARDUCOM_BUFFERSIZE];
+
             QueueMessage();
             QueueMessage(const MessageType type);
         };

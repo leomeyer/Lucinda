@@ -106,6 +106,18 @@ wxString Communication::getNextMessage()
     }
 }
 
+void Communication::send1ByteCommand(uint8_t command, uint8_t data)
+{
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send1ByteCommand(command, data);
+    }
+}
+
+
 Context* Communication::getContext()
 {
     return context;

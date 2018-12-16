@@ -17,4 +17,10 @@
 #define APPKEY_NR_OF_DEVICES     "DeviceCount"
 #define APPKEY_DEVICENAME_PREFIX "Device"
 
+
+enum SliderType {
+    SLIDER_UNKNOWN,
+    SLIDER_BRIGHTNESS
+};
+
 #endif // GLOBALDEFINES_H_INCLUDED

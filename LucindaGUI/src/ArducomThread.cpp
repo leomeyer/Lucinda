@@ -14,7 +14,8 @@ ArducomThread::QueueMessage::QueueMessage(const MessageType type) {
     this->type = type;
 }
 
-ArducomThread::ArducomThread(Communication* comm)
+// Joinable: do not automatically delete itself after termination
+ArducomThread::ArducomThread(Communication* comm) : wxThread(wxTHREAD_JOINABLE)
 {
     this->comm = comm;
     arducom = nullptr;
@@ -146,10 +147,20 @@ void ArducomThread::setStatus(Status status, const wxString& message)
     comm->update(this);
 }
 
+void ArducomThread::send1ByteCommand(uint8_t command, uint8_t data)
+{
+    if (IsRunning() && status == ARD_READY) {
+        QueueMessage message(MessageType::SEND_COMMAND);
+        message.command = command;
+        message.dataLength = 1;
+        message.data[0] = data;
+
+        queue.enqueue(message);
+    }
+}
+
 wxThread::ExitCode ArducomThread::Entry()
 {
-    uint8_t buffer[ARDUCOM_BUFFERSIZE];
-    uint8_t size = 0;
     uint8_t destBuffer[ARDUCOM_BUFFERSIZE];
     uint8_t error;
 
@@ -159,11 +170,14 @@ wxThread::ExitCode ArducomThread::Entry()
 
         switch (message.type) {
         case MessageType::CONNECT: {
+            uint8_t buffer[ARDUCOM_BUFFERSIZE];
+            uint8_t size = 0;
             wxString msg("Connecting to ");
             msg.append(params.device);
             setStatus(ARD_CONNECTING, msg);
             try {
-                arducom->execute(params, 0, &(buffer[0]), &size, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
+                // execute version command
+                arducom->execute(params, ARDUCOM_VERSION_COMMAND, &(buffer[0]), &size, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
                 // analyze result
 #ifdef WIN32
                 #pragma pack(1)
@@ -200,6 +214,20 @@ wxThread::ExitCode ArducomThread::Entry()
                 setStatus(ARD_READY, wxString(versionInfo.info));
             } catch (const std::exception& e) {
                 setStatus(ARD_NOT_CONNECTED, arducom->getExceptionMessage(e));
+            }
+            break;
+        }
+        case MessageType::SEND_COMMAND: {
+            if (status == ARD_READY) {
+                wxString msg("Sending data to ");
+                msg.append(params.device);
+                setStatus(ARD_READY, msg);
+                try {
+                    // execute command
+                    arducom->execute(params, message.command, &(message.data[0]), &message.dataLength, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
+                } catch (const std::exception& e) {
+                    setStatus(ARD_ERROR, arducom->getExceptionMessage(e));
+                }
             }
             break;
         }

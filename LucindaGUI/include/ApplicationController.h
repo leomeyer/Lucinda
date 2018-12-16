@@ -2,7 +2,7 @@
 #define APPLICATIONCONTROLLER_H
 
 #include "Communication.h"
-#include "../LucindaGUIMain.h"
+#include "../MainGUIFrame.h"
 
 namespace APP_NAMESPACE {
 
@@ -10,18 +10,20 @@ namespace APP_NAMESPACE {
 class ApplicationController
 {
     public:
-        ApplicationController(Communication* comm, LucindaGUIFrame* frame);
+        ApplicationController(Communication* comm, MainGUIFrame* frame);
         virtual ~ApplicationController();
 
         /** Starts the application logic. */
         void start();
+
+        void shutdown();
 
         // called by the main frame
         void OnUpdateTimer(wxTimerEvent& event);
 
     protected:
         Communication* comm;
-        LucindaGUIFrame* frame;
+        MainGUIFrame* frame;
 
     private:
 };

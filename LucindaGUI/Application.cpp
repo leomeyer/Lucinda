@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      LucindaGUIApp.cpp
+ * Name:      Application.cpp
  * Purpose:   Code for Application Class
  * Author:    Leo Meyer (leo@leomeyer.de)
  * Created:   2018-12-14
@@ -25,13 +25,13 @@
 #include "Communication.h"
 #include "ApplicationController.h"
 
-#include "LucindaGUIApp.h"
+#include "Application.h"
 
 namespace APP_NAMESPACE {
 
-IMPLEMENT_APP(LucindaGUIApp);
+IMPLEMENT_APP(Application);
 
-bool LucindaGUIApp::OnInit()
+bool Application::OnInit()
 {
     wxApp::SetAppName(APP_INTERNAL_NAME);
 
@@ -53,11 +53,11 @@ bool LucindaGUIApp::OnInit()
     context->config->getString("AppTitle", APP_NAME, &appTitle);
 
     // create main frame
-    LucindaGUIFrame* frame = new LucindaGUIFrame(0L);
+    MainGUIFrame* frame = new MainGUIFrame(0L);
     frame->SetIcon(wxICON(aaaa)); // To Set App Icon
     frame->SetTitle(appTitle);
 
-    if (!wxPersistentRegisterAndRestore(frame, "LucindaGUIFrame") )
+    if (!wxPersistentRegisterAndRestore(frame, "MainGUIFrame") )
     {
         // Choose some custom default size for the first run -- or don't do
         // anything at all and let the system use the default initial size.

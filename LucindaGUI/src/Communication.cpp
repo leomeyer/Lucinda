@@ -1,6 +1,8 @@
 #include "Communication.h"
 #include "ArducomThread.h"
 
+#include "Configuration.h"
+
 namespace APP_NAMESPACE {
 
 Communication::Communication(Context* context)
@@ -14,6 +16,8 @@ Communication::~Communication()
 }
 
 ArducomThread* Communication::addThread(const wxString& parameters) {
+    wxCriticalSectionLocker enter(criticalSection);
+
     // initialize an ArducomThread for this device
     ArducomThread* thread = new ArducomThread(this);
     if (thread->setParameters(parameters)) {
@@ -24,9 +28,11 @@ ArducomThread* Communication::addThread(const wxString& parameters) {
         // attempt to connect to the device
         thread->connect();
         return thread;
-    } else
+    } else {
+        delete thread;
         // the device thread could not be added
         return nullptr;
+    }
 }
 
 void Communication::loadFromSettings()
@@ -45,9 +51,31 @@ void Communication::loadFromSettings()
     }
 }
 
-Communication::UpdateMessage::UpdateMessage()
+void Communication::stop()
 {
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // tell each thread to terminate
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->terminate();
+        // wait for termination with timeout
+        int i = 1000;
+        while ((*iter)->IsRunning()) {
+            Sleep(1);   // sleep for a millisecond
+            i--;
+            if (i < 0) break;
+        }
+        if (i < 0)
+            // kill the thread hard
+            (*iter)->Kill();
+        delete *iter;
+    }
+    threads.clear();
 }
+
+
+Communication::UpdateMessage::UpdateMessage() {}
 
 Communication::UpdateMessage::UpdateMessage(ArducomThread* thread)
 {
@@ -76,6 +104,11 @@ wxString Communication::getNextMessage()
     case ArducomThread::Status::ARD_READY: return wxString("Ready: ").append(result);
     case ArducomThread::Status::ARD_ERROR: return wxString("Error: ").append(result);
     }
+}
+
+Context* Communication::getContext()
+{
+    return context;
 }
 
 

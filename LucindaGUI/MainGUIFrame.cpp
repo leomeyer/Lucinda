@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      LucindaGUIMain.cpp
+ * Name:      MainGUIFrame.cpp
  * Purpose:   Code for Application Frame
  * Author:    Leo Meyer (leo@leomeyer.de)
  * Created:   2018-12-14
@@ -17,7 +17,7 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include "LucindaGUIMain.h"
+#include "MainGUIFrame.h"
 #include "ApplicationController.h"
 
 namespace APP_NAMESPACE {
@@ -51,7 +51,7 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 }
 
 
-LucindaGUIFrame::LucindaGUIFrame(wxFrame *frame)
+MainGUIFrame::MainGUIFrame(wxFrame *frame)
     : GUIFrame(frame)
 {
 #if wxUSE_STATUSBAR
@@ -60,40 +60,43 @@ LucindaGUIFrame::LucindaGUIFrame(wxFrame *frame)
 #endif
 
     updateTimer = new wxTimer(this, wxID_ANY);
-	Connect(updateTimer->GetId(), wxEVT_TIMER, wxTimerEventHandler(LucindaGUIFrame::OnUpdateTimer));
+	Connect(updateTimer->GetId(), wxEVT_TIMER, wxTimerEventHandler(MainGUIFrame::OnUpdateTimer));
     updateTimer->Start(10);
 }
 
-LucindaGUIFrame::~LucindaGUIFrame()
+MainGUIFrame::~MainGUIFrame()
 {
 }
-void LucindaGUIFrame::setAppController(ApplicationController* appController)
+void MainGUIFrame::setAppController(ApplicationController* appController)
 {
     this->appController = appController;
 }
 
-void LucindaGUIFrame::setStatusText(const wxString& statusText)
+void MainGUIFrame::setStatusText(const wxString& statusText)
 {
     statusBar->SetStatusText(statusText);
 }
 
-void LucindaGUIFrame::OnClose(wxCloseEvent &event)
+void MainGUIFrame::OnClose(wxCloseEvent &event)
 {
     Destroy();
 }
 
-void LucindaGUIFrame::OnQuit(wxCommandEvent &event)
+void MainGUIFrame::OnQuit(wxCommandEvent &event)
 {
+    updateTimer->Stop();
+    // shut down all dependent threads
+    appController->shutdown();
     Destroy();
 }
 
-void LucindaGUIFrame::OnAbout(wxCommandEvent &event)
+void MainGUIFrame::OnAbout(wxCommandEvent &event)
 {
     wxString msg = wxbuildinfo(long_f);
     wxMessageBox(msg, _("Welcome to..."));
 }
 
-void LucindaGUIFrame::OnUpdateTimer(wxTimerEvent& event)
+void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
 {
     // let application logic update GUI data
     appController->OnUpdateTimer(event);

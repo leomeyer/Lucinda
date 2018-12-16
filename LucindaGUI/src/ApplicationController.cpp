@@ -2,7 +2,7 @@
 
 namespace APP_NAMESPACE {
 
-ApplicationController::ApplicationController(Communication* comm, LucindaGUIFrame* frame)
+ApplicationController::ApplicationController(Communication* comm, MainGUIFrame* frame)
 {
     this->comm = comm;
     this->frame = frame;
@@ -16,6 +16,12 @@ ApplicationController::~ApplicationController()
 void ApplicationController::start()
 {
     comm->loadFromSettings();
+}
+
+void ApplicationController::shutdown()
+{
+    // stop communication
+    comm->stop();
 }
 
 void ApplicationController::OnUpdateTimer(wxTimerEvent& event)

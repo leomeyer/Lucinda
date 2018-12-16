@@ -4,9 +4,11 @@
 #include <wx/wx.h>
 
 #include "GlobalDefines.h"
-#include "Configuration.h"
 
 namespace APP_NAMESPACE {
+
+class Configuration;
+class Logger;
 
 class Context
 {
@@ -15,6 +17,7 @@ class Context
         virtual ~Context();
 
         Configuration* config;
+        Logger* logger;
 
         void initialize(const wxString& configFileName);
 

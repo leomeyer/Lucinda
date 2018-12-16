@@ -1,7 +1,7 @@
 #ifndef GLOBALDEFINES_H_INCLUDED
 #define GLOBALDEFINES_H_INCLUDED
 
-// defines the global application namespace for all (most) classes.
+// defines the global application namespace for most classes.
 #define APP_NAMESPACE   Lucinda
 
 #define APP_INTERNAL_NAME   "LucindaGUI"

@@ -30,10 +30,25 @@ class ArducomThread : public wxThread
             ARD_CONNECTING,
             ARD_ERROR_CONNECTING,
             ARD_READY,
-            ARD_ERROR
+            ARD_DISCONNECTING,
+            ARD_ERROR,
+            ARD_TERMINATED
+        };
+
+        /** Holds information about a successfully connected device. */
+        struct DeviceInfo {
+            wxString name;
+            int uptime;
+            int freeMem;
+            int flags;
+            wxString config;
+
+            wxString toString();
         };
 
         ArducomParameters params;
+
+        DeviceInfo deviceInfo;
 
         ArducomThread(Communication* comm);
         virtual ~ArducomThread();
@@ -42,6 +57,9 @@ class ArducomThread : public wxThread
 
         /** Attempt to connect to the device. */
         void connect();
+
+        /** Attempt to terminate the thread. */
+        void terminate();
 
         Status getStatus(wxString* message);
 
@@ -70,7 +88,7 @@ class ArducomThread : public wxThread
 
         BlockingReaderWriterQueue<QueueMessage> queue;
 
-        void setStatus(Status status, wxString message);
+        void setStatus(Status status, const wxString& message = "");
 
         virtual wxThread::ExitCode Entry();
 

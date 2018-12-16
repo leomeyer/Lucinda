@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      LucindaGUIMain.h
+ * Name:      MainGUIFrame.h
  * Purpose:   Defines Application Frame
  * Author:    Leo Meyer (leo@leomeyer.de)
  * Created:   2018-12-14
@@ -7,8 +7,8 @@
  * License:
  **************************************************************/
 
-#ifndef LUCINDAGUIMAIN_H
-#define LUCINDAGUIMAIN_H
+#ifndef MAINGUIFRAME_H
+#define MAINGUIFRAME_H
 
 #include "GlobalDefines.h"
 #include "GUIFrame.h"
@@ -17,11 +17,11 @@ namespace APP_NAMESPACE {
 
 class ApplicationController;
 
-class LucindaGUIFrame: public GUIFrame
+class MainGUIFrame: public GUIFrame
 {
     public:
-        LucindaGUIFrame(wxFrame *frame);
-        ~LucindaGUIFrame();
+        MainGUIFrame(wxFrame *frame);
+        ~MainGUIFrame();
 
         void setAppController(ApplicationController* appController);
 
@@ -39,4 +39,4 @@ class LucindaGUIFrame: public GUIFrame
 
 }; // namespace
 
-#endif // LUCINDAGUIMAIN_H
+#endif // MAINGUIFRAME_H

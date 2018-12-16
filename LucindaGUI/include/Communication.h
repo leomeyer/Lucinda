@@ -21,11 +21,18 @@ class Communication
 
         void loadFromSettings();
 
+        void stop();
+
         /** Tells the communication class that something has changed about this thread. */
         void update(ArducomThread* thread);
 
         /** Retrieves the next message from the queue if available, else an empty string. */
         wxString getNextMessage();
+
+        /** Distribute a command to the connected devices. */
+
+
+        Context* getContext();
 
     protected:
         class UpdateMessage {
@@ -38,6 +45,8 @@ class Communication
 
         Context* context;
         wxVector<ArducomThread*> threads;
+        // threads are protected using a critical section
+        wxCriticalSection criticalSection;
 
         ReaderWriterQueue<UpdateMessage> queue;
 

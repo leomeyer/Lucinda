@@ -92,6 +92,13 @@
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/Context.h" />
 		<Unit filename="include/GlobalDefines.h" />
+		<Unit filename="include/Logger.h" />
+		<Unit filename="include/Processor.h" />
+		<Unit filename="include/atomicops" />
+		<Unit filename="include/atomicops.h" />
+		<Unit filename="include/readerwriterqueue.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
@@ -100,6 +107,8 @@
 		<Unit filename="src/Communication.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/Context.cpp" />
+		<Unit filename="src/Logger.cpp" />
+		<Unit filename="src/Processor.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

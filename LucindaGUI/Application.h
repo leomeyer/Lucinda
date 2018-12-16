@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      LucindaGUIApp.h
+ * Name:      Application.h
  * Purpose:   Defines Application Class
  * Author:    Leo Meyer (leo@leomeyer.de)
  * Created:   2018-12-14
@@ -7,19 +7,19 @@
  * License:
  **************************************************************/
 
-#ifndef LUCINDAGUIAPP_H
-#define LUCINDAGUIAPP_H
+#ifndef APPPLICATION_H
+#define APPPLICATION_H
 
 #include <wx/app.h>
 
-#include "LucindaGUIMain.h"
+#include "MainGUIFrame.h"
 
 namespace APP_NAMESPACE {
 
 class Context;
 class ApplicationController;
 
-class LucindaGUIApp : public wxApp
+class Application : public wxApp
 {
     public:
         virtual bool OnInit();
@@ -30,4 +30,4 @@ class LucindaGUIApp : public wxApp
 
 }; // namespace
 
-#endif // LUCINDAGUIAPP_H
+#endif // APPPLICATION_H

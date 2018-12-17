@@ -37,6 +37,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	this->SetMenuBar( mbMenuBar );
 
 	pLog = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,80 ), wxTAB_TRAVERSAL );
+	pLog->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
 	pLog->SetMinSize( wxSize( 100,80 ) );
 
 	m_mgr.AddPane( pLog, wxAuiPaneInfo() .Bottom() .Caption( wxT("Log") ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 480,54 ) ).Layer( 1 ) );
@@ -52,20 +53,22 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	logGrid = new wxGrid( pLog, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 
 	// Grid
-	logGrid->CreateGrid( 0, 2 );
+	logGrid->CreateGrid( 0, 3 );
 	logGrid->EnableEditing( false );
 	logGrid->EnableGridLines( true );
 	logGrid->EnableDragGridSize( false );
 	logGrid->SetMargins( 0, 0 );
 
 	// Columns
-	logGrid->SetColSize( 0, 80 );
-	logGrid->SetColSize( 1, 400 );
+	logGrid->SetColSize( 0, 70 );
+	logGrid->SetColSize( 1, 60 );
+	logGrid->SetColSize( 2, 500 );
 	logGrid->EnableDragColMove( false );
 	logGrid->EnableDragColSize( true );
 	logGrid->SetColLabelSize( 20 );
 	logGrid->SetColLabelValue( 0, wxT("Time") );
-	logGrid->SetColLabelValue( 1, wxT("Message") );
+	logGrid->SetColLabelValue( 1, wxT("Priority") );
+	logGrid->SetColLabelValue( 2, wxT("Message") );
 	logGrid->SetColLabelAlignment( wxALIGN_LEFT, wxALIGN_CENTER );
 
 	// Rows
@@ -88,19 +91,12 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pContent = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	m_mgr.AddPane( pContent, wxAuiPaneInfo() .Center() .CaptionVisible( false ).CloseButton( false ).PaneBorder( false ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( 110,110 ) ).DockFixed( true ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ) );
 
-	fgContentSizer = new wxFlexGridSizer( 1, 1, 0, 0 );
-	fgContentSizer->SetFlexibleDirection( wxBOTH );
-	fgContentSizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	bContentSizer = new wxBoxSizer( wxVERTICAL );
+	contentSizer = new wxBoxSizer( wxHORIZONTAL );
 
 
-	fgContentSizer->Add( bContentSizer, 1, wxEXPAND, 5 );
-
-
-	pContent->SetSizer( fgContentSizer );
+	pContent->SetSizer( contentSizer );
 	pContent->Layout();
-	fgContentSizer->Fit( pContent );
+	contentSizer->Fit( pContent );
 
 	m_mgr.Update();
 
@@ -122,16 +118,26 @@ GUIFrame::~GUIFrame()
 
 ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
-	bSizerInternal = new wxBoxSizer( wxVERTICAL );
+	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNSHADOW ) );
+	this->SetMinSize( wxSize( 0,500 ) );
 
-	stChannelName = new wxStaticText( this, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL|wxBORDER_STATIC );
+	channelSizer = new wxBoxSizer( wxVERTICAL );
+
+	stChannelName = new wxStaticText( this, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
 	stChannelName->Wrap( -1 );
-	stChannelName->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+	channelSizer->Add( stChannelName, 0, wxALL|wxEXPAND, 5 );
 
-	bSizerInternal->Add( stChannelName, 5, wxALL|wxEXPAND, 1 );
+	pInternal = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sizerInternal = new wxBoxSizer( wxHORIZONTAL );
 
 
-	this->SetSizer( bSizerInternal );
+	pInternal->SetSizer( sizerInternal );
+	pInternal->Layout();
+	sizerInternal->Fit( pInternal );
+	channelSizer->Add( pInternal, 1, wxEXPAND | wxALL, 5 );
+
+
+	this->SetSizer( channelSizer );
 	this->Layout();
 }
 
@@ -141,8 +147,7 @@ ChannelPanelBase::~ChannelPanelBase()
 
 SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
-	this->SetMinSize( wxSize( 80,450 ) );
-	this->SetMaxSize( wxSize( 80,450 ) );
+	this->SetMinSize( wxSize( 60,450 ) );
 
 	wxBoxSizer* bSizer11;
 	bSizer11 = new wxBoxSizer( wxVERTICAL );
@@ -156,11 +161,11 @@ SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint
 	wxBoxSizer* bSizer12;
 	bSizer12 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_staticText7 = new wxStaticText( this, wxID_ANY, wxT("Val"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText7->Wrap( -1 );
-	m_staticText7->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	stLabel = new wxStaticText( this, wxID_ANY, wxT("Val"), wxDefaultPosition, wxDefaultSize, 0 );
+	stLabel->Wrap( -1 );
+	stLabel->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer12->Add( m_staticText7, 0, wxALL, 5 );
+	bSizer12->Add( stLabel, 0, wxALL, 5 );
 
 	txtValue = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	txtValue->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
@@ -168,7 +173,7 @@ SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint
 	bSizer12->Add( txtValue, 0, wxALL, 2 );
 
 
-	bSizer11->Add( bSizer12, 1, wxEXPAND, 5 );
+	bSizer11->Add( bSizer12, 1, 0, 5 );
 
 	stMaxValue = new wxStaticText( this, wxID_ANY, wxT("100"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
 	stMaxValue->Wrap( -1 );

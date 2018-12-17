@@ -4,27 +4,54 @@
 
 namespace APP_NAMESPACE {
 
-
-SliderPanel::SliderPanel(ChannelPanel* channel, SliderType type, const wxString& name, int min, int max)
-    : SliderPanelBase(channel)
+SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max)
+    : SliderPanelBase(parent)
 {
     this->channel = channel;
     this->type = type;
+    this->min = min;
+    this->max = max;
+    slider->SetMin(min);
+    slider->SetMax(max);
 
     stSliderName->SetLabel(name);
-
-    slider->SetMin(min);
-    stMinValue->SetLabel(std::to_string(min));
-    slider->SetMax(max);
-    stMaxValue->SetLabel(std::to_string(max));
-    slider->SetValue((max - min / 2));
-
-    UpdateControls();
+    slider->SetValue((max - min) / 2);
+    setLabels();
 }
 
 SliderPanel::~SliderPanel()
 {
-    //dtor
+
+}
+
+int SliderPanel::getDeviceValue(int sliderValue)
+{
+    return sliderValue;
+}
+
+wxString SliderPanel::valueToString(const int value)
+{
+    wxString result;
+    result << value;
+    return result;
+}
+
+bool SliderPanel::stringToValue(const wxString& str, int& value)
+{
+    // parse entered value
+    long val;
+    if (str.ToLong(&val)) {
+        value = (int)val;
+        return true;
+    }
+    return false;
+}
+
+void SliderPanel::setLabels()
+{
+    stMinValue->SetLabel(valueToString(min));
+    stMaxValue->SetLabel(valueToString(max));
+    updateControls();
 }
 
 void SliderPanel::OnFocusValue(wxFocusEvent& event)
@@ -32,20 +59,21 @@ void SliderPanel::OnFocusValue(wxFocusEvent& event)
     // select all text
     txtValue->SelectAll();
     event.Skip();
-}
+};
 
 void SliderPanel::OnValueEnter(wxCommandEvent& event)
 {
     // parse entered value
-    long value;
-    if (txtValue->GetValue().ToLong(&value)) {
-        if (value > slider->GetMax())
-            value = slider->GetMax();
-        if (value < slider->GetMin())
-            value = slider->GetMin();
+    int value;
+
+    if (stringToValue(txtValue->GetValue(), value)) {
+        if (value > max)
+            value = max;
+        if (value < min)
+            value = min;
         slider->SetValue(value);
     }
-    UpdateControls();
+    updateControls();
     // select all text
     txtValue->SelectAll();
 
@@ -54,17 +82,16 @@ void SliderPanel::OnValueEnter(wxCommandEvent& event)
 
 void SliderPanel::OnSlider(wxCommandEvent& event)
 {
-    UpdateControls();
+    updateControls();
 
-    channel->OnSliderChange(type, slider->GetValue());
+    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
 }
 
-void SliderPanel::UpdateControls()
+void SliderPanel::updateControls()
 {
-    wxString val;
-    val << slider->GetValue();
-    txtValue->SetValue(val);
+    int value = slider->GetValue();
+    wxString txt = valueToString(value);
+    txtValue->SetValue(txt);
 }
-
 
 }; // namespace

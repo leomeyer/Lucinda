@@ -19,7 +19,7 @@ ArducomThread::ArducomThread(Communication* comm) : wxThread(wxTHREAD_JOINABLE)
 {
     this->comm = comm;
     arducom = nullptr;
-    setStatus(ARD_INACTIVE);
+    status = ARD_INACTIVE;
 }
 
 ArducomThread::~ArducomThread()
@@ -81,7 +81,7 @@ bool ArducomThread::setParameters(const wxString& parameters)
         arducom = new ArducomMaster(transport);
     } catch (const std::exception& e) {
         wxString msg(arducom->getExceptionMessage(e));
-        std::cout << msg << std::endl;
+        comm->getContext()->logger->logError(msg);
         return false;
     }
     return true;
@@ -132,7 +132,7 @@ void ArducomThread::setStatus(Status status, const wxString& message)
     case ARD_NOT_CONNECTED: comm->getContext()->logger->logDebug(msg); break;
     case ARD_CONNECTING:  comm->getContext()->logger->logInfo(msg); break;
     case ARD_ERROR_CONNECTING: comm->getContext()->logger->logError(msg); break;
-    case ARD_READY: comm->getContext()->logger->logInfo(msg); break;
+    case ARD_READY: comm->getContext()->logger->logDebug(msg); break;
     case ARD_DISCONNECTING: comm->getContext()->logger->logInfo(msg); break;
     case ARD_ERROR: comm->getContext()->logger->logError(msg); break;
     case ARD_TERMINATED: comm->getContext()->logger->logDebug(msg); break;
@@ -147,17 +147,174 @@ void ArducomThread::setStatus(Status status, const wxString& message)
     comm->update(this);
 }
 
-void ArducomThread::send1ByteCommand(uint8_t command, uint8_t data)
-{
-    if (IsRunning() && status == ARD_READY) {
-        QueueMessage message(MessageType::SEND_COMMAND);
-        message.command = command;
-        message.dataLength = 1;
-        message.data[0] = data;
+bool ArducomThread::canSend() {
+    return (IsRunning() && status == ARD_READY);
+}
 
-        queue.enqueue(message);
+
+void ArducomThread::send1ByteCommand(uint8_t command, uint8_t data, bool replacable)
+{
+    if (canSend()) {
+        bool replaced = false;
+        if (replacable) {
+            // check queue for the same command up to the next boundary
+            std::vector<QueueMessage> buffer;
+            QueueMessage message;
+            while (queue.try_dequeue(message)) {
+                if (message.isBoundary)
+                    break;
+                // replaceable message?
+                if (message.command == command) {
+                    // replace data
+                    message.data[0] = data;
+                    replaced = true;
+                    break;
+                }
+                // store message in buffer
+                buffer.push_back(message);
+            }
+            // add buffered messages again
+            auto rend = buffer.rend();
+            for (auto iter = buffer.rbegin(); iter != rend; ++iter) {
+                queue.enqueue(*iter);
+            }
+        }
+        if (!replaced) {
+            QueueMessage message(MessageType::SEND_COMMAND);
+            message.command = command;
+            message.dataLength = 1;
+            message.data[0] = data;
+            message.isBoundary = !replacable;
+            queue.enqueue(message);
+        }
     }
 }
+
+void ArducomThread::send2ByteCommand(uint8_t command, uint16_t data, bool replacable)
+{
+    if (canSend()) {
+        bool replaced = false;
+        if (replacable) {
+            // check queue for the same command up to the next boundary
+            std::vector<QueueMessage> buffer;
+            QueueMessage message;
+            while (queue.try_dequeue(message)) {
+                if (message.isBoundary)
+                    break;
+                // replaceable message?
+                if (message.command == command) {
+                    // replace data
+                    message.data[0] = data % 256;
+                    message.data[1] = data / 256;
+                    replaced = true;
+                    break;
+                }
+                // store message in buffer
+                buffer.push_back(message);
+            }
+            // add buffered messages again
+            auto rend = buffer.rend();
+            for (auto iter = buffer.rbegin(); iter != rend; ++iter) {
+                queue.enqueue(*iter);
+            }
+        }
+        if (!replaced) {
+            QueueMessage message(MessageType::SEND_COMMAND);
+            message.command = command;
+            message.dataLength = 2;
+            message.data[0] = data % 256;
+            message.data[1] = data / 256;
+            message.isBoundary = !replacable;
+            queue.enqueue(message);
+        }
+    }
+}
+
+void ArducomThread::send2ByteCommand(uint8_t command, uint8_t data1, uint8_t data2, bool replacable)
+{
+    if (canSend()) {
+        bool replaced = false;
+        if (replacable) {
+            // check queue for the same command up to the next boundary
+            std::vector<QueueMessage> buffer;
+            QueueMessage message;
+            while (queue.try_dequeue(message)) {
+                if (message.isBoundary)
+                    break;
+                // replaceable message?
+                if (message.command == command && message.data[0] == data1) {
+                    // replace data
+                    message.data[1] = data2;
+                    replaced = true;
+                    break;
+                }
+                // store message in buffer
+                buffer.push_back(message);
+            }
+            // add buffered messages again
+            auto rend = buffer.rend();
+            for (auto iter = buffer.rbegin(); iter != rend; ++iter) {
+                queue.enqueue(*iter);
+            }
+        }
+        if (!replaced) {
+            QueueMessage message(MessageType::SEND_COMMAND);
+            message.command = command;
+            message.dataLength = 2;
+            message.data[0] = data1;
+            message.data[1] = data2;
+            message.isBoundary = !replacable;
+            queue.enqueue(message);
+        }
+    }
+}
+
+void ArducomThread::send3ByteCommand(uint8_t command, uint8_t data1, uint16_t data2, bool replacable)
+{
+    if (canSend()) {
+        bool replaced = false;
+        if (replacable) {
+            // check queue for the same command up to the next boundary
+            std::vector<QueueMessage> buffer;
+            QueueMessage message;
+            while (queue.try_dequeue(message)) {
+                if (message.isBoundary)
+                    break;
+                // replaceable message?
+                if (message.command == command && message.data[0] == data1) {
+                    // replace data
+                    message.data[1] = data2 % 256;
+                    message.data[2] = data2 / 256;
+                    replaced = true;
+                    break;
+                }
+                // store message in buffer
+                buffer.push_back(message);
+            }
+            // add buffered messages again
+            auto rend = buffer.rend();
+            for (auto iter = buffer.rbegin(); iter != rend; ++iter) {
+                queue.enqueue(*iter);
+            }
+        }
+        if (!replaced) {
+            QueueMessage message(MessageType::SEND_COMMAND);
+            message.command = command;
+            message.dataLength = 3;
+            message.data[0] = data1;
+            message.data[1] = data2 % 256;
+            message.data[2] = data2 / 256;
+            message.isBoundary = !replacable;
+            queue.enqueue(message);
+        }
+    }
+}
+
+void ArducomThread::sendMultiByteCommand(uint8_t command, uint16_t data)
+{
+
+}
+
 
 wxThread::ExitCode ArducomThread::Entry()
 {
@@ -170,6 +327,9 @@ wxThread::ExitCode ArducomThread::Entry()
 
         switch (message.type) {
         case MessageType::CONNECT: {
+            // clear the queue
+            while (queue.pop());
+
             uint8_t buffer[ARDUCOM_BUFFERSIZE];
             uint8_t size = 0;
             wxString msg("Connecting to ");

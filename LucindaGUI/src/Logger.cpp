@@ -16,22 +16,22 @@ Logger::~Logger()
 
 void Logger::logDebug(const wxString& msg)
 {
-    logMessage(wxString("DEBUG: ") + msg, LOG_DEBUG);
+    logMessage(msg, LOG_DEBUG);
 }
 
 void Logger::logInfo(const wxString& msg)
 {
-    logMessage(wxString("INFO: ") + msg, LOG_INFO);
+    logMessage(msg, LOG_INFO);
 }
 
 void Logger::logWarning(const wxString& msg)
 {
-    logMessage(wxString("WARNING: ") + msg, LOG_WARNING);
+    logMessage(msg, LOG_WARNING);
 }
 
 void Logger::logError(const wxString& msg)
 {
-    logMessage(wxString("ERROR: ") + msg, LOG_ERROR);
+    logMessage(msg, LOG_ERROR);
 }
 
 void Logger::logMessage(const wxString& msg, LogPriority priority)

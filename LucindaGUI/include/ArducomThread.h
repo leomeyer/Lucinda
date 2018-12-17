@@ -64,7 +64,19 @@ class ArducomThread : public wxThread
 
         Status getStatus(wxString* message);
 
-        void send1ByteCommand(uint8_t command, uint8_t data);
+        /** Send a command to the connected device. */
+        void send1ByteCommand(uint8_t command, uint8_t data, bool replacable);
+
+        /** Send a command to the connected device. */
+        void send2ByteCommand(uint8_t command, uint16_t data, bool replacable);
+
+        void send2ByteCommand(uint8_t command, uint8_t data1, uint8_t data2, bool replacable);
+
+        void send3ByteCommand(uint8_t command, uint8_t data1, uint16_t data2, bool replacable);
+
+        /** Send a command to the connected device. */
+        void sendMultiByteCommand(uint8_t command, uint16_t data);
+
 
     protected:
         // message types for the message queue
@@ -82,6 +94,7 @@ class ArducomThread : public wxThread
             uint8_t command;
             uint8_t dataLength;
             uint8_t data[ARDUCOM_BUFFERSIZE];
+            bool isBoundary;
 
             QueueMessage();
             QueueMessage(const MessageType type);
@@ -95,6 +108,8 @@ class ArducomThread : public wxThread
         wxString statusMessage;
 
         BlockingReaderWriterQueue<QueueMessage> queue;
+
+        bool canSend();
 
         void setStatus(Status status, const wxString& message = "");
 

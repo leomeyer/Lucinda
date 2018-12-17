@@ -2,6 +2,10 @@
 #include "ArducomThread.h"
 
 #include "Configuration.h"
+#include "Logger.h"
+
+// include for Arducom command numbers
+#include "../../commands.h"
 
 namespace APP_NAMESPACE {
 
@@ -37,6 +41,10 @@ ArducomThread* Communication::addThread(const wxString& parameters) {
 
 void Communication::loadFromSettings()
 {
+    wxString msg = "Loading configuration from: ";
+    msg << context->config->getOrigin();
+    context->logger->logDebug(msg);
+
     long nrOfDevices = context->config->getLong(APPKEY_NR_OF_DEVICES, 0);
 
     for (long i = 0; i < nrOfDevices; i++) {
@@ -45,6 +53,10 @@ void Communication::loadFromSettings()
         deviceKey.append(wxString::Format(wxT("%d"), i));
         wxString parameters;
         if (context->config->getString(deviceKey, "", &parameters)) {
+            msg = "Initializing ";
+            msg << deviceKey << ": " << parameters;
+            context->logger->logDebug(msg);
+
             //ArducomThread* thread =
             addThread(parameters);
         }
@@ -106,22 +118,117 @@ wxString Communication::getNextMessage()
     }
 }
 
-void Communication::send1ByteCommand(uint8_t command, uint8_t data)
+Context* Communication::getContext()
+{
+    return context;
+}
+
+// device commands
+void Communication::defineChannel()
+{
+
+}
+
+void Communication::setGlobalSpeed(uint8_t speed)
 {
     wxCriticalSectionLocker enter(criticalSection);
 
     // enqueue command in each thread
     auto end = threads.end();
     for (auto iter = threads.begin(); iter != end; ++iter) {
-        (*iter)->send1ByteCommand(command, data);
+        (*iter)->send1ByteCommand(ARDUCOM_CMD_SET_GLOBAL_SPEED, speed, true);
     }
 }
 
-
-Context* Communication::getContext()
+void Communication::setGlobalBrightness(uint8_t brightness)
 {
-    return context;
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send1ByteCommand(ARDUCOM_CMD_SET_GLOBAL_BRIGHTNESS, brightness, true);
+    }
 }
+
+void Communication::enableChannel(uint8_t channel)
+{
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send1ByteCommand(ARDUCOM_CMD_ENABLE_CHANNEL, channel, false);
+    }
+}
+
+void Communication::disableChannel(uint8_t channel)
+{
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send1ByteCommand(ARDUCOM_CMD_DISABLE_CHANNEL, channel, false);
+    }
+}
+
+void Communication::setChannelPeriod(uint8_t channel, uint16_t period)
+{
+   wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send3ByteCommand(ARDUCOM_CMD_SET_CHANNEL_PERIOD, channel, period, true);
+    }
+}
+
+void Communication::setChannelPhaseShift(uint8_t channel, uint16_t phaseshift)
+{
+   wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send3ByteCommand(ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT, channel, phaseshift, true);
+    }
+}
+
+void Communication::setChannelOffset(uint8_t channel, uint8_t offset)
+{
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send2ByteCommand(ARDUCOM_CMD_SET_CHANNEL_OFFSET, channel, offset, true);
+    }
+}
+
+void Communication::setChannelBrightness(uint8_t channel, uint8_t brightness)
+{
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send2ByteCommand(ARDUCOM_CMD_SET_CHANNEL_BRIGHTNESS, channel, brightness, true);
+    }
+}
+
+void Communication::setChannelDutyCycle(uint8_t channel, uint8_t dutycycle)
+{
+    wxCriticalSectionLocker enter(criticalSection);
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->send2ByteCommand(ARDUCOM_CMD_SET_CHANNEL_DUTYCYCLE, channel, dutycycle, true);
+    }
+
+}
+
 
 
 }; // namespace

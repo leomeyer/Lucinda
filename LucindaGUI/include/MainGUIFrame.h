@@ -33,6 +33,7 @@ class MainGUIFrame: public GUIFrame
     private:
         ApplicationController* appController;
         wxTimer* updateTimer;
+        Logger::LogPriority minimumLogPriority;
 
         virtual void OnClose(wxCloseEvent& event);
         virtual void OnQuit(wxCommandEvent& event);

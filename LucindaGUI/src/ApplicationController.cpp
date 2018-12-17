@@ -4,9 +4,6 @@
 #include "Processor.h"
 #include "Logger.h"
 
-// include for Arducom command numbers
-#include "../../commands.h"
-
 namespace APP_NAMESPACE {
 
 ApplicationController::ApplicationController(Context* context, Communication* comm, MainGUIFrame* frame)
@@ -23,6 +20,8 @@ ApplicationController::~ApplicationController()
 
 void ApplicationController::start()
 {
+    context->logger->logInfo("Application startup.");
+
     lastLogQuery = wxDateTime::UNow();
 
     comm->loadFromSettings();
@@ -67,19 +66,45 @@ void ApplicationController::OnUpdateTimer(wxTimerEvent& event)
 
 void ApplicationController::setGlobalValue(SliderType type, int value)
 {
-    uint8_t commandNumber;
-    uint16_t commandValue = (uint16_t)value;
-
     switch (type) {
         case SLIDER_BRIGHTNESS: {
-            commandNumber = ARDUCOM_CMD_SET_GLOBAL_BRIGHTNESS;
-            comm->send1ByteCommand(commandNumber, commandValue);
+            comm->setGlobalBrightness((uint8_t)value);
             break;
         }
-        default: context->logger->logError("Type of value not recognized"); return;
+        case SLIDER_GLOBAL_SPEED: {
+            comm->setGlobalSpeed((uint8_t)value);
+            break;
+        }
+        default: context->logger->logError("Type of slider not recognized"); return;
     }
-
-    // send
 }
+
+void ApplicationController::setChannelValue(uint8_t channel, SliderType type, int value)
+{
+    switch (type) {
+        case SLIDER_PERIOD: {
+            comm->setChannelPeriod(channel, (uint16_t)value);
+            break;
+        }
+        case SLIDER_PHASESHIFT: {
+            comm->setChannelPhaseShift(channel, (uint16_t)value);
+            break;
+        }
+        case SLIDER_BRIGHTNESS: {
+            comm->setChannelBrightness(channel, (uint8_t)value);
+            break;
+        }
+        case SLIDER_OFFSET: {
+            comm->setChannelOffset(channel, (uint8_t)value);
+            break;
+        }
+        case SLIDER_DUTYCYCLE: {
+            comm->setChannelDutyCycle(channel, (uint8_t)value);
+            break;
+        }
+        default: context->logger->logError("Type of slider not recognized"); return;
+    }
+}
+
 
 }; // namespace

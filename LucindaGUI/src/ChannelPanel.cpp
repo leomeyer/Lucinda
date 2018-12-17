@@ -1,6 +1,8 @@
 #include "ChannelPanel.h"
 
 #include "SliderPanel.h"
+#include "BrightnessSlider.h"
+#include "FrequencySlider.h"
 
 #include "Processor.h"
 
@@ -11,6 +13,7 @@ ChannelPanel::ChannelPanel(wxWindow* parent, Processor* processor, const wxStrin
 {
     this->processor = processor;
     this->channel = number;
+    sliderCount = 0;
 
     wxString cName = name;
     cName << " (Channel " << number << ")";
@@ -24,11 +27,27 @@ ChannelPanel::~ChannelPanel()
 
 void ChannelPanel::addSlider(const wxString& name, SliderType type)
 {
-    int min = 0;
-    int max = 255;
+    // construct slider depending on type
+    SliderPanelBase* slider;
+    switch (type) {
+        case SLIDER_BRIGHTNESS: slider = new BrightnessSlider(pInternal, this, name); break;
+        case SLIDER_GLOBAL_SPEED: slider = new SliderPanel(pInternal, this, SLIDER_GLOBAL_SPEED, name, 0, GLOBAL_SPEED_MAX); break;
+        case SLIDER_PERIOD: slider = new FrequencySlider(pInternal, this, SLIDER_PERIOD, name, 0, CHANNEL_PERIOD_MAX); break;
+        case SLIDER_PHASESHIFT: slider = new SliderPanel(pInternal, this, SLIDER_PHASESHIFT, name, 0, CHANNEL_PERIOD_MAX); break;
+        case SLIDER_OFFSET: slider = new SliderPanel(pInternal, this, SLIDER_OFFSET, name, 0, 255); break;
+        case SLIDER_DUTYCYCLE: slider = new SliderPanel(pInternal, this, SLIDER_DUTYCYCLE, name, 0, 255); break;
+        default: return;
+    }
 
-    SliderPanel* slider = new SliderPanel(this, type, name, min, max);
-    bSizerInternal->Add(slider, 1, wxALL|wxEXPAND, 1);
+    sizerInternal->Add(slider, 0, wxALL, 1);
+
+    sliderCount++;
+    wxSize cSize = GetClientSize();
+    wxSize pSize = slider->GetMinSize();
+    SetClientSize(wxSize(cSize.x + pSize.x, cSize.y));
+    SetMinSize(wxSize(sliderCount * pSize.x + 20, cSize.y));
+
+    channelSizer->Fit(pInternal);
 }
 
 void ChannelPanel::OnSliderChange(SliderType type, int value)

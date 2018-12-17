@@ -79,18 +79,26 @@
 		<Unit filename="Arducom/src/master/ArducomMaster.h" />
 		<Unit filename="Arducom/src/master/ArducomMasterSerial.h" />
 		<Unit filename="Arducom/src/master/ArducomMasterSerialWin.cpp" />
+		<Unit filename="Arducom/src/slave/lib/Arducom/Arducom.h" />
 		<Unit filename="GUIFrame.cpp" />
 		<Unit filename="GUIFrame.h" />
 		<Unit filename="include/Application.h" />
 		<Unit filename="include/ApplicationController.h" />
 		<Unit filename="include/ArducomThread.h" />
+		<Unit filename="include/BrightnessSlider.h" />
+		<Unit filename="include/ChannelPanel.h" />
 		<Unit filename="include/Communication.h" />
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/Context.h" />
+		<Unit filename="include/FrequencySlider.h" />
+		<Unit filename="include/GlobalChannelPanel.h" />
 		<Unit filename="include/GlobalDefines.h" />
+		<Unit filename="include/IDeviceCommands.h" />
 		<Unit filename="include/Logger.h" />
 		<Unit filename="include/MainGUIFrame.h" />
 		<Unit filename="include/Processor.h" />
+		<Unit filename="include/RegularChannelPanel.h" />
+		<Unit filename="include/SliderPanel.h" />
 		<Unit filename="include/atomicops.h" />
 		<Unit filename="include/readerwriterqueue.h">
 			<Option target="&lt;{~None~}&gt;" />
@@ -101,12 +109,18 @@
 		<Unit filename="src/Application.cpp" />
 		<Unit filename="src/ApplicationController.cpp" />
 		<Unit filename="src/ArducomThread.cpp" />
+		<Unit filename="src/BrightnessSlider.cpp" />
+		<Unit filename="src/ChannelPanel.cpp" />
 		<Unit filename="src/Communication.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/Context.cpp" />
+		<Unit filename="src/FrequencySlider.cpp" />
+		<Unit filename="src/GlobalChannelPanel.cpp" />
 		<Unit filename="src/Logger.cpp" />
 		<Unit filename="src/MainGUIFrame.cpp" />
 		<Unit filename="src/Processor.cpp" />
+		<Unit filename="src/RegularChannelPanel.cpp" />
+		<Unit filename="src/SliderPanel.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

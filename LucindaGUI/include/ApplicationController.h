@@ -30,9 +30,9 @@ class ApplicationController
 
         Context* getContext();
 
-        // Communication methods
-
         void setGlobalValue(SliderType type, int value);
+
+        void setChannelValue(uint8_t channel, SliderType type, int value);
 
     protected:
         Context* context;

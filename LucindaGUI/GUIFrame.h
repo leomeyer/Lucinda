@@ -45,8 +45,7 @@ class GUIFrame : public wxFrame
 		wxPanel* pLog;
 		wxGrid* logGrid;
 		wxPanel* pContent;
-		wxFlexGridSizer* fgContentSizer;
-		wxBoxSizer* bContentSizer;
+		wxBoxSizer* contentSizer;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
@@ -71,12 +70,14 @@ class ChannelPanelBase : public wxPanel
 	private:
 
 	protected:
-		wxBoxSizer* bSizerInternal;
+		wxBoxSizer* channelSizer;
 		wxStaticText* stChannelName;
+		wxPanel* pInternal;
+		wxBoxSizer* sizerInternal;
 
 	public:
 
-		ChannelPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 80,501 ), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		ChannelPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 100,500 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 		~ChannelPanelBase();
 
 };
@@ -90,7 +91,7 @@ class SliderPanelBase : public wxPanel
 
 	protected:
 		wxStaticText* stSliderName;
-		wxStaticText* m_staticText7;
+		wxStaticText* stLabel;
 		wxTextCtrl* txtValue;
 		wxStaticText* stMaxValue;
 		wxSlider* slider;
@@ -104,7 +105,7 @@ class SliderPanelBase : public wxPanel
 
 	public:
 
-		SliderPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 80,450 ), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		SliderPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 60,-1 ), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 		~SliderPanelBase();
 
 };

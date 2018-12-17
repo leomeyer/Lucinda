@@ -6,6 +6,9 @@ Configuration::Configuration(const wxString& configFilename)
 {
     config = new wxFileConfig(APP_NAME, APP_VENDOR, configFilename, APP_CONFIG_GLOBAL);
     wxConfigBase::Set(config);
+
+    origin = configFilename;
+    origin << "/" << APP_CONFIG_GLOBAL;
 }
 
 Configuration::~Configuration()
@@ -13,6 +16,11 @@ Configuration::~Configuration()
     wxConfigBase::Set(NULL);
     // changes will be written back automatically
     // delete config;
+}
+
+const wxString& Configuration::getOrigin()
+{
+    return origin;
 }
 
 bool Configuration::getString(const wxString& key, const wxString& defaultVal, wxString* result)

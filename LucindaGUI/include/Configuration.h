@@ -13,6 +13,8 @@ class Configuration
         Configuration(const wxString& configFilename);
         virtual ~Configuration();
 
+        const wxString& getOrigin();
+
         /** Reads a string from the main group (APPSETTING_MAINGROUP). */
         bool getString(const wxString& key, const wxString& defaultVal, wxString* result);
 
@@ -27,6 +29,7 @@ class Configuration
 
     protected:
         wxFileConfig* config;
+        wxString origin;
 
     private:
 };

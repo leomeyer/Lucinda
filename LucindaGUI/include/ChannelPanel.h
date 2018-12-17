@@ -22,6 +22,7 @@ class ChannelPanel : public ChannelPanelBase
     protected:
         Processor* processor;
         int channel;
+        int sliderCount;
 
     private:
 };

@@ -4,6 +4,7 @@
 #include <wx/vector.h>
 
 #include "Context.h"
+#include "IDeviceCommands.h"
 
 #include "readerwriterqueue.h"
 
@@ -13,7 +14,7 @@ using namespace moodycamel;
 
 class ArducomThread;
 
-class Communication
+class Communication: IDeviceCommands
 {
     public:
         Communication(Context* context);
@@ -29,12 +30,28 @@ class Communication
         /** Retrieves the next message from the queue if available, else an empty string. */
         wxString getNextMessage();
 
-        /** Distribute a command to the connected devices. */
-        void send1ByteCommand(uint8_t command, uint8_t data);
-
-
-
         Context* getContext();
+
+        // Implementations of device commands
+        virtual void defineChannel();
+
+        virtual void setGlobalSpeed(uint8_t speed);
+
+        virtual void setGlobalBrightness(uint8_t brightness);
+
+        virtual void enableChannel(uint8_t channel);
+
+        virtual void disableChannel(uint8_t channel);
+
+        virtual void setChannelPeriod(uint8_t channel, uint16_t period);
+
+        virtual void setChannelPhaseShift(uint8_t channel, uint16_t phaseshift);
+
+        virtual void setChannelOffset(uint8_t channel, uint8_t offset);
+
+        virtual void setChannelBrightness(uint8_t channel, uint8_t brightness);
+
+        virtual void setChannelDutyCycle(uint8_t channel, uint8_t dutycycle);
 
     protected:
         class UpdateMessage {

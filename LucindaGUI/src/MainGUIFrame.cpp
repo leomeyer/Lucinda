@@ -20,6 +20,7 @@
 #include "MainGUIFrame.h"
 #include "ChannelPanel.h"
 #include "GlobalChannelPanel.h"
+#include "RegularChannelPanel.h"
 
 #include "ApplicationController.h"
 
@@ -57,11 +58,13 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 MainGUIFrame::MainGUIFrame(wxFrame *frame)
     : GUIFrame(frame)
 {
+    minimumLogPriority = Logger::LogPriority::LOG_DEBUG;
 }
 
 MainGUIFrame::~MainGUIFrame()
 {
 }
+
 void MainGUIFrame::initialize(ApplicationController* appController)
 {
     this->appController = appController;
@@ -72,7 +75,14 @@ void MainGUIFrame::initialize(ApplicationController* appController)
 
     // create GUI elements
     GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pContent, appController->getProcessor());
-    bContentSizer->Add(globalPanel, 0, wxALL|wxEXPAND, 5);
+    contentSizer->Add(globalPanel, 0, wxALL, 5);
+
+    RegularChannelPanel* regPanel = new RegularChannelPanel(pContent, appController->getProcessor(), 1);
+    contentSizer->Add(regPanel, 0, wxALL, 5);
+
+    regPanel = new RegularChannelPanel(pContent, appController->getProcessor(), 2);
+    contentSizer->Add(regPanel, 0, wxALL, 5);
+
 
     /*
     // create GUI elements
@@ -83,11 +93,31 @@ void MainGUIFrame::initialize(ApplicationController* appController)
 }
 
 void MainGUIFrame::insertLogMessage(const Logger::LogMessage& message) {
+    // filter by priority
+    if (message.priority < minimumLogPriority)
+        return;
+
     if (logGrid->InsertRows()) {
         wxString sTime = message.datetime.FormatISOTime();
         sTime << "." << message.datetime.GetMillisecond();
         logGrid->SetCellValue(0, 0, sTime);
-        logGrid->SetCellValue(0, 1, message.text);
+        switch (message.priority) {
+        case Logger::LogPriority::LOG_DEBUG:
+            logGrid->SetCellValue(0, 1, "DEBUG");
+            break;
+        case Logger::LogPriority::LOG_INFO:
+            logGrid->SetCellValue(0, 1, "INFO");
+            break;
+        case Logger::LogPriority::LOG_WARNING:
+            logGrid->SetCellValue(0, 1, "WARNING");
+            logGrid->SetCellBackgroundColour(0, 1, *wxYELLOW);
+            break;
+        case Logger::LogPriority::LOG_ERROR:
+            logGrid->SetCellValue(0, 1, "ERROR");
+            logGrid->SetCellBackgroundColour(0, 1, *wxRED);
+            break;
+        }
+        logGrid->SetCellValue(0, 2, message.text);
     }
 }
 

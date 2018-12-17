@@ -25,10 +25,12 @@ void Processor::OnValueChange(int channel, SliderType type, int value)
     }
     msg << " changed to: ";
     msg << value;
-    controller->getContext()->logger->logDebug(msg);
+    // controller->getContext()->logger->logDebug(msg);
 
     if (channel == -1) {
         controller->setGlobalValue(type, value);
+    } else {
+        controller->setChannelValue(channel, type, value);
     }
 }
 

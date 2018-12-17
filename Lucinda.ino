@@ -315,7 +315,7 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
 // This command returns the configuration of the Lucinda setup.
 class ArducomGetConfig: public ArducomCommand {
 public:
-  ArducomGetConfig() : ArducomCommand(ARDUCOM_CMD_GET_CONFIG, 0) {}   // this command expects zero parameters
+  ArducomGetConfig() : ArducomCommand(ARDUCOM_CMD_GET_CONFIG, 0) {}   // this command expects zero parameter bytes
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     const char* configStr = "Cl";
@@ -423,9 +423,9 @@ public:
 };
 
 // This command sets the global speed of the channels in ticks. One tick corresponds to one millisecond.
-class ArducomSetSpeed: public ArducomCommand {
+class ArducomSetGlobalSpeed: public ArducomCommand {
 public:
-  ArducomSetSpeed() : ArducomCommand(ARDUCOM_CMD_SET_SPEED, 1) {}   // this command expects one parameter
+  ArducomSetGlobalSpeed() : ArducomCommand(ARDUCOM_CMD_SET_GLOBAL_SPEED, 1) {}   // this command expects one parameter byte
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     // speed increased after processing has been disabled?
@@ -448,7 +448,7 @@ public:
 // This command sets the global brightness.
 class ArducomSetGlobalBrightness: public ArducomCommand {
 public:
-  ArducomSetGlobalBrightness() : ArducomCommand(ARDUCOM_CMD_SET_GLOBAL_BRIGHTNESS, 1) {}   // this command expects one parameter
+  ArducomSetGlobalBrightness() : ArducomCommand(ARDUCOM_CMD_SET_GLOBAL_BRIGHTNESS, 1) {}   // this command expects one parameter byte
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     global_brightness = dataBuffer[0];
@@ -460,7 +460,7 @@ public:
 // This command enables a channel.
 class ArducomEnableChannel : public ArducomCommand {
 public:
-  ArducomEnableChannel() : ArducomCommand(ARDUCOM_CMD_ENABLE_CHANNEL, 1) {}   // this command expects one parameter
+  ArducomEnableChannel() : ArducomCommand(ARDUCOM_CMD_ENABLE_CHANNEL, 1) {}   // this command expects one parameter byte
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -484,7 +484,7 @@ public:
 // This command disables a channel.
 class ArducomDisableChannel : public ArducomCommand {
 public:
-  ArducomDisableChannel() : ArducomCommand(ARDUCOM_CMD_DISABLE_CHANNEL, 1) {}   // this command expects one parameter
+  ArducomDisableChannel() : ArducomCommand(ARDUCOM_CMD_DISABLE_CHANNEL, 1) {}   // this command expects one parameter byte
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -500,10 +500,54 @@ public:
   }
 };
 
-// This command sets the offset (lowest brightness) of a channel.
-class ArducomSetOffset: public ArducomCommand {
+// This command sets the period (frequency) of a channel.
+class ArducomSetChannelPeriod: public ArducomCommand {
 public:
-  ArducomSetOffset() : ArducomCommand(ARDUCOM_CMD_SET_OFFSET, 2) {}   // this command expects two parameters
+  ArducomSetChannelPeriod() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_PERIOD, 3) {}   // this command expects three parameter bytes
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    noInterrupts();
+    channels[channelNo].period = dataBuffer[1] + dataBuffer[2] * 256;
+    channels[channelNo].phaseshift %= channels[channelNo].period;
+    interrupts();
+    channel_buffers[channelNo].period = dataBuffer[1] + dataBuffer[2] * 256;
+    channel_buffers[channelNo].phaseshift %= channel_buffers[channelNo].period;
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the phase shift of a channel.
+class ArducomSetChannelPhaseShift: public ArducomCommand {
+public:
+  ArducomSetChannelPhaseShift() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT, 3) {}   // this command expects three parameter bytes
+  
+  int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
+    uint8_t channelNo = dataBuffer[0];
+    if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
+      *errorInfo = LUCINDA_MAXCHANNELS - 1;
+      return ARDUCOM_LIMIT_EXCEEDED;
+    }
+    // modify channel directly
+    noInterrupts();
+    channels[channelNo].phaseshift = (dataBuffer[1] + dataBuffer[2] * 256) % channels[channelNo].period;
+    interrupts();
+    channel_buffers[channelNo].phaseshift = (dataBuffer[1] + dataBuffer[2] * 256) % channel_buffers[channelNo].period;
+    *dataSize = 0;
+    return ARDUCOM_OK;
+  }
+};
+
+// This command sets the offset (lowest brightness) of a channel.
+class ArducomSetChannelOffset: public ArducomCommand {
+public:
+  ArducomSetChannelOffset() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_OFFSET, 2) {}   // this command expects two parameters
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -520,9 +564,9 @@ public:
 };
 
 // This command sets the brightness of a channel.
-class ArducomSetBrightness: public ArducomCommand {
+class ArducomSetChannelBrightness: public ArducomCommand {
 public:
-  ArducomSetBrightness() : ArducomCommand(ARDUCOM_CMD_SET_BRIGHTNESS, 2) {}   // this command expects two parameters
+  ArducomSetChannelBrightness() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_BRIGHTNESS, 2) {}   // this command expects two parameters
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -539,9 +583,9 @@ public:
 };
 
 // This command sets the duty cycle of a channel.
-class ArducomSetDutyCycle: public ArducomCommand {
+class ArducomSetChannelDutyCycle: public ArducomCommand {
 public:
-  ArducomSetDutyCycle() : ArducomCommand(ARDUCOM_CMD_SET_DUTYCYCLE, 2) {}   // this command expects two parameters
+  ArducomSetChannelDutyCycle() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_DUTYCYCLE, 2) {}   // this command expects two parameters
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -634,13 +678,15 @@ void setup()
   addCommand(new ArducomVersionCommand(APP_NAME));
   addCommand(new ArducomGetConfig());
   addCommand(new ArducomDefineChannel());
-  addCommand(new ArducomSetSpeed());
+  addCommand(new ArducomSetGlobalSpeed());
   addCommand(new ArducomSetGlobalBrightness());
   addCommand(new ArducomEnableChannel());
   addCommand(new ArducomDisableChannel());
-  addCommand(new ArducomSetOffset());
-  addCommand(new ArducomSetBrightness());
-  addCommand(new ArducomSetDutyCycle());
+  addCommand(new ArducomSetChannelPeriod());
+  addCommand(new ArducomSetChannelPhaseShift());
+  addCommand(new ArducomSetChannelOffset());
+  addCommand(new ArducomSetChannelBrightness());
+  addCommand(new ArducomSetChannelDutyCycle());
 
 #ifdef LUCINDA_DEBUG
   Serial.println(F("Setup complete."));
@@ -652,13 +698,14 @@ void setup()
   channel_buffers[0].period = WAVETABLE_SIZE;
   channel_buffers[0].enabled = 0;
   channel_buffers[0].dutycycle = 127;
-
-#define TESTSPEED / 11
+/*
+#define TESTSPEED / 2
   for (int i = 1; i < LUCINDA_MAXCHANNELS; i++) {
     channel_buffers[i].period = WAVETABLE_SIZE TESTSPEED;
     channel_buffers[i].bitmask = 1 << (i - 1);
     channel_buffers[i].enabled = 1;
-    channel_buffers[i].brightness = 255;
+    channel_buffers[i].brightness = 127;
+    channel_buffers[i].offset = 50;
     channel_buffers[i].dutycycle = 127;
     channel_buffers[i].phaseshift = ((i - 1) * WAVETABLE_SIZE TESTSPEED / LUCINDA_MAXCHANNELS);
     channel_buffers[i].wavetable = &WAVE_SINE;
@@ -666,6 +713,24 @@ void setup()
     channel_buffers[i].macrocycle_count = 3;
     channel_buffers[i].macrocycle_shift = i * 2;    
   } 
+*/    
+    channel_buffers[1].period = WAVETABLE_SIZE;
+    channel_buffers[1].bitmask = 1 | 4 | 16 | 64;
+    channel_buffers[1].enabled = 1;
+    channel_buffers[1].brightness = 127;
+    channel_buffers[1].offset = 0;
+    channel_buffers[1].dutycycle = 127;
+    channel_buffers[1].phaseshift = 0;
+    channel_buffers[1].wavetable = &WAVE_SINE;
+
+    channel_buffers[2].period = WAVETABLE_SIZE;
+    channel_buffers[2].bitmask = 2 | 8 | 32 | 128;
+    channel_buffers[2].enabled = 1;
+    channel_buffers[2].brightness = 127;
+    channel_buffers[2].offset = 0;
+    channel_buffers[2].dutycycle = 127;
+    channel_buffers[2].phaseshift = WAVETABLE_SIZE / 2;
+    channel_buffers[2].wavetable = &WAVE_SINE;
 
 //    channel_buffers[1].enabled = 1;
 //    channel_buffers[6].enabled = 1;

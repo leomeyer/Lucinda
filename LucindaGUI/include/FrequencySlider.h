@@ -10,10 +10,13 @@ namespace APP_NAMESPACE {
 class FrequencySlider : public SliderPanel
 {
     public:
-        FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max);
+        FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax);
         virtual ~FrequencySlider();
 
     protected:
+
+        int deviceMax;
+
         virtual int getDeviceValue(int sliderValue) override;
 
         virtual wxString valueToString(const int value) override;

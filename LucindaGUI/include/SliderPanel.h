@@ -33,6 +33,7 @@ class SliderPanel : public SliderPanelBase
    		void updateControls();
 
     private:
+        virtual void OnValCharHook(wxKeyEvent& event);
 		virtual void OnFocusValue( wxFocusEvent& event );
         virtual void OnValueEnter( wxCommandEvent& event );     // enter key
    		virtual void OnSlider( wxCommandEvent& event );

@@ -22,10 +22,11 @@ void Processor::OnValueChange(int channel, SliderType type, int value)
     msg << " slider ";
     switch (type) {
     case SLIDER_BRIGHTNESS: msg << " Brightness"; break;
+    case SLIDER_PERIOD: msg << " Period"; break;
     }
     msg << " changed to: ";
     msg << value;
-    // controller->getContext()->logger->logDebug(msg);
+    controller->getContext()->logger->logDebug(msg);
 
     if (channel == -1) {
         controller->setGlobalValue(type, value);

@@ -61,6 +61,40 @@ void SliderPanel::OnFocusValue(wxFocusEvent& event)
     event.Skip();
 };
 
+void SliderPanel::OnValCharHook(wxKeyEvent& event)
+{
+    int increment = 1;
+    if (event.ShiftDown())
+        increment = slider->GetPageSize();
+    if (event.AltDown())
+        increment *= 2;
+    if (event.ControlDown())
+        increment *= 4;
+
+    if (event.GetKeyCode() == wxKeyCode::WXK_UP) {
+        slider->SetValue(slider->GetValue() + increment);
+    } else if (event.GetKeyCode() == wxKeyCode::WXK_DOWN) {
+        slider->SetValue(slider->GetValue() - increment);
+    } else if (event.GetKeyCode() == wxKeyCode::WXK_PAGEUP) {
+        slider->SetValue(slider->GetValue() + slider->GetPageSize());
+    } else if (event.GetKeyCode() == wxKeyCode::WXK_PAGEDOWN) {
+        slider->SetValue(slider->GetValue() - slider->GetPageSize());
+    } else if (event.GetKeyCode() == wxKeyCode::WXK_HOME && event.ControlDown()) {
+        slider->SetValue(slider->GetMax());
+    } else if (event.GetKeyCode() == wxKeyCode::WXK_END && event.ControlDown()) {
+        slider->SetValue(0);
+    } else {
+        event.Skip();
+        return;
+    }
+    // for unknown reasons the OnSlider isn't fired as documented,
+    // so we have to do this manually
+    updateControls();
+    txtValue->SelectAll();
+    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
+}
+
+
 void SliderPanel::OnValueEnter(wxCommandEvent& event)
 {
     // parse entered value
@@ -77,7 +111,7 @@ void SliderPanel::OnValueEnter(wxCommandEvent& event)
     // select all text
     txtValue->SelectAll();
 
-    channel->OnSliderChange(type, slider->GetValue());
+    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
 }
 
 void SliderPanel::OnSlider(wxCommandEvent& event)

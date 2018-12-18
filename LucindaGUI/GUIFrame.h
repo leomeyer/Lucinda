@@ -27,6 +27,10 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/slider.h>
+#include <wx/checkbox.h>
+#include <wx/combobox.h>
+#include <wx/spinctrl.h>
+#include <wx/button.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -93,13 +97,16 @@ class SliderPanelBase : public wxPanel
 		wxStaticText* stSliderName;
 		wxStaticText* stLabel;
 		wxTextCtrl* txtValue;
+		wxPanel* m_panel81;
 		wxStaticText* stMaxValue;
 		wxSlider* slider;
 		wxStaticText* stMinValue;
 
 		// Virtual event handlers, overide them in your derived class
+		virtual void OnValCharHook( wxKeyEvent& event ) { event.Skip(); }
 		virtual void OnFocusValue( wxFocusEvent& event ) { event.Skip(); }
 		virtual void OnValueEnter( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSlider( wxScrollEvent& event ) { event.Skip(); }
 		virtual void OnSlider( wxCommandEvent& event ) { event.Skip(); }
 
 
@@ -107,6 +114,66 @@ class SliderPanelBase : public wxPanel
 
 		SliderPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 60,-1 ), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 		~SliderPanelBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ChannelControlsPanel
+///////////////////////////////////////////////////////////////////////////////
+class ChannelControlsPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxPanel* pLights;
+		wxPanel* m_panel53;
+		wxPanel* m_panel54;
+		wxCheckBox* cb1;
+		wxPanel* m_panel55;
+		wxPanel* m_panel56;
+		wxPanel* m_panel57;
+		wxPanel* m_panel58;
+		wxCheckBox* cb5;
+		wxPanel* m_panel60;
+		wxPanel* m_panel61;
+		wxCheckBox* cb2;
+		wxCheckBox* cb6;
+		wxCheckBox* cbHalogen;
+		wxCheckBox* cb8;
+		wxCheckBox* cb4;
+		wxPanel* m_panel65;
+		wxPanel* m_panel66;
+		wxCheckBox* cb7;
+		wxPanel* m_panel67;
+		wxPanel* m_panel68;
+		wxPanel* m_panel69;
+		wxPanel* m_panel70;
+		wxCheckBox* cb3;
+		wxPanel* m_panel72;
+		wxPanel* m_panel73;
+		wxPanel* m_panel77;
+		wxPanel* m_panel74;
+		wxStaticText* m_staticText7;
+		wxComboBox* m_comboBox1;
+		wxCheckBox* m_checkBox82;
+		wxPanel* m_panel78;
+		wxCheckBox* m_checkBox83;
+		wxCheckBox* m_checkBox84;
+		wxPanel* m_panel79;
+		wxStaticText* m_staticText10;
+		wxSpinCtrl* m_spinCtrl1;
+		wxStaticText* m_staticText11;
+		wxSpinCtrl* m_spinCtrl2;
+		wxStaticText* m_staticText12;
+		wxSpinCtrl* m_spinCtrl3;
+		wxPanel* m_panel80;
+		wxCheckBox* m_checkBox85;
+		wxButton* m_button1;
+
+	public:
+
+		ChannelControlsPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,100 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~ChannelControlsPanel();
 
 };
 

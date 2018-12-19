@@ -5,6 +5,7 @@
 
 #include "Context.h"
 #include "IDeviceCommands.h"
+#include "DeviceInfo.h"
 
 #include "readerwriterqueue.h"
 
@@ -32,6 +33,10 @@ class Communication: IDeviceCommands
 
         Context* getContext();
 
+        wxString getThreadStatus(ArducomThread* thread);
+
+        void getDeviceInfos(wxVector<DeviceInfo>& deviceInfos);
+
         // Implementations of device commands
         virtual void defineChannel();
 
@@ -45,7 +50,7 @@ class Communication: IDeviceCommands
 
         virtual void setChannelPeriod(uint8_t channel, uint16_t period);
 
-        virtual void setChannelPhaseShift(uint8_t channel, uint16_t phaseshift);
+        virtual void setChannelPhaseShift(uint8_t channel, uint8_t phaseshift);
 
         virtual void setChannelOffset(uint8_t channel, uint8_t offset);
 

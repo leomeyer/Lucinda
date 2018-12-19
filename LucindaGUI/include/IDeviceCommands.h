@@ -21,7 +21,7 @@ public:
 
     virtual void setChannelPeriod(uint8_t channel, uint16_t period) = 0;
 
-    virtual void setChannelPhaseShift(uint8_t channel, uint16_t phaseshift) = 0;
+    virtual void setChannelPhaseShift(uint8_t channel, uint8_t phaseshift) = 0;
 
     virtual void setChannelOffset(uint8_t channel, uint8_t offset) = 0;
 

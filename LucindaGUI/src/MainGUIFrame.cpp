@@ -18,6 +18,9 @@
 #endif //__BORLANDC__
 
 #include "MainGUIFrame.h"
+
+#include "Context.h"
+#include "Configuration.h"
 #include "ChannelPanel.h"
 #include "GlobalChannelPanel.h"
 #include "RegularChannelPanel.h"
@@ -25,6 +28,8 @@
 #include "ApplicationController.h"
 
 namespace APP_NAMESPACE {
+
+static const wxString CFG_AUI_PERSPECTIVE = wxT("gui");
 
 //helper functions
 enum wxbuildinfoformat {
@@ -89,7 +94,10 @@ void MainGUIFrame::initialize(ApplicationController* appController)
     ChannelPanel* panel = new ChannelPanel(pContent, appController->getProcessor(), "Test", 0);
     panel->addSlider("Testslider", 0, 100);
     bContentSizer->Add(panel, 0, wxALL|wxEXPAND, 5);
+
+
 */
+
 }
 
 void MainGUIFrame::insertLogMessage(const Logger::LogMessage& message) {
@@ -126,11 +134,53 @@ void MainGUIFrame::setStatusText(const wxString& statusText)
     statusBar->SetStatusText(statusText);
 }
 
+void MainGUIFrame::updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos)
+{
+    deviceGrid->ClearGrid();
+    auto end = deviceInfos.end();
+    int row = 0;
+    for (auto iter = deviceInfos.begin(); iter != end; ++iter) {
+        deviceGrid->SetCellValue(row, 0, (*iter).address);
+        deviceGrid->SetCellValue(row, 1, (*iter).status);
+        deviceGrid->SetCellValue(row, 2, (*iter).name);
+        deviceGrid->SetCellValue(row, 3, (*iter).info);
+        if ((*iter).freeMem > 0) {
+            wxString mem;
+            mem << (*iter).freeMem;
+            deviceGrid->SetCellValue(row, 4, mem);
+        } else
+            deviceGrid->SetCellValue(row, 4, "");
+        if ((*iter).uptime > 0) {
+            wxString uptime;
+            uptime << (*iter).uptime;
+            deviceGrid->SetCellValue(row, 5, uptime);
+        } else
+            deviceGrid->SetCellValue(row, 5, "");
+        deviceGrid->SetCellValue(row, 6, (*iter).parameters);
+    }
+}
+
+void MainGUIFrame::OnShow(wxShowEvent& event)
+{
+/*
+    // load perspective
+    wxString auiPerspective;
+    if (appController->getContext()->config->getString(CFG_AUI_PERSPECTIVE, "Perspective", "", &auiPerspective)) {
+        if (auiPerspective != "")
+            m_mgr.LoadPerspective(auiPerspective, true);
+    }
+*/
+}
+
 void MainGUIFrame::OnClose(wxCloseEvent &event)
 {
     updateTimer->Stop();
     // shut down all dependent threads
     appController->shutdown();
+
+    wxString auiPerspective = m_mgr.SavePerspective();
+    appController->getContext()->config->setString(CFG_AUI_PERSPECTIVE, "Perspective", auiPerspective);
+
     Destroy();
 }
 
@@ -164,4 +214,16 @@ void MainGUIFrame::OnLogPanelSize(wxSizeEvent& event)
     }
 }
 
+void MainGUIFrame::OnDevicePanelSize(wxSizeEvent& event)
+{
+    // log panel not floating (docked off)?
+    if (!m_mgr.GetPane(pDevices).IsFloating()) {
+        // adjust log grid size
+        deviceGrid->SetSize(event.GetSize());
+        // adjust message column width
+//        int newCol3Size = logGrid->GetSize().x - logGrid->GetColSize(0) - logGrid->GetColSize(1) - 20;
+//        if (newCol3Size > 0)
+//            logGrid->SetColSize(2, newCol3Size);
+    }
+}
 }; // namespace

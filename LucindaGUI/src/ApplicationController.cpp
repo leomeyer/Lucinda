@@ -3,6 +3,7 @@
 #include "Communication.h"
 #include "Processor.h"
 #include "Logger.h"
+#include "DeviceInfo.h"
 
 namespace APP_NAMESPACE {
 
@@ -47,6 +48,11 @@ Context* ApplicationController::getContext()
 
 void ApplicationController::OnUpdateTimer(wxTimerEvent& event)
 {
+    // update device info
+    wxVector<DeviceInfo> deviceInfos;
+    comm->getDeviceInfos(deviceInfos);
+    frame->updateDeviceInfos(deviceInfos);
+
     // update log
     wxVector<Logger::LogMessage> messages;
     lastLogQuery = context->logger->getMessages(lastLogQuery, messages);
@@ -55,13 +61,6 @@ void ApplicationController::OnUpdateTimer(wxTimerEvent& event)
     for (int i = messages.size() - 1; i >= 0; --i) {
         frame->insertLogMessage(messages[i]);
     }
-
-    /*
-    wxString message = comm->getNextMessage();
-    if (message != "") {
-        frame->setStatusText(message);
-    }
-    */
 }
 
 void ApplicationController::setGlobalValue(SliderType type, int value)

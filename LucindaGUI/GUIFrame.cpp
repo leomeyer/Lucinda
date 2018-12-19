@@ -140,12 +140,19 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pContent->SetSizer( contentSizer );
 	pContent->Layout();
 	contentSizer->Fit( pContent );
-	pLog = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,80 ), wxTAB_TRAVERSAL );
-	pLog->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
-	pLog->SetMinSize( wxSize( 100,80 ) );
+	pInformation = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,80 ), wxTAB_TRAVERSAL );
+	pInformation->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
+	pInformation->SetMinSize( wxSize( 100,80 ) );
 
-	m_mgr.AddPane( pLog, wxAuiPaneInfo() .Bottom() .Caption( wxT("Log") ).PinButton( true ).Gripper().Dock().Resizable().FloatingSize( wxSize( 480,54 ) ).Layer( 1 ) );
+	m_mgr.AddPane( pInformation, wxAuiPaneInfo() .Bottom() .Caption( wxT("Log") ).CaptionVisible( false ).PinButton( true ).Gripper().Dock().Resizable().FloatingSize( wxSize( 480,54 ) ).Row( 0 ).Layer( 1 ) );
 
+	wxBoxSizer* bSizer15;
+	bSizer15 = new wxBoxSizer( wxVERTICAL );
+
+	m_auinotebook4 = new wxAuiNotebook( pInformation, wxID_ANY, wxDefaultPosition, wxSize( -1,80 ), wxAUI_NB_DEFAULT_STYLE );
+	m_auinotebook4->SetMinSize( wxSize( -1,80 ) );
+
+	pLog = new wxPanel( m_auinotebook4, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxFlexGridSizer* fgSizer2;
 	fgSizer2 = new wxFlexGridSizer( 1, 1, 0, 0 );
 	fgSizer2->SetFlexibleDirection( wxBOTH );
@@ -192,20 +199,81 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	pLog->SetSizer( fgSizer2 );
 	pLog->Layout();
+	fgSizer2->Fit( pLog );
+	m_auinotebook4->AddPage( pLog, wxT("Log"), true, wxNullBitmap );
+	pDevices = new wxPanel( m_auinotebook4, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer16;
+	bSizer16 = new wxBoxSizer( wxVERTICAL );
+
+	deviceGrid = new wxGrid( pDevices, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+
+	// Grid
+	deviceGrid->CreateGrid( 1, 7 );
+	deviceGrid->EnableEditing( true );
+	deviceGrid->EnableGridLines( true );
+	deviceGrid->EnableDragGridSize( false );
+	deviceGrid->SetMargins( 0, 0 );
+
+	// Columns
+	deviceGrid->SetColSize( 0, 64 );
+	deviceGrid->SetColSize( 1, 70 );
+	deviceGrid->SetColSize( 2, 80 );
+	deviceGrid->SetColSize( 3, 96 );
+	deviceGrid->SetColSize( 4, 80 );
+	deviceGrid->SetColSize( 5, 80 );
+	deviceGrid->SetColSize( 6, 80 );
+	deviceGrid->EnableDragColMove( false );
+	deviceGrid->EnableDragColSize( true );
+	deviceGrid->SetColLabelSize( 30 );
+	deviceGrid->SetColLabelValue( 0, wxT("Address") );
+	deviceGrid->SetColLabelValue( 1, wxT("Status") );
+	deviceGrid->SetColLabelValue( 2, wxT("Type") );
+	deviceGrid->SetColLabelValue( 3, wxT("Info") );
+	deviceGrid->SetColLabelValue( 4, wxT("Free RAM") );
+	deviceGrid->SetColLabelValue( 5, wxT("Uptime") );
+	deviceGrid->SetColLabelValue( 6, wxT("Parameters") );
+	deviceGrid->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Rows
+	deviceGrid->EnableDragRowSize( true );
+	deviceGrid->SetRowLabelSize( 0 );
+	deviceGrid->SetRowLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Label Appearance
+
+	// Cell Defaults
+	deviceGrid->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
+	bSizer16->Add( deviceGrid, 0, wxALL, 1 );
+
+
+	pDevices->SetSizer( bSizer16 );
+	pDevices->Layout();
+	bSizer16->Fit( pDevices );
+	m_auinotebook4->AddPage( pDevices, wxT("Devices"), false, wxNullBitmap );
+
+	bSizer15->Add( m_auinotebook4, 1, wxEXPAND | wxALL, 0 );
+
+
+	pInformation->SetSizer( bSizer15 );
+	pInformation->Layout();
 
 	m_mgr.Update();
 
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
+	this->Connect( wxEVT_SHOW, wxShowEventHandler( GUIFrame::OnShow ) );
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnQuit ), this, miQuit->GetId());
 	pLog->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
+	pDevices->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnDevicePanelSize ), NULL, this );
 }
 
 GUIFrame::~GUIFrame()
 {
 	// Disconnect Events
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
+	this->Disconnect( wxEVT_SHOW, wxShowEventHandler( GUIFrame::OnShow ) );
 	pLog->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
+	pDevices->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnDevicePanelSize ), NULL, this );
 
 	m_mgr.UnInit();
 
@@ -270,16 +338,13 @@ SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint
 
 	bSizer11->Add( bSizer12, 1, 0, 5 );
 
-	m_panel81 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	bSizer11->Add( m_panel81, 1, wxEXPAND | wxALL, 5 );
-
 	stMaxValue = new wxStaticText( this, wxID_ANY, wxT("100"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
 	stMaxValue->Wrap( -1 );
 	stMaxValue->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
 	bSizer11->Add( stMaxValue, 0, wxALL|wxEXPAND, 0 );
 
-	slider = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxSize( 30,330 ), wxSL_BOTH|wxSL_INVERSE|wxSL_VERTICAL );
+	slider = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxSize( 30,200 ), wxSL_BOTH|wxSL_INVERSE|wxSL_VERTICAL );
 	bSizer11->Add( slider, 0, wxALIGN_CENTER|wxALL, 1 );
 
 	stMinValue = new wxStaticText( this, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );

@@ -26,6 +26,7 @@
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/grid.h>
+#include <wx/aui/auibook.h>
 #include <wx/frame.h>
 #include <wx/slider.h>
 #include <wx/checkbox.h>
@@ -64,13 +65,19 @@ class GUIFrame : public wxFrame
 		wxStaticText* m_staticText16;
 		wxPanel* pContent;
 		wxBoxSizer* contentSizer;
+		wxPanel* pInformation;
+		wxAuiNotebook* m_auinotebook4;
 		wxPanel* pLog;
 		wxGrid* logGrid;
+		wxPanel* pDevices;
+		wxGrid* deviceGrid;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
+		virtual void OnShow( wxShowEvent& event ) { event.Skip(); }
 		virtual void OnQuit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
+		virtual void OnDevicePanelSize( wxSizeEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -113,7 +120,6 @@ class SliderPanelBase : public wxPanel
 		wxStaticText* stSliderName;
 		wxStaticText* stLabel;
 		wxTextCtrl* txtValue;
-		wxPanel* m_panel81;
 		wxStaticText* stMaxValue;
 		wxSlider* slider;
 		wxStaticText* stMinValue;

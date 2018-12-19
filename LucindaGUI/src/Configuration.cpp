@@ -57,4 +57,15 @@ long Configuration::getLong(const wxString& group, const wxString& key, const lo
     return result;
 }
 
+void Configuration::setString(const wxString& group, const wxString& key, const wxString& value)
+{
+    wxString realGroup = group;
+    if (!realGroup.StartsWith("/"))
+        realGroup = "/" + realGroup;
+    config->SetPath(realGroup);
+    config->Write(key, value);
+    // reset path
+    config->SetPath("");
+}
+
 };  // namespace

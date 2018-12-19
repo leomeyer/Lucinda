@@ -36,17 +36,6 @@ class ArducomThread : public wxThread
             ARD_TERMINATED
         };
 
-        /** Holds information about a successfully connected device. */
-        struct DeviceInfo {
-            wxString name;
-            int uptime;
-            int freeMem;
-            int flags;
-            wxString config;
-
-            wxString toString();
-        };
-
         ArducomParameters params;
 
         DeviceInfo deviceInfo;

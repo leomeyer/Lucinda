@@ -27,6 +27,8 @@ class Configuration
         /** Reads a long using the specified group. */
         long getLong(const wxString& group, const wxString& key, const long defaultVal);
 
+        void setString(const wxString& group, const wxString& key, const wxString& value);
+
     protected:
         wxFileConfig* config;
         wxString origin;

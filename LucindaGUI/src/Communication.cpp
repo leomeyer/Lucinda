@@ -100,6 +100,20 @@ void Communication::update(ArducomThread* thread)
     queue.enqueue(message);
 }
 
+wxString Communication::getThreadStatus(ArducomThread* thread) {
+    // return the status message from the thread
+    wxString result;
+    switch (thread->getStatus(&result)) {
+    case ArducomThread::Status::ARD_INACTIVE: return wxString("Inactive");
+    case ArducomThread::Status::ARD_NOT_CONNECTED: return wxString("Not connected: ").append(result);
+    case ArducomThread::Status::ARD_CONNECTING: return wxString("Connecting to: ").append(thread->params.device);
+    case ArducomThread::Status::ARD_ERROR_CONNECTING: return wxString("Connection error: ").append(result);
+    case ArducomThread::Status::ARD_READY: return wxString("Ready: ").append(result);
+    case ArducomThread::Status::ARD_ERROR: return wxString("Error: ").append(result);
+    }
+    return result;
+}
+
 wxString Communication::getNextMessage()
 {
     UpdateMessage message;
@@ -121,6 +135,20 @@ wxString Communication::getNextMessage()
 Context* Communication::getContext()
 {
     return context;
+}
+
+void Communication::getDeviceInfos(wxVector<DeviceInfo>& deviceInfos)
+{
+    deviceInfos.clear();
+
+    wxCriticalSectionLocker enter(criticalSection);
+    // get current device infos from threads
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        DeviceInfo deviceInfo = (*iter)->deviceInfo;
+        deviceInfo.info = getThreadStatus(*iter);
+        deviceInfos.push_back(deviceInfo);
+    }
 }
 
 // device commands
@@ -184,14 +212,14 @@ void Communication::setChannelPeriod(uint8_t channel, uint16_t period)
     }
 }
 
-void Communication::setChannelPhaseShift(uint8_t channel, uint16_t phaseshift)
+void Communication::setChannelPhaseShift(uint8_t channel, uint8_t phaseshift)
 {
    wxCriticalSectionLocker enter(criticalSection);
 
     // enqueue command in each thread
     auto end = threads.end();
     for (auto iter = threads.begin(); iter != end; ++iter) {
-        (*iter)->send3ByteCommand(ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT, channel, phaseshift, true);
+        (*iter)->send2ByteCommand(ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT, channel, phaseshift, true);
     }
 }
 

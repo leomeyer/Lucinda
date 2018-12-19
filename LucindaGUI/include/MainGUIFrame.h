@@ -12,6 +12,7 @@
 
 #include "GlobalDefines.h"
 #include "../GUIFrame.h"
+#include "DeviceInfo.h"
 
 #include "Logger.h"
 
@@ -30,18 +31,23 @@ class MainGUIFrame: public GUIFrame
         void insertLogMessage(const Logger::LogMessage& message);
 
         void setStatusText(const wxString& statusText);
+
+        void updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos);
+
     private:
         ApplicationController* appController;
         wxTimer* updateTimer;
         Logger::LogPriority minimumLogPriority;
 
+ 		virtual void OnShow(wxShowEvent& event);
         virtual void OnClose(wxCloseEvent& event);
         virtual void OnQuit(wxCommandEvent& event);
         virtual void OnAbout(wxCommandEvent& event);
 
         void OnUpdateTimer(wxTimerEvent& event);
 
-        void OnLogPanelSize(wxSizeEvent& event);
+        virtual void OnLogPanelSize(wxSizeEvent& event) override;
+        virtual void OnDevicePanelSize(wxSizeEvent& event) override;
     };
 
 }; // namespace

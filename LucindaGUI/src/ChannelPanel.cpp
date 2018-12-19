@@ -1,7 +1,7 @@
 #include "ChannelPanel.h"
 
 #include "SliderPanel.h"
-#include "BrightnessSlider.h"
+#include "PercentSlider.h"
 #include "FrequencySlider.h"
 
 #include "Processor.h"
@@ -30,12 +30,12 @@ void ChannelPanel::addSlider(const wxString& name, SliderType type)
     // construct slider depending on type
     SliderPanelBase* slider;
     switch (type) {
-        case SLIDER_BRIGHTNESS: slider = new BrightnessSlider(pInternal, this, name); break;
-        case SLIDER_GLOBAL_SPEED: slider = new SliderPanel(pInternal, this, SLIDER_GLOBAL_SPEED, name, 0, GLOBAL_SPEED_MAX); break;
-        case SLIDER_PERIOD: slider = new FrequencySlider(pInternal, this, SLIDER_PERIOD, name, CHANNEL_PERIOD_MAX); break;
-        case SLIDER_PHASESHIFT: slider = new SliderPanel(pInternal, this, SLIDER_PHASESHIFT, name, 0, CHANNEL_PERIOD_MAX); break;
-        case SLIDER_OFFSET: slider = new SliderPanel(pInternal, this, SLIDER_OFFSET, name, 0, 255); break;
-        case SLIDER_DUTYCYCLE: slider = new SliderPanel(pInternal, this, SLIDER_DUTYCYCLE, name, 0, 255); break;
+        case SLIDER_BRIGHTNESS: slider = new PercentSlider(pInternal, this, type, name); break;
+        case SLIDER_GLOBAL_SPEED: slider = new SliderPanel(pInternal, this, type, name, 0, GLOBAL_SPEED_MAX); break;
+        case SLIDER_PERIOD: slider = new FrequencySlider(pInternal, this, type, name, CHANNEL_PERIOD_MAX); break;
+        case SLIDER_PHASESHIFT: slider = new PercentSlider(pInternal, this, type, name); break;
+        case SLIDER_OFFSET: slider = new PercentSlider(pInternal, this, type, name); break;
+        case SLIDER_DUTYCYCLE: slider = new PercentSlider(pInternal, this, type, name); break;
         default: return;
     }
 

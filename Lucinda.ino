@@ -308,7 +308,7 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
 }
 
 inline void calculatePhaseshift(channel_t& channel) {
-  channel.phaseshift = channel.period * channel.phaseshiftPercent / 256;
+  channel.phaseshift = (int32_t)channel.period * channel.phaseshiftPercent / 256;
 }
 
 /*******************************************************

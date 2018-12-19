@@ -90,12 +90,16 @@
 		<Unit filename="include/Communication.h" />
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/Context.h" />
+		<Unit filename="include/DeviceInfo.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="include/FrequencySlider.h" />
 		<Unit filename="include/GlobalChannelPanel.h" />
 		<Unit filename="include/GlobalDefines.h" />
 		<Unit filename="include/IDeviceCommands.h" />
 		<Unit filename="include/Logger.h" />
 		<Unit filename="include/MainGUIFrame.h" />
+		<Unit filename="include/PercentSlider.h" />
 		<Unit filename="include/Processor.h" />
 		<Unit filename="include/RegularChannelPanel.h" />
 		<Unit filename="include/SliderPanel.h" />
@@ -118,6 +122,7 @@
 		<Unit filename="src/GlobalChannelPanel.cpp" />
 		<Unit filename="src/Logger.cpp" />
 		<Unit filename="src/MainGUIFrame.cpp" />
+		<Unit filename="src/PercentSlider.cpp" />
 		<Unit filename="src/Processor.cpp" />
 		<Unit filename="src/RegularChannelPanel.cpp" />
 		<Unit filename="src/SliderPanel.cpp" />

@@ -63,6 +63,7 @@ void SliderPanel::OnFocusValue(wxFocusEvent& event)
 
 void SliderPanel::OnValCharHook(wxKeyEvent& event)
 {
+    // shift, ctrl and alt accelerate change to different degrees
     int increment = 1;
     if (event.ShiftDown())
         increment = slider->GetPageSize();
@@ -76,9 +77,9 @@ void SliderPanel::OnValCharHook(wxKeyEvent& event)
     } else if (event.GetKeyCode() == wxKeyCode::WXK_DOWN) {
         slider->SetValue(slider->GetValue() - increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_PAGEUP) {
-        slider->SetValue(slider->GetValue() + slider->GetPageSize());
+        slider->SetValue(slider->GetValue() + slider->GetPageSize() * increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_PAGEDOWN) {
-        slider->SetValue(slider->GetValue() - slider->GetPageSize());
+        slider->SetValue(slider->GetValue() - slider->GetPageSize() * increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_HOME && event.ControlDown()) {
         slider->SetValue(slider->GetMax());
     } else if (event.GetKeyCode() == wxKeyCode::WXK_END && event.ControlDown()) {

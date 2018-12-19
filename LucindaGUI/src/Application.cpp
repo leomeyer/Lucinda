@@ -35,6 +35,8 @@ bool Application::OnInit()
 {
     wxApp::SetAppName(APP_INTERNAL_NAME);
 
+    wxInitAllImageHandlers();
+
     // store the local config files in the user's directory
     wxString userDir = wxStandardPaths::Get().GetUserDataDir();
 

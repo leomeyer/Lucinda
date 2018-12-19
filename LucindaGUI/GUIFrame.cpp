@@ -17,6 +17,10 @@
 
 #include "GUIFrame.h"
 
+#include "res/disk.png.h"
+#include "res/folder.png.h"
+#include "res/page_white_star.png.h"
+
 ///////////////////////////////////////////////////////////////////////////
 
 GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
@@ -28,19 +32,119 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	statusBar = this->CreateStatusBar( 2, wxSTB_SIZEGRIP, wxID_ANY );
 	mbMenuBar = new wxMenuBar( 0 );
 	m_menu3 = new wxMenu();
-	wxMenuItem* m_menuItem3;
-	m_menuItem3 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Quit") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu3->Append( m_menuItem3 );
+	wxMenuItem* miNew;
+	miNew = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("New") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu3->Append( miNew );
 
-	mbMenuBar->Append( m_menu3, wxT("MyMenu") );
+	wxMenuItem* miOpen;
+	miOpen = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Open...") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu3->Append( miOpen );
+
+	wxMenuItem* miSave;
+	miSave = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Save") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu3->Append( miSave );
+
+	wxMenuItem* miSaveAs;
+	miSaveAs = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Save As...") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu3->Append( miSaveAs );
+
+	m_menu3->AppendSeparator();
+
+	wxMenuItem* miQuit;
+	miQuit = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Quit") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu3->Append( miQuit );
+
+	mbMenuBar->Append( m_menu3, wxT("Sequence") );
+
+	m_menu4 = new wxMenu();
+	mbMenuBar->Append( m_menu4, wxT("Edit") );
+
+	m_menu5 = new wxMenu();
+	mbMenuBar->Append( m_menu5, wxT("View") );
 
 	this->SetMenuBar( mbMenuBar );
 
+	m_auiToolBar1 = new wxAuiToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT );
+	tNew = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), page_white_star_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	mOpen = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), folder_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	mSave = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), disk_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	m_auiToolBar1->AddSeparator();
+
+	m_auiToolBar1->Realize();
+	m_mgr.AddPane( m_auiToolBar1, wxAuiPaneInfo().Top().CaptionVisible( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 37,44 ) ).Row( 1 ) );
+
+	pSequenceProperties = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,55 ), wxTAB_TRAVERSAL );
+	pSequenceProperties->SetMinSize( wxSize( -1,40 ) );
+
+	m_mgr.AddPane( pSequenceProperties, wxAuiPaneInfo() .Top() .CaptionVisible( false ).PinButton( true ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( 37,54 ) ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ).Row( 2 ) );
+
+	wxBoxSizer* bSizer33;
+	bSizer33 = new wxBoxSizer( wxVERTICAL );
+
+	m_panel85 = new wxPanel( pSequenceProperties, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_panel85->SetMinSize( wxSize( -1,40 ) );
+
+	wxBoxSizer* bSizer34;
+	bSizer34 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticText13 = new wxStaticText( m_panel85, wxID_ANY, wxT("Sequence Name:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText13->Wrap( -1 );
+	bSizer34->Add( m_staticText13, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+
+	txtSequenceName = new wxTextCtrl( m_panel85, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer34->Add( txtSequenceName, 0, wxALL, 1 );
+
+	m_staticText14 = new wxStaticText( m_panel85, wxID_ANY, wxT("Description:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText14->Wrap( -1 );
+	bSizer34->Add( m_staticText14, 0, wxALL, 5 );
+
+	txtSequenceDescription = new wxTextCtrl( m_panel85, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer34->Add( txtSequenceDescription, 9, wxALL, 1 );
+
+
+	m_panel85->SetSizer( bSizer34 );
+	m_panel85->Layout();
+	bSizer34->Fit( m_panel85 );
+	bSizer33->Add( m_panel85, 1, wxEXPAND | wxALL, 0 );
+
+	m_panel89 = new wxPanel( pSequenceProperties, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer35;
+	bSizer35 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticText15 = new wxStaticText( m_panel89, wxID_ANY, wxT("Length:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText15->Wrap( -1 );
+	bSizer35->Add( m_staticText15, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+
+	m_staticText16 = new wxStaticText( m_panel89, wxID_ANY, wxT("0 s"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText16->Wrap( -1 );
+	bSizer35->Add( m_staticText16, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+
+
+	m_panel89->SetSizer( bSizer35 );
+	m_panel89->Layout();
+	bSizer35->Fit( m_panel89 );
+	bSizer33->Add( m_panel89, 1, wxEXPAND | wxALL, 0 );
+
+
+	pSequenceProperties->SetSizer( bSizer33 );
+	pSequenceProperties->Layout();
+	pContent = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_mgr.AddPane( pContent, wxAuiPaneInfo() .Center() .CaptionVisible( false ).CloseButton( false ).PaneBorder( false ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( 110,110 ) ).DockFixed( true ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ) );
+
+	contentSizer = new wxBoxSizer( wxHORIZONTAL );
+
+
+	pContent->SetSizer( contentSizer );
+	pContent->Layout();
+	contentSizer->Fit( pContent );
 	pLog = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,80 ), wxTAB_TRAVERSAL );
 	pLog->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
 	pLog->SetMinSize( wxSize( 100,80 ) );
 
-	m_mgr.AddPane( pLog, wxAuiPaneInfo() .Bottom() .Caption( wxT("Log") ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 480,54 ) ).Layer( 1 ) );
+	m_mgr.AddPane( pLog, wxAuiPaneInfo() .Bottom() .Caption( wxT("Log") ).PinButton( true ).Gripper().Dock().Resizable().FloatingSize( wxSize( 480,54 ) ).Layer( 1 ) );
 
 	wxFlexGridSizer* fgSizer2;
 	fgSizer2 = new wxFlexGridSizer( 1, 1, 0, 0 );
@@ -88,21 +192,12 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	pLog->SetSizer( fgSizer2 );
 	pLog->Layout();
-	pContent = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( pContent, wxAuiPaneInfo() .Center() .CaptionVisible( false ).CloseButton( false ).PaneBorder( false ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( 110,110 ) ).DockFixed( true ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ) );
-
-	contentSizer = new wxBoxSizer( wxHORIZONTAL );
-
-
-	pContent->SetSizer( contentSizer );
-	pContent->Layout();
-	contentSizer->Fit( pContent );
 
 	m_mgr.Update();
 
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
-	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnQuit ), this, m_menuItem3->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnQuit ), this, miQuit->GetId());
 	pLog->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 }
 

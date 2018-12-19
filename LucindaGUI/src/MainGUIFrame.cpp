@@ -153,8 +153,15 @@ void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
 
 void MainGUIFrame::OnLogPanelSize(wxSizeEvent& event)
 {
-    // adjust log grid size
-    logGrid->SetSize(event.GetSize());
+    // log panel not floating (docked off)?
+    if (!m_mgr.GetPane(pLog).IsFloating()) {
+        // adjust log grid size
+        logGrid->SetSize(event.GetSize());
+        // adjust message column width
+        int newCol3Size = logGrid->GetSize().x - logGrid->GetColSize(0) - logGrid->GetColSize(1) - 20;
+        if (newCol3Size > 0)
+            logGrid->SetColSize(2, newCol3Size);
+    }
 }
 
 }; // namespace

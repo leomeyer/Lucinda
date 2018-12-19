@@ -19,13 +19,14 @@
 #include <wx/image.h>
 #include <wx/icon.h>
 #include <wx/menu.h>
-#include <wx/grid.h>
-#include <wx/sizer.h>
-#include <wx/panel.h>
-#include <wx/frame.h>
 #include <wx/aui/aui.h>
+#include <wx/aui/auibar.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/sizer.h>
+#include <wx/panel.h>
+#include <wx/grid.h>
+#include <wx/frame.h>
 #include <wx/slider.h>
 #include <wx/checkbox.h>
 #include <wx/combobox.h>
@@ -46,10 +47,25 @@ class GUIFrame : public wxFrame
 		wxStatusBar* statusBar;
 		wxMenuBar* mbMenuBar;
 		wxMenu* m_menu3;
-		wxPanel* pLog;
-		wxGrid* logGrid;
+		wxMenu* m_menu4;
+		wxMenu* m_menu5;
+		wxAuiToolBar* m_auiToolBar1;
+		wxAuiToolBarItem* tNew;
+		wxAuiToolBarItem* mOpen;
+		wxAuiToolBarItem* mSave;
+		wxPanel* pSequenceProperties;
+		wxPanel* m_panel85;
+		wxStaticText* m_staticText13;
+		wxTextCtrl* txtSequenceName;
+		wxStaticText* m_staticText14;
+		wxTextCtrl* txtSequenceDescription;
+		wxPanel* m_panel89;
+		wxStaticText* m_staticText15;
+		wxStaticText* m_staticText16;
 		wxPanel* pContent;
 		wxBoxSizer* contentSizer;
+		wxPanel* pLog;
+		wxGrid* logGrid;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }

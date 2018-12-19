@@ -307,6 +307,10 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
 #endif
 }
 
+inline void calculatePhaseshift(channel_t& channel) {
+  channel.phaseshift = channel.period * channel.phaseshiftPercent / 256;
+}
+
 /*******************************************************
 * Arducom commands
 *******************************************************/
@@ -335,16 +339,16 @@ public:
 // byte 5: offset
 // byte 6: brightness factor
 // byte 7: duty cycle
-// bytes 8 and 9: phase shift (LSB first)
-// byte 10: waveform to use (0: square, 1: sine, 2: triangle, 3: flicker, 4: linear/sawtooth)
-// byte 11: flags that control additional behavior
-// byte 12: macrocycle length
-// byte 13: macrocycle count
-// byte 14: macrocycle shift
+// bytes 8: phase shift
+// byte 9: waveform to use (0: square, 1: sine, 2: triangle, 3: flicker, 4: linear/sawtooth)
+// byte 10: flags that control additional behavior
+// byte 11: macrocycle length
+// byte 12: macrocycle count
+// byte 13: macrocycle shift
 // If an error occurs the requested changes are not applied.
 class ArducomDefineChannel: public ArducomCommand {
 public:
-  ArducomDefineChannel() : ArducomCommand(ARDUCOM_CMD_DEFINE_CHANNEL, 15) {}   // number of expected parameter bytes
+  ArducomDefineChannel() : ArducomCommand(ARDUCOM_CMD_DEFINE_CHANNEL, 14) {}   // number of expected parameter bytes
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -363,8 +367,9 @@ public:
     local.offset = dataBuffer[5];
     local.brightness = dataBuffer[6];
     local.dutycycle = dataBuffer[7];
-    local.phaseshift = (dataBuffer[8] + dataBuffer[9] * 256) % local.period;
-    uint8_t wavetable = dataBuffer[10];
+    local.phaseshiftPercent = dataBuffer[8];
+    calculatePhaseshift(local);
+    uint8_t wavetable = dataBuffer[9];
     switch (wavetable) {
       case 0: // square
         local.wavetable = nullptr;
@@ -382,14 +387,14 @@ public:
         local.wavetable = &WAVE_LINEAR;
         break;
       default:  {
-        *errorInfo = 10;
+        *errorInfo = 9;
         return ARDUCOM_FUNCTION_ERROR;
       }
     }
-    local.flags = dataBuffer[11] & CHANNELFLAG_ALL;
-    local.macrocycle_length = dataBuffer[12];
-    local.macrocycle_count = dataBuffer[13];
-    local.macrocycle_shift = dataBuffer[14];
+    local.flags = dataBuffer[10] & CHANNELFLAG_ALL;
+    local.macrocycle_length = dataBuffer[11];
+    local.macrocycle_count = dataBuffer[12];
+    local.macrocycle_shift = dataBuffer[13];
     // limit count
     if (local.macrocycle_count > local.macrocycle_length)
       local.macrocycle_count = local.macrocycle_length;
@@ -514,19 +519,19 @@ public:
     // modify channel directly
     noInterrupts();
     channels[channelNo].period = dataBuffer[1] + dataBuffer[2] * 256;
-    channels[channelNo].phaseshift %= channels[channelNo].period;
+    calculatePhaseshift(channels[channelNo]);
     interrupts();
     channel_buffers[channelNo].period = dataBuffer[1] + dataBuffer[2] * 256;
-    channel_buffers[channelNo].phaseshift %= channel_buffers[channelNo].period;
+    calculatePhaseshift(channel_buffers[channelNo]);
     *dataSize = 0;
     return ARDUCOM_OK;
   }
 };
 
-// This command sets the phase shift of a channel.
+// This command sets the phase shift of a channel (relative from 0 .. 255).
 class ArducomSetChannelPhaseShift: public ArducomCommand {
 public:
-  ArducomSetChannelPhaseShift() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT, 3) {}   // this command expects three parameter bytes
+  ArducomSetChannelPhaseShift() : ArducomCommand(ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT, 2) {}   // this command expects two parameter bytes
   
   int8_t handle(Arducom* arducom, uint8_t* dataBuffer, int8_t* dataSize, uint8_t* destBuffer, const uint8_t maxBufferSize, uint8_t* errorInfo) {
     uint8_t channelNo = dataBuffer[0];
@@ -535,10 +540,12 @@ public:
       return ARDUCOM_LIMIT_EXCEEDED;
     }
     // modify channel directly
+    channels[channelNo].phaseshiftPercent = dataBuffer[1];
     noInterrupts();
-    channels[channelNo].phaseshift = (dataBuffer[1] + dataBuffer[2] * 256) % channels[channelNo].period;
+    calculatePhaseshift(channels[channelNo]);
     interrupts();
-    channel_buffers[channelNo].phaseshift = (dataBuffer[1] + dataBuffer[2] * 256) % channel_buffers[channelNo].period;
+    channel_buffers[channelNo].phaseshiftPercent = dataBuffer[1];
+    calculatePhaseshift(channel_buffers[channelNo]);
     *dataSize = 0;
     return ARDUCOM_OK;
   }
@@ -720,8 +727,9 @@ void setup()
     channel_buffers[1].brightness = 127;
     channel_buffers[1].offset = 0;
     channel_buffers[1].dutycycle = 127;
-    channel_buffers[1].phaseshift = 0;
+    channel_buffers[1].phaseshiftPercent = 0;
     channel_buffers[1].wavetable = &WAVE_SINE;
+    calculatePhaseshift(channel_buffers[1]);
 
     channel_buffers[2].period = WAVETABLE_SIZE;
     channel_buffers[2].bitmask = 2 | 8 | 32 | 128;
@@ -729,8 +737,9 @@ void setup()
     channel_buffers[2].brightness = 127;
     channel_buffers[2].offset = 0;
     channel_buffers[2].dutycycle = 127;
-    channel_buffers[2].phaseshift = WAVETABLE_SIZE / 2;
+    channel_buffers[2].phaseshiftPercent = 50;
     channel_buffers[2].wavetable = &WAVE_SINE;
+    calculatePhaseshift(channel_buffers[2]);
 
 //    channel_buffers[1].enabled = 1;
 //    channel_buffers[6].enabled = 1;

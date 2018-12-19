@@ -73,6 +73,7 @@ typedef struct {
   uint8_t offset;
   uint8_t brightness;
   uint8_t dutycycle;
+  uint8_t phaseshiftPercent;
   uint16_t phaseshift;
   const wavetable_t* wavetable;
   uint8_t flags;

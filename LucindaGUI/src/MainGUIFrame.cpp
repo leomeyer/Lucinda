@@ -8,6 +8,7 @@
  **************************************************************/
 
 #include <wx/wx.h>
+#include <algorithm>
 
 #ifdef WX_PRECOMP
 #include "wx_pch.h"
@@ -136,27 +137,81 @@ void MainGUIFrame::setStatusText(const wxString& statusText)
 
 void MainGUIFrame::updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos)
 {
-    deviceGrid->ClearGrid();
-    auto end = deviceInfos.end();
-    int row = 0;
-    for (auto iter = deviceInfos.begin(); iter != end; ++iter) {
-        deviceGrid->SetCellValue(row, 0, (*iter).address);
-        deviceGrid->SetCellValue(row, 1, (*iter).status);
-        deviceGrid->SetCellValue(row, 2, (*iter).name);
-        deviceGrid->SetCellValue(row, 3, (*iter).info);
-        if ((*iter).freeMem > 0) {
-            wxString mem;
-            mem << (*iter).freeMem;
-            deviceGrid->SetCellValue(row, 4, mem);
-        } else
-            deviceGrid->SetCellValue(row, 4, "");
-        if ((*iter).uptime > 0) {
-            wxString uptime;
-            uptime << (*iter).uptime;
-            deviceGrid->SetCellValue(row, 5, uptime);
-        } else
-            deviceGrid->SetCellValue(row, 5, "");
-        deviceGrid->SetCellValue(row, 6, (*iter).parameters);
+    // need to rebuild?
+    if (deviceInfos.size() != deviceGrid->GetNumberRows()) {
+
+        deviceGrid->ClearGrid();
+        auto end = deviceInfos.end();
+        for (auto iter = deviceInfos.begin(); iter != end; ++iter) {
+            deviceGrid->AppendRows();
+            int row = deviceGrid->GetNumberRows() - 1;
+            deviceGrid->SetCellValue(row, 0, (*iter).address);
+            deviceGrid->SetCellValue(row, 1, (*iter).status);
+            deviceGrid->SetCellValue(row, 2, (*iter).name);
+            deviceGrid->SetCellValue(row, 3, (*iter).info);
+            if ((*iter).freeMem > 0) {
+                wxString mem;
+                mem << (*iter).freeMem;
+                deviceGrid->SetCellValue(row, 4, mem);
+            } else
+                deviceGrid->SetCellValue(row, 4, "");
+            if ((*iter).uptime > 0) {
+                wxString uptime;
+                uptime << (*iter).uptime;
+                deviceGrid->SetCellValue(row, 5, uptime);
+            } else
+                deviceGrid->SetCellValue(row, 5, "");
+            deviceGrid->SetCellValue(row, 6, (*iter).parameters);
+        }
+    } else {
+        auto end = deviceInfos.end();
+        wxVector<int> rowsNotHandled;
+        for (int i = 0; i < deviceGrid->GetNumberRows(); i++)
+            rowsNotHandled.push_back(i);
+
+        for (auto iter = deviceInfos.begin(); iter != end; ++iter) {
+            // find row for this address
+            int row = -1;
+            for (int i = 0; i < deviceGrid->GetNumberRows(); i++) {
+                if (deviceGrid->GetCellValue(i, 0) == (*iter).address) {
+                    row = i;
+                    // remove row from list of unhandled rows
+                    rowsNotHandled.erase(std::remove(rowsNotHandled.begin(), rowsNotHandled.end(), row), rowsNotHandled.end());
+                    break;
+                }
+            }
+            // row not found?
+            if (row == -1) {
+                // append the row
+                deviceGrid->AppendRows();
+                row = deviceGrid->GetNumberRows() - 1;
+            }
+            // set values only if they have changed to reduce flickering
+            if (deviceGrid->GetCellValue(row, 0) != (*iter).address)
+                deviceGrid->SetCellValue(row, 0, (*iter).address);
+            if (deviceGrid->GetCellValue(row, 1) != (*iter).status)
+                deviceGrid->SetCellValue(row, 1, (*iter).status);
+            if (deviceGrid->GetCellValue(row, 2) != (*iter).name)
+                deviceGrid->SetCellValue(row, 2, (*iter).name);
+            if (deviceGrid->GetCellValue(row, 3) != (*iter).info)
+                deviceGrid->SetCellValue(row, 3, (*iter).info);
+            wxString str;
+            if ((*iter).freeMem > 0)
+                str << (*iter).freeMem;
+            if (deviceGrid->GetCellValue(row, 4) != str)
+                deviceGrid->SetCellValue(row, 4, str);
+            str = "";
+            if ((*iter).uptime > 0)
+                str << (*iter).uptime;
+            if (deviceGrid->GetCellValue(row, 5) != str)
+                deviceGrid->SetCellValue(row, 5, str);
+            if (deviceGrid->GetCellValue(row, 6) != (*iter).parameters)
+                deviceGrid->SetCellValue(row, 6, (*iter).parameters);
+        }
+
+        // remove unhandled rows
+        for (int i = 0; i < rowsNotHandled.size(); i++)
+            deviceGrid->DeleteRows(rowsNotHandled.at(i));
     }
 }
 

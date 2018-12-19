@@ -200,7 +200,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pLog->SetSizer( fgSizer2 );
 	pLog->Layout();
 	fgSizer2->Fit( pLog );
-	m_auinotebook4->AddPage( pLog, wxT("Log"), true, wxNullBitmap );
+	m_auinotebook4->AddPage( pLog, wxT("Log"), false, wxNullBitmap );
 	pDevices = new wxPanel( m_auinotebook4, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer16;
 	bSizer16 = new wxBoxSizer( wxVERTICAL );
@@ -249,7 +249,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pDevices->SetSizer( bSizer16 );
 	pDevices->Layout();
 	bSizer16->Fit( pDevices );
-	m_auinotebook4->AddPage( pDevices, wxT("Devices"), false, wxNullBitmap );
+	m_auinotebook4->AddPage( pDevices, wxT("Devices"), true, wxNullBitmap );
 
 	bSizer15->Add( m_auinotebook4, 1, wxEXPAND | wxALL, 0 );
 

@@ -42,18 +42,22 @@ bool ArducomThread::setParameters(const wxString& parameters)
         parArgs.push_back(std::string(str.mb_str()));
     }
 
-    // parse arguments
-    params.setFromArguments(parArgs);
-
     // validate parameters
     try {
+        // parse arguments
+        params.setFromArguments(parArgs);
+
         ArducomMasterTransport* transport = params.validate();
         arducom = new ArducomMaster(transport);
     } catch (const std::exception& e) {
         wxString msg(arducom->getExceptionMessage(e));
         comm->getContext()->logger->logError(msg);
+        deviceInfo.info = msg;
         return false;
     }
+    deviceInfo.address = wxString(params.device);
+    deviceInfo.parameters = parameters;
+
     return true;
 }
 
@@ -86,16 +90,20 @@ void ArducomThread::setStatus(Status status, const wxString& message)
     wxString msg = "Arducom thread for ";
     msg << (params.device != "" ? params.device : "<unknown>") << ": ";
 
+    wxString statusText;
+
     switch (status) {
-    case ARD_INACTIVE: msg << "Inactive" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_NOT_CONNECTED: msg << "Not connected" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_CONNECTING:  msg << "Connecting" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_ERROR_CONNECTING: msg << "Error connecting" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_READY: msg << "Ready" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_DISCONNECTING: msg << "Disconnecting" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_ERROR: msg << "Error" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
-    case ARD_TERMINATED: msg << "Terminated" << (message != "" ? " (" : "") << (message != "" ? message : "") << (message != "" ? ")" : ""); break;
+    case ARD_INACTIVE: statusText << "Inactive" ; break;
+    case ARD_NOT_CONNECTED: statusText << "Not connected" ; break;
+    case ARD_CONNECTING:  statusText << "Connecting" ; break;
+    case ARD_ERROR_CONNECTING: statusText << "Error connecting" ; break;
+    case ARD_READY: statusText << "Ready" ; break;
+    case ARD_DISCONNECTING: statusText << "Disconnecting" ; break;
+    case ARD_ERROR: statusText << "Error" ; break;
+    case ARD_TERMINATED: statusText << "Terminated" ; break;
     }
+
+    msg << statusText;
 
     switch (status) {
     case ARD_INACTIVE: comm->getContext()->logger->logDebug(msg); break;
@@ -110,6 +118,7 @@ void ArducomThread::setStatus(Status status, const wxString& message)
 
     wxCriticalSectionLocker enter(criticalSection);
 
+    deviceInfo.status = statusText;
     this->status = status;
     this->statusMessage = message;
 

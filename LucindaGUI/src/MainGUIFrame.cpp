@@ -23,6 +23,7 @@
 #include "Context.h"
 #include "Configuration.h"
 #include "ChannelPanel.h"
+#include "DeviceInfo.h"
 #include "GlobalChannelPanel.h"
 #include "RegularChannelPanel.h"
 
@@ -113,9 +114,11 @@ void MainGUIFrame::insertLogMessage(const Logger::LogMessage& message) {
         switch (message.priority) {
         case Logger::LogPriority::LOG_DEBUG:
             logGrid->SetCellValue(0, 1, "DEBUG");
+            logGrid->SetCellBackgroundColour(0, 1, *wxWHITE);
             break;
         case Logger::LogPriority::LOG_INFO:
             logGrid->SetCellValue(0, 1, "INFO");
+            logGrid->SetCellBackgroundColour(0, 1, *wxWHITE);
             break;
         case Logger::LogPriority::LOG_WARNING:
             logGrid->SetCellValue(0, 1, "WARNING");
@@ -137,31 +140,34 @@ void MainGUIFrame::setStatusText(const wxString& statusText)
 
 void MainGUIFrame::updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos)
 {
-    // need to rebuild?
-    if (deviceInfos.size() != deviceGrid->GetNumberRows()) {
+    #define DEV_ADDRESS_COL 0
+    #define DEV_STATUS_COL  1
+    #define DEV_NAME_COL    2
+    #define DEV_MEM_COL     3
+    #define DEV_UPTIME_COL  4
+    #define DEV_PARAMS_COL  5
+    #define DEV_INFO_COL    6
 
-        deviceGrid->ClearGrid();
+    // need to rebuild?
+    if (deviceInfos.size() != (size_t)deviceGrid->GetNumberRows()) {
+
+        deviceGrid->DeleteRows(0, deviceGrid->GetNumberRows());
         auto end = deviceInfos.end();
         for (auto iter = deviceInfos.begin(); iter != end; ++iter) {
             deviceGrid->AppendRows();
             int row = deviceGrid->GetNumberRows() - 1;
-            deviceGrid->SetCellValue(row, 0, (*iter).address);
-            deviceGrid->SetCellValue(row, 1, (*iter).status);
-            deviceGrid->SetCellValue(row, 2, (*iter).name);
-            deviceGrid->SetCellValue(row, 3, (*iter).info);
-            if ((*iter).freeMem > 0) {
-                wxString mem;
-                mem << (*iter).freeMem;
-                deviceGrid->SetCellValue(row, 4, mem);
-            } else
-                deviceGrid->SetCellValue(row, 4, "");
-            if ((*iter).uptime > 0) {
-                wxString uptime;
-                uptime << (*iter).uptime;
-                deviceGrid->SetCellValue(row, 5, uptime);
-            } else
-                deviceGrid->SetCellValue(row, 5, "");
-            deviceGrid->SetCellValue(row, 6, (*iter).parameters);
+            deviceGrid->SetCellValue(row, DEV_ADDRESS_COL, (*iter).address);
+            deviceGrid->SetCellValue(row, DEV_STATUS_COL, DeviceInfo::getStatusText((*iter).statusCode));
+            deviceGrid->SetCellValue(row, DEV_NAME_COL, (*iter).name);
+            deviceGrid->SetCellValue(row, DEV_MEM_COL, (*iter).freeMemStr());
+            deviceGrid->SetCellValue(row, DEV_UPTIME_COL, (*iter).uptimeStr());
+            deviceGrid->SetCellValue(row, DEV_PARAMS_COL, (*iter).parameters);
+            deviceGrid->SetCellValue(row, DEV_INFO_COL, (*iter).info);
+            deviceGrid->SetCellBackgroundColour(row, DEV_STATUS_COL, *wxWHITE);
+            if ((*iter).statusCode == DEVICE_ERROR_CONNECTING || (*iter).statusCode == DEVICE_ERROR)
+                deviceGrid->SetCellBackgroundColour(row, DEV_STATUS_COL, *wxRED);
+            else if ((*iter).statusCode == DEVICE_NOT_CONNECTED)
+                deviceGrid->SetCellBackgroundColour(row, DEV_STATUS_COL, *wxYELLOW);
         }
     } else {
         auto end = deviceInfos.end();
@@ -187,30 +193,29 @@ void MainGUIFrame::updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos)
                 row = deviceGrid->GetNumberRows() - 1;
             }
             // set values only if they have changed to reduce flickering
-            if (deviceGrid->GetCellValue(row, 0) != (*iter).address)
-                deviceGrid->SetCellValue(row, 0, (*iter).address);
-            if (deviceGrid->GetCellValue(row, 1) != (*iter).status)
-                deviceGrid->SetCellValue(row, 1, (*iter).status);
-            if (deviceGrid->GetCellValue(row, 2) != (*iter).name)
-                deviceGrid->SetCellValue(row, 2, (*iter).name);
-            if (deviceGrid->GetCellValue(row, 3) != (*iter).info)
-                deviceGrid->SetCellValue(row, 3, (*iter).info);
-            wxString str;
-            if ((*iter).freeMem > 0)
-                str << (*iter).freeMem;
-            if (deviceGrid->GetCellValue(row, 4) != str)
-                deviceGrid->SetCellValue(row, 4, str);
-            str = "";
-            if ((*iter).uptime > 0)
-                str << (*iter).uptime;
-            if (deviceGrid->GetCellValue(row, 5) != str)
-                deviceGrid->SetCellValue(row, 5, str);
-            if (deviceGrid->GetCellValue(row, 6) != (*iter).parameters)
-                deviceGrid->SetCellValue(row, 6, (*iter).parameters);
+            if (deviceGrid->GetCellValue(row, DEV_ADDRESS_COL) != (*iter).address)
+                deviceGrid->SetCellValue(row, DEV_ADDRESS_COL, (*iter).address);
+            if (deviceGrid->GetCellValue(row, DEV_STATUS_COL) != DeviceInfo::getStatusText((*iter).statusCode))
+                deviceGrid->SetCellValue(row, DEV_STATUS_COL, DeviceInfo::getStatusText((*iter).statusCode));
+            if (deviceGrid->GetCellValue(row, DEV_NAME_COL) != (*iter).name)
+                deviceGrid->SetCellValue(row, DEV_NAME_COL, (*iter).name);
+            if (deviceGrid->GetCellValue(row, DEV_MEM_COL) != (*iter).freeMemStr())
+                deviceGrid->SetCellValue(row, DEV_MEM_COL, (*iter).freeMemStr());
+            if (deviceGrid->GetCellValue(row, DEV_UPTIME_COL) != (*iter).uptimeStr())
+                deviceGrid->SetCellValue(row, DEV_UPTIME_COL, (*iter).uptimeStr());
+            if (deviceGrid->GetCellValue(row, DEV_PARAMS_COL) != (*iter).parameters)
+                deviceGrid->SetCellValue(row, DEV_PARAMS_COL, (*iter).parameters);
+            if (deviceGrid->GetCellValue(row, DEV_INFO_COL) != (*iter).info)
+                deviceGrid->SetCellValue(row, DEV_INFO_COL, (*iter).info);
+            deviceGrid->SetCellBackgroundColour(row, DEV_STATUS_COL, *wxWHITE);
+            if ((*iter).statusCode == DEVICE_ERROR_CONNECTING || (*iter).statusCode == DEVICE_ERROR)
+                deviceGrid->SetCellBackgroundColour(row, DEV_STATUS_COL, *wxRED);
+            else if ((*iter).statusCode == DEVICE_NOT_CONNECTED)
+                deviceGrid->SetCellBackgroundColour(row, DEV_STATUS_COL, *wxYELLOW);
         }
 
         // remove unhandled rows
-        for (int i = 0; i < rowsNotHandled.size(); i++)
+        for (size_t i = 0; i < rowsNotHandled.size(); i++)
             deviceGrid->DeleteRows(rowsNotHandled.at(i));
     }
 }
@@ -256,29 +261,34 @@ void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
     appController->OnUpdateTimer(event);
 }
 
+void MainGUIFrame::expandGrid(wxGrid* grid, const wxSize& size)
+{
+    // adjust grid size
+    grid->SetSize(size);
+    int colSizeSum = 0;
+    for (int i = 0; i < grid->GetNumberCols() - 2; i++) {
+        colSizeSum += grid->GetColSize(i);
+    }
+    // adjust message column width
+    int newLastColSize = size.x - colSizeSum - 120;
+    if (newLastColSize > 0)
+        grid->SetColSize(grid->GetNumberCols() - 1, newLastColSize);
+}
+
 void MainGUIFrame::OnLogPanelSize(wxSizeEvent& event)
 {
-    // log panel not floating (docked off)?
+    // panel not floating (docked off)?
     if (!m_mgr.GetPane(pLog).IsFloating()) {
-        // adjust log grid size
-        logGrid->SetSize(event.GetSize());
-        // adjust message column width
-        int newCol3Size = logGrid->GetSize().x - logGrid->GetColSize(0) - logGrid->GetColSize(1) - 20;
-        if (newCol3Size > 0)
-            logGrid->SetColSize(2, newCol3Size);
+        expandGrid(logGrid, event.GetSize());
     }
 }
 
 void MainGUIFrame::OnDevicePanelSize(wxSizeEvent& event)
 {
-    // log panel not floating (docked off)?
+    // panel not floating (docked off)?
     if (!m_mgr.GetPane(pDevices).IsFloating()) {
         // adjust log grid size
-        deviceGrid->SetSize(event.GetSize());
-        // adjust message column width
-//        int newCol3Size = logGrid->GetSize().x - logGrid->GetColSize(0) - logGrid->GetColSize(1) - 20;
-//        if (newCol3Size > 0)
-//            logGrid->SetColSize(2, newCol3Size);
+        expandGrid(deviceGrid, event.GetSize());
     }
 }
 }; // namespace

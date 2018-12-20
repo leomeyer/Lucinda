@@ -39,6 +39,8 @@ class MainGUIFrame: public GUIFrame
         wxTimer* updateTimer;
         Logger::LogPriority minimumLogPriority;
 
+        void expandGrid(wxGrid* grid, const wxSize& size);
+
  		virtual void OnShow(wxShowEvent& event);
         virtual void OnClose(wxCloseEvent& event);
         virtual void OnQuit(wxCommandEvent& event);

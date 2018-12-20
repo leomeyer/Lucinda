@@ -22,7 +22,6 @@ ChannelPanel::ChannelPanel(wxWindow* parent, Processor* processor, const wxStrin
 
 ChannelPanel::~ChannelPanel()
 {
-    //dtor
 }
 
 void ChannelPanel::addSlider(const wxString& name, SliderType type)

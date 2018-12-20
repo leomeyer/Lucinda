@@ -12,8 +12,9 @@ GlobalChannelPanel::GlobalChannelPanel(wxWindow* parent, Processor* processor)
 {
     stChannelName->SetLabel("Global");
 
+    pControls->Hide();
     addSlider("Brightness", SLIDER_BRIGHTNESS);
-    addSlider("Speed", SLIDER_GLOBAL_SPEED);
+//    addSlider("Speed", SLIDER_GLOBAL_SPEED);
 }
 
 GlobalChannelPanel::~GlobalChannelPanel()

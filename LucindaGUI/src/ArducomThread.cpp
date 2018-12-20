@@ -19,7 +19,7 @@ ArducomThread::ArducomThread(Communication* comm) : wxThread(wxTHREAD_JOINABLE)
 {
     this->comm = comm;
     arducom = nullptr;
-    status = ARD_INACTIVE;
+    setStatus(DEVICE_INACTIVE);
 }
 
 ArducomThread::~ArducomThread()
@@ -30,7 +30,8 @@ ArducomThread::~ArducomThread()
 
 bool ArducomThread::setParameters(const wxString& parameters)
 {
-    // get a transport object from the parameters
+    deviceInfo.parameters = parameters;
+    deviceInfo.name = "<Unknown>";
 
     // split parameters and convert to vector of std::string
     std::vector<std::string> parArgs;
@@ -46,17 +47,20 @@ bool ArducomThread::setParameters(const wxString& parameters)
     try {
         // parse arguments
         params.setFromArguments(parArgs);
-
+        deviceInfo.address = wxString(params.device);
+        if (params.deviceAddress != 0)
+            deviceInfo.address << ":" << params.deviceAddress;
+        // get a transport object from the parameters
         ArducomMasterTransport* transport = params.validate();
         arducom = new ArducomMaster(transport);
     } catch (const std::exception& e) {
         wxString msg(arducom->getExceptionMessage(e));
         comm->getContext()->logger->logError(msg);
-        deviceInfo.info = msg;
+        deviceInfo.info = "Unable to initialize the connection";
+        deviceInfo.statusCode = DEVICE_ERROR_CONNECTING;
+        deviceInfo.status = msg;
         return false;
     }
-    deviceInfo.address = wxString(params.device);
-    deviceInfo.parameters = parameters;
 
     return true;
 }
@@ -75,59 +79,57 @@ void ArducomThread::terminate()
     }
 }
 
-ArducomThread::Status ArducomThread::getStatus(wxString* message)
+wxString ArducomThread::getStatusText(DeviceStatus status)
+{
+    return DeviceInfo::getStatusText(status);
+}
+
+DeviceStatus ArducomThread::getStatus(wxString* message)
 {
     wxCriticalSectionLocker enter(criticalSection);
 
     message->Clear();
-    message->Append(this->statusMessage);
-    return status;
+    message->Append(deviceInfo.status);
+    return deviceInfo.statusCode;
 }
 
-void ArducomThread::setStatus(Status status, const wxString& message)
+void ArducomThread::setStatus(DeviceStatus status, const wxString& message)
 {
-    // generate log message
-    wxString msg = "Arducom thread for ";
-    msg << (params.device != "" ? params.device : "<unknown>") << ": ";
+    deviceInfo.statusCode = status;
+    deviceInfo.status = getStatusText(status);
 
-    wxString statusText;
-
-    switch (status) {
-    case ARD_INACTIVE: statusText << "Inactive" ; break;
-    case ARD_NOT_CONNECTED: statusText << "Not connected" ; break;
-    case ARD_CONNECTING:  statusText << "Connecting" ; break;
-    case ARD_ERROR_CONNECTING: statusText << "Error connecting" ; break;
-    case ARD_READY: statusText << "Ready" ; break;
-    case ARD_DISCONNECTING: statusText << "Disconnecting" ; break;
-    case ARD_ERROR: statusText << "Error" ; break;
-    case ARD_TERMINATED: statusText << "Terminated" ; break;
+    if (status == DEVICE_NOT_CONNECTED) {
+        deviceInfo.name = "<unknown>";
+        deviceInfo.uptime = 0;
+        deviceInfo.flags = 0;
+        deviceInfo.freeMem = 0;
     }
+    // generate log message
+    wxString msg = "Device at ";
+    msg << (deviceInfo.address != "" ? deviceInfo.address : "<unknown>") << ": ";
+    msg << deviceInfo.status;
 
-    msg << statusText;
-
+    // log with priority depending on status
     switch (status) {
-    case ARD_INACTIVE: comm->getContext()->logger->logDebug(msg); break;
-    case ARD_NOT_CONNECTED: comm->getContext()->logger->logDebug(msg); break;
-    case ARD_CONNECTING:  comm->getContext()->logger->logInfo(msg); break;
-    case ARD_ERROR_CONNECTING: comm->getContext()->logger->logError(msg); break;
-    case ARD_READY: comm->getContext()->logger->logDebug(msg); break;
-    case ARD_DISCONNECTING: comm->getContext()->logger->logInfo(msg); break;
-    case ARD_ERROR: comm->getContext()->logger->logError(msg); break;
-    case ARD_TERMINATED: comm->getContext()->logger->logDebug(msg); break;
+    case DEVICE_INACTIVE: break;
+    case DEVICE_NOT_CONNECTED: comm->getContext()->logger->logDebug(msg); break;
+    case DEVICE_CONNECTING:  comm->getContext()->logger->logInfo(msg); break;
+    case DEVICE_ERROR_CONNECTING: comm->getContext()->logger->logError(msg); break;
+    case DEVICE_READY: comm->getContext()->logger->logDebug(msg); break;
+    case DEVICE_DISCONNECTING: comm->getContext()->logger->logInfo(msg); break;
+    case DEVICE_ERROR: comm->getContext()->logger->logError(msg); break;
+    case DEVICE_RECONNECTING: comm->getContext()->logger->logInfo(msg); break;
+    case DEVICE_TERMINATED: comm->getContext()->logger->logDebug(msg); break;
     }
 
     wxCriticalSectionLocker enter(criticalSection);
-
-    deviceInfo.status = statusText;
-    this->status = status;
-    this->statusMessage = message;
 
     // inform communication that status has changed
     comm->update(this);
 }
 
 bool ArducomThread::canSend() {
-    return (IsRunning() && status == ARD_READY);
+    return (IsRunning() && deviceInfo.statusCode == DEVICE_READY);
 }
 
 
@@ -294,6 +296,15 @@ void ArducomThread::sendMultiByteCommand(uint8_t command, uint16_t data)
 
 }
 
+void ArducomThread::reconnect()
+{
+    setStatus(DEVICE_RECONNECTING);
+    // clear the queue
+    while (queue.pop());
+
+    queue.enqueue(QueueMessage(MessageType::DISCONNECT));
+    queue.enqueue(QueueMessage(MessageType::CONNECT));
+}
 
 wxThread::ExitCode ArducomThread::Entry()
 {
@@ -308,12 +319,14 @@ wxThread::ExitCode ArducomThread::Entry()
         case MessageType::CONNECT: {
             // clear the queue
             while (queue.pop());
-
-            uint8_t buffer[ARDUCOM_BUFFERSIZE];
-            uint8_t size = 0;
             wxString msg("Connecting to ");
             msg.append(params.device);
-            setStatus(ARD_CONNECTING, msg);
+            setStatus(DEVICE_CONNECTING, msg);
+            // fall through to REFRESH
+        }
+        case MessageType::REFRESH: {
+            uint8_t buffer[ARDUCOM_BUFFERSIZE];
+            uint8_t size = 0;
             try {
                 // execute version command
                 arducom->execute(params, ARDUCOM_VERSION_COMMAND, &(buffer[0]), &size, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
@@ -350,39 +363,56 @@ wxThread::ExitCode ArducomThread::Entry()
                 deviceInfo.flags = versionInfo.flags;
                 deviceInfo.freeMem = versionInfo.freeRAM;
 
-                setStatus(ARD_READY, wxString(versionInfo.info));
+                setStatus(DEVICE_READY, wxString(versionInfo.info));
             } catch (const std::exception& e) {
-                setStatus(ARD_NOT_CONNECTED, arducom->getExceptionMessage(e));
+                setStatus(DEVICE_NOT_CONNECTED, arducom->getExceptionMessage(e));
             }
             break;
         }
         case MessageType::SEND_COMMAND: {
-            if (status == ARD_READY) {
+            if (deviceInfo.statusCode == DEVICE_READY) {
                 wxString msg("Sending data to ");
                 msg.append(params.device);
-                setStatus(ARD_READY, msg);
+                comm->getContext()->logger->logDebug(msg);
                 try {
                     // execute command
                     arducom->execute(params, message.command, &(message.data[0]), &message.dataLength, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
+                } catch (const Arducom::FunctionError& e) {
+                    // this is a programming error, simply log it
+                    comm->getContext()->logger->logError(arducom->getExceptionMessage(e));
                 } catch (const std::exception& e) {
-                    setStatus(ARD_ERROR, arducom->getExceptionMessage(e));
+                    // other errors are more serious, reconnect to the device
+                    setStatus(DEVICE_ERROR, arducom->getExceptionMessage(e));
+                    reconnect();
                 }
             }
             break;
         }
+        case MessageType::DISCONNECT: {
+            wxString msg("Disconnecting from ");
+            msg.append(params.device);
+            comm->getContext()->logger->logDebug(msg);
+            try {
+                arducom->close(false);
+                setStatus(DEVICE_TERMINATED, "");
+            } catch (const std::exception& e) {
+                setStatus(DEVICE_ERROR, arducom->getExceptionMessage(e));
+            }
+            break;
+        }
         case MessageType::TERMINATE: {
-            if (status == ARD_READY) {
+            if (deviceInfo.statusCode == DEVICE_READY) {
                 wxString msg("Terminating connection to ");
                 msg.append(params.device);
-                setStatus(ARD_DISCONNECTING, msg);
+                comm->getContext()->logger->logDebug(msg);
 
                 try {
                     arducom->close(false);
                 } catch (const std::exception& e) {
-                    setStatus(ARD_ERROR, arducom->getExceptionMessage(e));
+                    comm->getContext()->logger->logDebug(msg);
                 }
             }
-            setStatus(ARD_TERMINATED, "");
+            setStatus(DEVICE_TERMINATED, "");
             // end thread processing
             return 0;
         }

@@ -50,6 +50,7 @@ class GUIFrame : public wxFrame
 		wxMenu* m_menu3;
 		wxMenu* m_menu4;
 		wxMenu* m_menu5;
+		wxMenu* m_menu41;
 		wxAuiToolBar* m_auiToolBar1;
 		wxAuiToolBarItem* tNew;
 		wxAuiToolBarItem* mOpen;
@@ -90,26 +91,6 @@ class GUIFrame : public wxFrame
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class ChannelPanelBase
-///////////////////////////////////////////////////////////////////////////////
-class ChannelPanelBase : public wxPanel
-{
-	private:
-
-	protected:
-		wxBoxSizer* channelSizer;
-		wxStaticText* stChannelName;
-		wxPanel* pInternal;
-		wxBoxSizer* sizerInternal;
-
-	public:
-
-		ChannelPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 100,500 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
-		~ChannelPanelBase();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
 /// Class SliderPanelBase
 ///////////////////////////////////////////////////////////////////////////////
 class SliderPanelBase : public wxPanel
@@ -120,6 +101,7 @@ class SliderPanelBase : public wxPanel
 		wxStaticText* stSliderName;
 		wxStaticText* stLabel;
 		wxTextCtrl* txtValue;
+		wxPanel* m_panel78;
 		wxStaticText* stMaxValue;
 		wxSlider* slider;
 		wxStaticText* stMinValue;
@@ -140,9 +122,9 @@ class SliderPanelBase : public wxPanel
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class ChannelControlsPanel
+/// Class ChannelControlsBase
 ///////////////////////////////////////////////////////////////////////////////
-class ChannelControlsPanel : public wxPanel
+class ChannelControlsBase : public wxPanel
 {
 	private:
 
@@ -176,26 +158,106 @@ class ChannelControlsPanel : public wxPanel
 		wxPanel* m_panel77;
 		wxPanel* m_panel74;
 		wxStaticText* m_staticText7;
-		wxComboBox* m_comboBox1;
-		wxCheckBox* m_checkBox82;
+		wxComboBox* cmbWaveform;
+		wxCheckBox* cbReverse;
 		wxPanel* m_panel78;
-		wxCheckBox* m_checkBox83;
-		wxCheckBox* m_checkBox84;
+		wxCheckBox* cbInvert;
+		wxCheckBox* cbEyeCorrection;
 		wxPanel* m_panel79;
 		wxStaticText* m_staticText10;
-		wxSpinCtrl* m_spinCtrl1;
+		wxSpinCtrl* scMacrocycleLength;
 		wxStaticText* m_staticText11;
-		wxSpinCtrl* m_spinCtrl2;
+		wxSpinCtrl* scMacrocycleCount;
 		wxStaticText* m_staticText12;
-		wxSpinCtrl* m_spinCtrl3;
+		wxSpinCtrl* scMacrocycleOffset;
 		wxPanel* m_panel80;
-		wxCheckBox* m_checkBox85;
-		wxButton* m_button1;
+		wxCheckBox* cbEnabled;
+		wxButton* btnSet;
+		wxButton* btnReset;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCombobox( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSpinCtrl( wxSpinEvent& event ) { event.Skip(); }
+		virtual void OnButtonSet( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButtonReset( wxCommandEvent& event ) { event.Skip(); }
+
 
 	public:
 
-		ChannelControlsPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,100 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
-		~ChannelControlsPanel();
+		ChannelControlsBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 288,100 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~ChannelControlsBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ChannelPanelBase
+///////////////////////////////////////////////////////////////////////////////
+class ChannelPanelBase : public wxPanel
+{
+	private:
+
+	protected:
+		wxBoxSizer* channelSizer;
+		wxStaticText* stChannelName;
+		wxPanel* pControls;
+		wxPanel* pLights;
+		wxPanel* m_panel53;
+		wxPanel* m_panel54;
+		wxCheckBox* cb1;
+		wxPanel* m_panel55;
+		wxPanel* m_panel56;
+		wxPanel* m_panel57;
+		wxPanel* m_panel58;
+		wxCheckBox* cb5;
+		wxPanel* m_panel60;
+		wxPanel* m_panel61;
+		wxCheckBox* cb2;
+		wxCheckBox* cb6;
+		wxCheckBox* cbHalogen;
+		wxCheckBox* cb8;
+		wxCheckBox* cb4;
+		wxPanel* m_panel65;
+		wxPanel* m_panel66;
+		wxCheckBox* cb7;
+		wxPanel* m_panel67;
+		wxPanel* m_panel68;
+		wxPanel* m_panel69;
+		wxPanel* m_panel70;
+		wxCheckBox* cb3;
+		wxPanel* m_panel72;
+		wxPanel* m_panel73;
+		wxPanel* m_panel77;
+		wxPanel* m_panel74;
+		wxComboBox* cmbWaveform;
+		wxCheckBox* cbReverse;
+		wxCheckBox* cbInvert;
+		wxCheckBox* cbEyeCorrection;
+		wxPanel* m_panel79;
+		wxStaticText* m_staticText10;
+		wxTextCtrl* m_textCtrl4;
+		wxStaticText* m_staticText11;
+		wxTextCtrl* m_textCtrl5;
+		wxStaticText* m_staticText12;
+		wxTextCtrl* m_textCtrl6;
+		wxPanel* m_panel80;
+		wxCheckBox* cbEnabled;
+		wxButton* btnSet;
+		wxButton* btnReset;
+		wxPanel* pInternal;
+		wxBoxSizer* sizerInternal;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCombobox( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButtonSet( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButtonReset( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		ChannelPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 350,500 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~ChannelPanelBase();
 
 };
 

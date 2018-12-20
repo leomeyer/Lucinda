@@ -28,9 +28,6 @@ class Communication: IDeviceCommands
         /** Tells the communication class that something has changed about this thread. */
         void update(ArducomThread* thread);
 
-        /** Retrieves the next message from the queue if available, else an empty string. */
-        wxString getNextMessage();
-
         Context* getContext();
 
         wxString getThreadStatus(ArducomThread* thread);

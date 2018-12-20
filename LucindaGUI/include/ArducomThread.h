@@ -25,17 +25,6 @@ class ArducomThread : public wxThread
 {
     public:
 
-        enum Status {
-            ARD_INACTIVE,
-            ARD_NOT_CONNECTED,
-            ARD_CONNECTING,
-            ARD_ERROR_CONNECTING,
-            ARD_READY,
-            ARD_DISCONNECTING,
-            ARD_ERROR,
-            ARD_TERMINATED
-        };
-
         ArducomParameters params;
 
         DeviceInfo deviceInfo;
@@ -51,7 +40,9 @@ class ArducomThread : public wxThread
         /** Attempt to terminate the thread. */
         void terminate();
 
-        Status getStatus(wxString* message);
+        static wxString getStatusText(DeviceStatus statusCode);
+
+        DeviceStatus getStatus(wxString* message);
 
         /** Send a command to the connected device. */
         void send1ByteCommand(uint8_t command, uint8_t data, bool replacable);
@@ -66,6 +57,8 @@ class ArducomThread : public wxThread
         /** Send a command to the connected device. */
         void sendMultiByteCommand(uint8_t command, uint16_t data);
 
+        /** Try to reconnect after an error */
+        void reconnect();
 
     protected:
         // message types for the message queue
@@ -73,6 +66,7 @@ class ArducomThread : public wxThread
             CONNECT,
             DISCONNECT,
             SEND_COMMAND,
+            REFRESH,
             TERMINATE
         };
 
@@ -93,14 +87,11 @@ class ArducomThread : public wxThread
         ArducomMaster* arducom;
         wxCriticalSection criticalSection;
 
-        Status status;
-        wxString statusMessage;
-
         BlockingReaderWriterQueue<QueueMessage> queue;
 
         bool canSend();
 
-        void setStatus(Status status, const wxString& message = "");
+        void setStatus(DeviceStatus status, const wxString& message = "");
 
         virtual wxThread::ExitCode Entry();
 

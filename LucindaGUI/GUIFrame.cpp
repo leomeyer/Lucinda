@@ -62,6 +62,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_menu5 = new wxMenu();
 	mbMenuBar->Append( m_menu5, wxT("View") );
 
+	m_menu41 = new wxMenu();
+	wxMenuItem* m_menuItem6;
+	m_menuItem6 = new wxMenuItem( m_menu41, wxID_ANY, wxString( wxT("MyMenuItem") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu41->Append( m_menuItem6 );
+
+	mbMenuBar->Append( m_menu41, wxT("Devices") );
+
 	this->SetMenuBar( mbMenuBar );
 
 	m_auiToolBar1 = new wxAuiToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT );
@@ -76,10 +83,10 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_auiToolBar1->Realize();
 	m_mgr.AddPane( m_auiToolBar1, wxAuiPaneInfo().Top().CaptionVisible( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 37,44 ) ).Row( 1 ) );
 
-	pSequenceProperties = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,55 ), wxTAB_TRAVERSAL );
-	pSequenceProperties->SetMinSize( wxSize( -1,40 ) );
+	pSequenceProperties = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,60 ), wxTAB_TRAVERSAL );
+	pSequenceProperties->SetMinSize( wxSize( -1,60 ) );
 
-	m_mgr.AddPane( pSequenceProperties, wxAuiPaneInfo() .Top() .CaptionVisible( false ).PinButton( true ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( 37,54 ) ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ).Row( 2 ) );
+	m_mgr.AddPane( pSequenceProperties, wxAuiPaneInfo() .Top() .CaptionVisible( false ).PinButton( true ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( -1,-1 ) ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ).Row( 2 ) );
 
 	wxBoxSizer* bSizer33;
 	bSizer33 = new wxBoxSizer( wxVERTICAL );
@@ -92,23 +99,23 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_staticText13 = new wxStaticText( m_panel85, wxID_ANY, wxT("Sequence Name:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText13->Wrap( -1 );
-	bSizer34->Add( m_staticText13, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+	bSizer34->Add( m_staticText13, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 	txtSequenceName = new wxTextCtrl( m_panel85, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer34->Add( txtSequenceName, 0, wxALL, 1 );
+	bSizer34->Add( txtSequenceName, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
 
 	m_staticText14 = new wxStaticText( m_panel85, wxID_ANY, wxT("Description:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText14->Wrap( -1 );
-	bSizer34->Add( m_staticText14, 0, wxALL, 5 );
+	bSizer34->Add( m_staticText14, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 	txtSequenceDescription = new wxTextCtrl( m_panel85, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer34->Add( txtSequenceDescription, 9, wxALL, 1 );
+	bSizer34->Add( txtSequenceDescription, 9, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
 
 
 	m_panel85->SetSizer( bSizer34 );
 	m_panel85->Layout();
 	bSizer34->Fit( m_panel85 );
-	bSizer33->Add( m_panel85, 1, wxEXPAND | wxALL, 0 );
+	bSizer33->Add( m_panel85, 1, wxALL|wxEXPAND, 0 );
 
 	m_panel89 = new wxPanel( pSequenceProperties, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer35;
@@ -116,7 +123,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_staticText15 = new wxStaticText( m_panel89, wxID_ANY, wxT("Length:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText15->Wrap( -1 );
-	bSizer35->Add( m_staticText15, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+	bSizer35->Add( m_staticText15, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT|wxLEFT, 5 );
 
 	m_staticText16 = new wxStaticText( m_panel89, wxID_ANY, wxT("0 s"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText16->Wrap( -1 );
@@ -126,13 +133,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_panel89->SetSizer( bSizer35 );
 	m_panel89->Layout();
 	bSizer35->Fit( m_panel89 );
-	bSizer33->Add( m_panel89, 1, wxEXPAND | wxALL, 0 );
+	bSizer33->Add( m_panel89, 1, wxALL|wxEXPAND, 0 );
 
 
 	pSequenceProperties->SetSizer( bSizer33 );
 	pSequenceProperties->Layout();
 	pContent = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( pContent, wxAuiPaneInfo() .Center() .CaptionVisible( false ).CloseButton( false ).PaneBorder( false ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( 110,110 ) ).DockFixed( true ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ) );
+	m_mgr.AddPane( pContent, wxAuiPaneInfo() .Center() .CaptionVisible( false ).CloseButton( false ).PaneBorder( false ).Movable( false ).Dock().Resizable().FloatingSize( wxSize( -1,-1 ) ).DockFixed( true ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ) );
 
 	contentSizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -140,7 +147,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pContent->SetSizer( contentSizer );
 	pContent->Layout();
 	contentSizer->Fit( pContent );
-	pInformation = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,80 ), wxTAB_TRAVERSAL );
+	pInformation = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,100 ), wxTAB_TRAVERSAL );
 	pInformation->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
 	pInformation->SetMinSize( wxSize( 100,80 ) );
 
@@ -200,7 +207,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pLog->SetSizer( fgSizer2 );
 	pLog->Layout();
 	fgSizer2->Fit( pLog );
-	m_auinotebook4->AddPage( pLog, wxT("Log"), false, wxNullBitmap );
+	m_auinotebook4->AddPage( pLog, wxT("Log"), true, wxNullBitmap );
 	pDevices = new wxPanel( m_auinotebook4, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer16;
 	bSizer16 = new wxBoxSizer( wxVERTICAL );
@@ -209,29 +216,29 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	// Grid
 	deviceGrid->CreateGrid( 1, 7 );
-	deviceGrid->EnableEditing( true );
+	deviceGrid->EnableEditing( false );
 	deviceGrid->EnableGridLines( true );
 	deviceGrid->EnableDragGridSize( false );
 	deviceGrid->SetMargins( 0, 0 );
 
 	// Columns
 	deviceGrid->SetColSize( 0, 64 );
-	deviceGrid->SetColSize( 1, 70 );
+	deviceGrid->SetColSize( 1, 89 );
 	deviceGrid->SetColSize( 2, 80 );
-	deviceGrid->SetColSize( 3, 96 );
-	deviceGrid->SetColSize( 4, 80 );
-	deviceGrid->SetColSize( 5, 80 );
-	deviceGrid->SetColSize( 6, 80 );
+	deviceGrid->SetColSize( 3, 59 );
+	deviceGrid->SetColSize( 4, 64 );
+	deviceGrid->SetColSize( 5, 89 );
+	deviceGrid->SetColSize( 6, 165 );
 	deviceGrid->EnableDragColMove( false );
 	deviceGrid->EnableDragColSize( true );
 	deviceGrid->SetColLabelSize( 30 );
 	deviceGrid->SetColLabelValue( 0, wxT("Address") );
 	deviceGrid->SetColLabelValue( 1, wxT("Status") );
-	deviceGrid->SetColLabelValue( 2, wxT("Type") );
-	deviceGrid->SetColLabelValue( 3, wxT("Info") );
-	deviceGrid->SetColLabelValue( 4, wxT("Free RAM") );
-	deviceGrid->SetColLabelValue( 5, wxT("Uptime") );
-	deviceGrid->SetColLabelValue( 6, wxT("Parameters") );
+	deviceGrid->SetColLabelValue( 2, wxT("Name") );
+	deviceGrid->SetColLabelValue( 3, wxT("Free RAM") );
+	deviceGrid->SetColLabelValue( 4, wxT("Uptime") );
+	deviceGrid->SetColLabelValue( 5, wxT("Parameters") );
+	deviceGrid->SetColLabelValue( 6, wxT("Info") );
 	deviceGrid->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
 
 	// Rows
@@ -243,13 +250,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	// Cell Defaults
 	deviceGrid->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
-	bSizer16->Add( deviceGrid, 0, wxALL, 1 );
+	bSizer16->Add( deviceGrid, 0, wxALL|wxEXPAND, 1 );
 
 
 	pDevices->SetSizer( bSizer16 );
 	pDevices->Layout();
 	bSizer16->Fit( pDevices );
-	m_auinotebook4->AddPage( pDevices, wxT("Devices"), true, wxNullBitmap );
+	m_auinotebook4->AddPage( pDevices, wxT("Devices"), false, wxNullBitmap );
 
 	bSizer15->Add( m_auinotebook4, 1, wxEXPAND | wxALL, 0 );
 
@@ -277,35 +284,6 @@ GUIFrame::~GUIFrame()
 
 	m_mgr.UnInit();
 
-}
-
-ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
-{
-	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNSHADOW ) );
-	this->SetMinSize( wxSize( 0,500 ) );
-
-	channelSizer = new wxBoxSizer( wxVERTICAL );
-
-	stChannelName = new wxStaticText( this, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	stChannelName->Wrap( -1 );
-	channelSizer->Add( stChannelName, 0, wxALL|wxEXPAND, 5 );
-
-	pInternal = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	sizerInternal = new wxBoxSizer( wxHORIZONTAL );
-
-
-	pInternal->SetSizer( sizerInternal );
-	pInternal->Layout();
-	sizerInternal->Fit( pInternal );
-	channelSizer->Add( pInternal, 1, wxEXPAND | wxALL, 5 );
-
-
-	this->SetSizer( channelSizer );
-	this->Layout();
-}
-
-ChannelPanelBase::~ChannelPanelBase()
-{
 }
 
 SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
@@ -336,22 +314,32 @@ SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint
 	bSizer12->Add( txtValue, 0, wxALL, 2 );
 
 
-	bSizer11->Add( bSizer12, 1, 0, 5 );
+	bSizer11->Add( bSizer12, 0, 0, 5 );
 
-	stMaxValue = new wxStaticText( this, wxID_ANY, wxT("100"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
+	m_panel78 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer33;
+	bSizer33 = new wxBoxSizer( wxVERTICAL );
+
+	stMaxValue = new wxStaticText( m_panel78, wxID_ANY, wxT("100"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
 	stMaxValue->Wrap( -1 );
 	stMaxValue->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer11->Add( stMaxValue, 0, wxALL|wxEXPAND, 0 );
+	bSizer33->Add( stMaxValue, 0, wxALL|wxEXPAND, 0 );
 
-	slider = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxSize( 30,200 ), wxSL_BOTH|wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer11->Add( slider, 0, wxALIGN_CENTER|wxALL, 1 );
+	slider = new wxSlider( m_panel78, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxSize( -1,-1 ), wxSL_BOTH|wxSL_INVERSE|wxSL_VERTICAL );
+	bSizer33->Add( slider, 1, wxALIGN_CENTER|wxALL, 1 );
 
-	stMinValue = new wxStaticText( this, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
+	stMinValue = new wxStaticText( m_panel78, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
 	stMinValue->Wrap( -1 );
 	stMinValue->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer11->Add( stMinValue, 0, wxALL|wxEXPAND, 0 );
+	bSizer33->Add( stMinValue, 0, wxALL|wxEXPAND, 0 );
+
+
+	m_panel78->SetSizer( bSizer33 );
+	m_panel78->Layout();
+	bSizer33->Fit( m_panel78 );
+	bSizer11->Add( m_panel78, 1, wxEXPAND | wxALL, 5 );
 
 
 	this->SetSizer( bSizer11 );
@@ -392,10 +380,12 @@ SliderPanelBase::~SliderPanelBase()
 
 }
 
-ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+ChannelControlsBase::ChannelControlsBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
 	wxFlexGridSizer* fgSizer15;
-	fgSizer15 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer15 = new wxFlexGridSizer( 1, 2, 0, 0 );
+	fgSizer15->AddGrowableCol( 0 );
+	fgSizer15->AddGrowableRow( 0 );
 	fgSizer15->SetFlexibleDirection( wxBOTH );
 	fgSizer15->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -501,16 +491,16 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 	m_staticText7->Wrap( -1 );
 	bSizer28->Add( m_staticText7, 0, wxALIGN_CENTER_VERTICAL|wxALL, 3 );
 
-	m_comboBox1 = new wxComboBox( m_panel74, wxID_ANY, wxT("Square"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	m_comboBox1->Append( wxT("Square") );
-	m_comboBox1->Append( wxT("Sine") );
-	m_comboBox1->Append( wxT("Triangle") );
-	m_comboBox1->Append( wxT("Flicker") );
-	m_comboBox1->Append( wxT("Linear") );
-	bSizer28->Add( m_comboBox1, 0, wxALL, 0 );
+	cmbWaveform = new wxComboBox( m_panel74, wxID_ANY, wxT("Square"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	cmbWaveform->Append( wxT("Square") );
+	cmbWaveform->Append( wxT("Sine") );
+	cmbWaveform->Append( wxT("Triangle") );
+	cmbWaveform->Append( wxT("Flicker") );
+	cmbWaveform->Append( wxT("Linear") );
+	bSizer28->Add( cmbWaveform, 0, wxALL, 0 );
 
-	m_checkBox82 = new wxCheckBox( m_panel74, wxID_ANY, wxT("Rev"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer28->Add( m_checkBox82, 0, wxALIGN_CENTER_VERTICAL|wxALL, 3 );
+	cbReverse = new wxCheckBox( m_panel74, wxID_ANY, wxT("Rev"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer28->Add( cbReverse, 0, wxALIGN_CENTER_VERTICAL|wxALL, 3 );
 
 
 	m_panel74->SetSizer( bSizer28 );
@@ -521,15 +511,15 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 	wxBoxSizer* bSizer30;
 	bSizer30 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_checkBox83 = new wxCheckBox( m_panel78, wxID_ANY, wxT("Invert"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_checkBox83->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	cbInvert = new wxCheckBox( m_panel78, wxID_ANY, wxT("Invert"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbInvert->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer30->Add( m_checkBox83, 0, wxALL, 5 );
+	bSizer30->Add( cbInvert, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_checkBox84 = new wxCheckBox( m_panel78, wxID_ANY, wxT("Eye Correction"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_checkBox84->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	cbEyeCorrection = new wxCheckBox( m_panel78, wxID_ANY, wxT("Eye Correction"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbEyeCorrection->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer30->Add( m_checkBox84, 0, wxALL, 5 );
+	bSizer30->Add( cbEyeCorrection, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 
 	m_panel78->SetSizer( bSizer30 );
@@ -538,6 +528,8 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 	bSizer29->Add( m_panel78, 1, wxEXPAND | wxALL, 0 );
 
 	m_panel79 = new wxPanel( m_panel77, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_panel79->SetMaxSize( wxSize( 180,-1 ) );
+
 	wxBoxSizer* bSizer31;
 	bSizer31 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -547,11 +539,11 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 
 	bSizer31->Add( m_staticText10, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
 
-	m_spinCtrl1 = new wxSpinCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10, 0 );
-	m_spinCtrl1->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
-	m_spinCtrl1->SetMaxSize( wxSize( 40,-1 ) );
+	scMacrocycleLength = new wxSpinCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10, 0 );
+	scMacrocycleLength->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	scMacrocycleLength->SetMaxSize( wxSize( 40,-1 ) );
 
-	bSizer31->Add( m_spinCtrl1, 0, wxALL, 1 );
+	bSizer31->Add( scMacrocycleLength, 0, wxALL, 1 );
 
 	m_staticText11 = new wxStaticText( m_panel79, wxID_ANY, wxT("MC"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText11->Wrap( -1 );
@@ -559,11 +551,11 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 
 	bSizer31->Add( m_staticText11, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-	m_spinCtrl2 = new wxSpinCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10, 0 );
-	m_spinCtrl2->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
-	m_spinCtrl2->SetMaxSize( wxSize( 40,-1 ) );
+	scMacrocycleCount = new wxSpinCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10, 0 );
+	scMacrocycleCount->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	scMacrocycleCount->SetMaxSize( wxSize( 40,-1 ) );
 
-	bSizer31->Add( m_spinCtrl2, 0, wxALL, 1 );
+	bSizer31->Add( scMacrocycleCount, 0, wxALL, 1 );
 
 	m_staticText12 = new wxStaticText( m_panel79, wxID_ANY, wxT("MS"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText12->Wrap( -1 );
@@ -571,10 +563,10 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 
 	bSizer31->Add( m_staticText12, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-	m_spinCtrl3 = new wxSpinCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 40,-1 ), wxSP_ARROW_KEYS, 0, 10, 0 );
-	m_spinCtrl3->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	scMacrocycleOffset = new wxSpinCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 40,-1 ), wxSP_ARROW_KEYS, 0, 10, 0 );
+	scMacrocycleOffset->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer31->Add( m_spinCtrl3, 0, wxALL, 1 );
+	bSizer31->Add( scMacrocycleOffset, 0, wxALL, 1 );
 
 
 	m_panel79->SetSizer( bSizer31 );
@@ -586,18 +578,20 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 	wxBoxSizer* bSizer32;
 	bSizer32 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_checkBox85 = new wxCheckBox( m_panel80, wxID_ANY, wxT("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_checkBox85->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	cbEnabled = new wxCheckBox( m_panel80, wxID_ANY, wxT("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbEnabled->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer32->Add( m_checkBox85, 0, wxALL, 5 );
+	bSizer32->Add( cbEnabled, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
+	btnSet = new wxButton( m_panel80, wxID_ANY, wxT("Set"), wxDefaultPosition, wxSize( 30,-1 ), 0 );
+	btnSet->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer32->Add( 0, 0, 1, wxEXPAND, 5 );
+	bSizer32->Add( btnSet, 1, wxALL, 1 );
 
-	m_button1 = new wxButton( m_panel80, wxID_ANY, wxT("Set"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_button1->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	btnReset = new wxButton( m_panel80, wxID_ANY, wxT("Reset"), wxDefaultPosition, wxSize( 50,-1 ), 0 );
+	btnReset->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer32->Add( m_button1, 0, wxALL, 1 );
+	bSizer32->Add( btnReset, 1, wxALL, 1 );
 
 
 	m_panel80->SetSizer( bSizer32 );
@@ -614,8 +608,293 @@ ChannelControlsPanel::ChannelControlsPanel( wxWindow* parent, wxWindowID id, con
 
 	this->SetSizer( fgSizer15 );
 	this->Layout();
+
+	// Connect Events
+	cb1->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	cmbWaveform->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( ChannelControlsBase::OnCombobox ), NULL, this );
+	cbReverse->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	cbInvert->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	cbEyeCorrection->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	scMacrocycleLength->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ChannelControlsBase::OnSpinCtrl ), NULL, this );
+	cbEnabled->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	btnSet->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnButtonSet ), NULL, this );
+	btnReset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnButtonReset ), NULL, this );
 }
 
-ChannelControlsPanel::~ChannelControlsPanel()
+ChannelControlsBase::~ChannelControlsBase()
 {
+	// Disconnect Events
+	cb1->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	cmbWaveform->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( ChannelControlsBase::OnCombobox ), NULL, this );
+	cbReverse->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	cbInvert->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	cbEyeCorrection->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	scMacrocycleLength->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ChannelControlsBase::OnSpinCtrl ), NULL, this );
+	cbEnabled->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnCheckBox ), NULL, this );
+	btnSet->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnButtonSet ), NULL, this );
+	btnReset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelControlsBase::OnButtonReset ), NULL, this );
+
+}
+
+ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_APPWORKSPACE ) );
+
+	channelSizer = new wxBoxSizer( wxVERTICAL );
+
+	stChannelName = new wxStaticText( this, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
+	stChannelName->Wrap( -1 );
+	stChannelName->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+
+	channelSizer->Add( stChannelName, 0, wxALL|wxEXPAND, 2 );
+
+	pControls = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer32;
+	bSizer32 = new wxBoxSizer( wxHORIZONTAL );
+
+	pLights = new wxPanel( pControls, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxBORDER_RAISED|wxTAB_TRAVERSAL );
+	pLights->SetMaxSize( wxSize( 100,100 ) );
+
+	wxGridSizer* gSizer3;
+	gSizer3 = new wxGridSizer( 5, 5, 0, 0 );
+
+	m_panel53 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel53, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel54 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel54, 1, wxEXPAND | wxALL, 5 );
+
+	cb1 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb1, 0, wxALL, 2 );
+
+	m_panel55 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel55, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel56 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel56, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel57 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel57, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel58 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel58, 1, wxEXPAND | wxALL, 5 );
+
+	cb5 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb5, 0, wxALL, 2 );
+
+	m_panel60 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel60, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel61 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel61, 1, wxEXPAND | wxALL, 5 );
+
+	cb2 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb2, 0, wxALL, 2 );
+
+	cb6 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb6, 0, wxALL, 2 );
+
+	cbHalogen = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cbHalogen, 0, wxALL, 2 );
+
+	cb8 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb8, 0, wxALL, 2 );
+
+	cb4 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb4, 0, wxALL, 2 );
+
+	m_panel65 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel65, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel66 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel66, 1, wxEXPAND | wxALL, 5 );
+
+	cb7 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb7, 0, wxALL, 2 );
+
+	m_panel67 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel67, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel68 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel68, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel69 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel69, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel70 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel70, 1, wxEXPAND | wxALL, 5 );
+
+	cb3 = new wxCheckBox( pLights, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( cb3, 0, wxALL, 2 );
+
+	m_panel72 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel72, 1, wxEXPAND | wxALL, 5 );
+
+	m_panel73 = new wxPanel( pLights, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	gSizer3->Add( m_panel73, 1, wxEXPAND | wxALL, 5 );
+
+
+	pLights->SetSizer( gSizer3 );
+	pLights->Layout();
+	gSizer3->Fit( pLights );
+	bSizer32->Add( pLights, 1, wxALL|wxEXPAND, 1 );
+
+	m_panel77 = new wxPanel( pControls, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer29;
+	bSizer29 = new wxBoxSizer( wxVERTICAL );
+
+	m_panel74 = new wxPanel( m_panel77, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxTAB_TRAVERSAL );
+	m_panel74->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	wxBoxSizer* bSizer28;
+	bSizer28 = new wxBoxSizer( wxHORIZONTAL );
+
+	cmbWaveform = new wxComboBox( m_panel74, wxID_ANY, wxT("Square"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	cmbWaveform->Append( wxT("Square") );
+	cmbWaveform->Append( wxT("Sine") );
+	cmbWaveform->Append( wxT("Triangle") );
+	cmbWaveform->Append( wxT("Flicker") );
+	cmbWaveform->Append( wxT("Linear") );
+	cmbWaveform->SetMaxSize( wxSize( -1,16 ) );
+
+	bSizer28->Add( cmbWaveform, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 0 );
+
+	cbReverse = new wxCheckBox( m_panel74, wxID_ANY, wxT("Rev"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer28->Add( cbReverse, 0, wxALIGN_CENTER_VERTICAL|wxALL, 3 );
+
+	cbInvert = new wxCheckBox( m_panel74, wxID_ANY, wxT("Inv"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbInvert->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer28->Add( cbInvert, 0, wxALL|wxALIGN_CENTER_VERTICAL, 0 );
+
+	cbEyeCorrection = new wxCheckBox( m_panel74, wxID_ANY, wxT("Eye"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbEyeCorrection->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer28->Add( cbEyeCorrection, 0, wxALL|wxALIGN_CENTER_VERTICAL, 0 );
+
+
+	m_panel74->SetSizer( bSizer28 );
+	m_panel74->Layout();
+	bSizer28->Fit( m_panel74 );
+	bSizer29->Add( m_panel74, 0, wxTOP|wxBOTTOM, 3 );
+
+	m_panel79 = new wxPanel( m_panel77, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer31;
+	bSizer31 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticText10 = new wxStaticText( m_panel79, wxID_ANY, wxT("MC Length"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText10->Wrap( -1 );
+	m_staticText10->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer31->Add( m_staticText10, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
+
+	m_textCtrl4 = new wxTextCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl4->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	m_textCtrl4->SetMaxSize( wxSize( 30,18 ) );
+
+	bSizer31->Add( m_textCtrl4, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+
+	m_staticText11 = new wxStaticText( m_panel79, wxID_ANY, wxT("Count"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText11->Wrap( -1 );
+	m_staticText11->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer31->Add( m_staticText11, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
+
+	m_textCtrl5 = new wxTextCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl5->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	m_textCtrl5->SetMaxSize( wxSize( 30,18 ) );
+
+	bSizer31->Add( m_textCtrl5, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+
+	m_staticText12 = new wxStaticText( m_panel79, wxID_ANY, wxT("Shift"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText12->Wrap( -1 );
+	m_staticText12->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer31->Add( m_staticText12, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
+
+	m_textCtrl6 = new wxTextCtrl( m_panel79, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl6->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	m_textCtrl6->SetMaxSize( wxSize( 30,18 ) );
+
+	bSizer31->Add( m_textCtrl6, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 );
+
+
+	m_panel79->SetSizer( bSizer31 );
+	m_panel79->Layout();
+	bSizer31->Fit( m_panel79 );
+	bSizer29->Add( m_panel79, 0, wxTOP|wxBOTTOM, 3 );
+
+	m_panel80 = new wxPanel( m_panel77, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer321;
+	bSizer321 = new wxBoxSizer( wxHORIZONTAL );
+
+	cbEnabled = new wxCheckBox( m_panel80, wxID_ANY, wxT("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbEnabled->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer321->Add( cbEnabled, 1, wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 1 );
+
+	btnSet = new wxButton( m_panel80, wxID_ANY, wxT("Set"), wxDefaultPosition, wxSize( 30,-1 ), 0 );
+	btnSet->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer321->Add( btnSet, 1, wxALL, 1 );
+
+	btnReset = new wxButton( m_panel80, wxID_ANY, wxT("Reset"), wxDefaultPosition, wxSize( 50,-1 ), 0 );
+	btnReset->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer321->Add( btnReset, 1, wxALL, 1 );
+
+
+	m_panel80->SetSizer( bSizer321 );
+	m_panel80->Layout();
+	bSizer321->Fit( m_panel80 );
+	bSizer29->Add( m_panel80, 0, wxTOP|wxBOTTOM, 3 );
+
+
+	m_panel77->SetSizer( bSizer29 );
+	m_panel77->Layout();
+	bSizer29->Fit( m_panel77 );
+	bSizer32->Add( m_panel77, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	pControls->SetSizer( bSizer32 );
+	pControls->Layout();
+	bSizer32->Fit( pControls );
+	channelSizer->Add( pControls, 0, wxALL, 2 );
+
+	pInternal = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sizerInternal = new wxBoxSizer( wxHORIZONTAL );
+
+
+	pInternal->SetSizer( sizerInternal );
+	pInternal->Layout();
+	sizerInternal->Fit( pInternal );
+	channelSizer->Add( pInternal, 0, wxALL|wxEXPAND, 5 );
+
+
+	this->SetSizer( channelSizer );
+	this->Layout();
+
+	// Connect Events
+	cb1->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cmbWaveform->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( ChannelPanelBase::OnCombobox ), NULL, this );
+	cbReverse->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cbInvert->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cbEyeCorrection->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cbEnabled->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	btnSet->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonSet ), NULL, this );
+	btnReset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonReset ), NULL, this );
+}
+
+ChannelPanelBase::~ChannelPanelBase()
+{
+	// Disconnect Events
+	cb1->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cmbWaveform->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( ChannelPanelBase::OnCombobox ), NULL, this );
+	cbReverse->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cbInvert->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cbEyeCorrection->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	cbEnabled->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
+	btnSet->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonSet ), NULL, this );
+	btnReset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonReset ), NULL, this );
+
 }

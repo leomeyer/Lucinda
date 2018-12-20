@@ -20,23 +20,28 @@ Communication::~Communication()
 }
 
 ArducomThread* Communication::addThread(const wxString& parameters) {
-    wxCriticalSectionLocker enter(criticalSection);
-
     // initialize an ArducomThread for this device
     ArducomThread* thread = new ArducomThread(this);
+    // store and start thread
+    wxCriticalSectionLocker enter(criticalSection);
     if (thread->setParameters(parameters)) {
-        // store and start thread
-        threads.push_back(thread);
-        // start message processing on the thread
-        thread->Run();
         // attempt to connect to the device
         thread->connect();
-        return thread;
     } else {
-        delete thread;
-        // the device thread could not be added
-        return nullptr;
+        thread->deviceInfo.info = "Parameters invalid";
     }
+    // check whether the address is already present
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        if ((*iter)->deviceInfo.address == thread->deviceInfo.address) {
+            // already there, do not add
+            delete thread;
+            return nullptr;
+        }
+    }
+    threads.push_back(thread);
+    thread->Run();
+    return thread;
 }
 
 void Communication::loadFromSettings()
@@ -57,7 +62,6 @@ void Communication::loadFromSettings()
             msg << deviceKey << ": " << parameters;
             context->logger->logDebug(msg);
 
-            //ArducomThread* thread =
             addThread(parameters);
         }
     }
@@ -104,32 +108,14 @@ wxString Communication::getThreadStatus(ArducomThread* thread) {
     // return the status message from the thread
     wxString result;
     switch (thread->getStatus(&result)) {
-    case ArducomThread::Status::ARD_INACTIVE: return wxString("Inactive");
-    case ArducomThread::Status::ARD_NOT_CONNECTED: return wxString("Not connected: ").append(result);
-    case ArducomThread::Status::ARD_CONNECTING: return wxString("Connecting to: ").append(thread->params.device);
-    case ArducomThread::Status::ARD_ERROR_CONNECTING: return wxString("Connection error: ").append(result);
-    case ArducomThread::Status::ARD_READY: return wxString("Ready: ").append(result);
-    case ArducomThread::Status::ARD_ERROR: return wxString("Error: ").append(result);
+    case DeviceStatus::DEVICE_INACTIVE: return wxString("Inactive");
+    case DeviceStatus::DEVICE_NOT_CONNECTED: return wxString("Not connected: ").append(result);
+    case DeviceStatus::DEVICE_CONNECTING: return wxString("Connecting to: ").append(thread->params.device);
+    case DeviceStatus::DEVICE_ERROR_CONNECTING: return wxString("Connection error: ").append(result);
+    case DeviceStatus::DEVICE_READY: return wxString("Ready: ").append(result);
+    case DeviceStatus::DEVICE_ERROR: return wxString("Error: ").append(result);
     }
     return result;
-}
-
-wxString Communication::getNextMessage()
-{
-    UpdateMessage message;
-    if (!queue.try_dequeue(message))
-        return "";
-    ArducomThread* thread = message.thread;
-    // return the status message from the thread
-    wxString result;
-    switch (thread->getStatus(&result)) {
-    case ArducomThread::Status::ARD_INACTIVE: return wxString("Inactive");
-    case ArducomThread::Status::ARD_NOT_CONNECTED: return wxString("Not connected: ").append(result);
-    case ArducomThread::Status::ARD_CONNECTING: return wxString("Connecting to: ").append(thread->params.device);
-    case ArducomThread::Status::ARD_ERROR_CONNECTING: return wxString("Connection error: ").append(result);
-    case ArducomThread::Status::ARD_READY: return wxString("Ready: ").append(result);
-    case ArducomThread::Status::ARD_ERROR: return wxString("Error: ").append(result);
-    }
 }
 
 Context* Communication::getContext()

@@ -1,13 +1,11 @@
 #ifndef __LUCINDA_H
 #define __LUCINDA_H
 
-#include "Arduino.h"
-
 /*******************************************************
 * Application-specific defines
 *******************************************************/
-#define APP_NAME "Lucinda v2"
 #define WAVETABLE_SIZE  1024
+#define MAX_PERIOD  (WAVETABLE_SIZE * 10)
 
 #define CHANNELFLAG_NO_EYE_CORRECTION   1   // no not apply the eye correction table
 #define CHANNELFLAG_INVERT              2   // invert the channel brightness
@@ -15,6 +13,25 @@
 #define CHANNELFLAG_APPLY               128   // when this flag is set all channel modifications of command DEFINE_CHANNEL are applied directly
 
 #define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE)
+
+// Defines the Arducom commands used for communicating with a Lucinda sketch
+
+#define ARDUCOM_CMD_GET_CONFIG 1
+#define ARDUCOM_CMD_DEFINE_CHANNEL 2
+#define ARDUCOM_CMD_SET_GLOBAL_SPEED 3
+#define ARDUCOM_CMD_SET_GLOBAL_BRIGHTNESS 4
+#define ARDUCOM_CMD_ENABLE_CHANNEL 5
+#define ARDUCOM_CMD_DISABLE_CHANNEL 6
+#define ARDUCOM_CMD_SET_CHANNEL_PERIOD 7
+#define ARDUCOM_CMD_SET_CHANNEL_PHASESHIFT 8
+#define ARDUCOM_CMD_SET_CHANNEL_OFFSET 9
+#define ARDUCOM_CMD_SET_CHANNEL_BRIGHTNESS 10
+#define ARDUCOM_CMD_SET_CHANNEL_DUTYCYCLE 11
+
+#ifdef ARDUINO
+#include "Arduino.h"
+
+#define DEVICE_NAME "Lucinda v2"
 
 // definitions of internal flags
 #define CHANNEL_IFLAG_COPY      1         // copying from the buffer is required at the end of a period
@@ -43,7 +60,7 @@
   PWM_TIMER_COUNTER = PWM_TIMER_PRELOAD;   \
   TCCR5B |= (1 << CS51) | (1 << CS50);  \
   TIMSK5 |= (1 << TOIE5);   // enable timer overflow interrupt
-  
+
 #else
 
 #define PWM_TIMER_VECTOR    TIMER1_OVF_vect
@@ -80,7 +97,7 @@ typedef struct {
   uint8_t macrocycle_length;
   uint8_t macrocycle_count;
   uint8_t macrocycle_shift;
-    
+
   // internal management
   uint16_t counter;
   uint8_t macrocycle_counter;
@@ -99,5 +116,8 @@ typedef struct {
 *******************************************************/
 
 bool fillTimerMap(timermap_t* timerMap, uint8_t pin);
+
+#endif // ARDUINO
+
 
 #endif    // defined __LUCINDA_H

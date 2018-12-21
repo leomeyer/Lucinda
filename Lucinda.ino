@@ -308,13 +308,14 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
 }
 
 inline void calculatePhaseshift(channel_t& channel) {
+  if (channel.period > MAX_PERIOD - 1)
+    channel.period = MAX_PERIOD - 1;
   channel.phaseshift = (int32_t)channel.period * channel.phaseshiftPercent / 256;
 }
 
 /*******************************************************
 * Arducom commands
 *******************************************************/
-#include "commands.h"
 
 // This command returns the configuration of the Lucinda setup.
 class ArducomGetConfig: public ArducomCommand {
@@ -359,7 +360,7 @@ public:
     channel_t local;    // local buffer
     local.enabled = dataBuffer[1] & 0x01; // the lowest bit decides
     local.bitmask = dataBuffer[2];
-    local.period = dataBuffer[3] + dataBuffer[4] * 256;
+    local.period = (uint16_t)dataBuffer[3] + dataBuffer[4] * 256;
     if (local.period > WAVETABLE_SIZE * 10) {
       *errorInfo = 3;
       return ARDUCOM_FUNCTION_ERROR;
@@ -471,7 +472,7 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     // need to reset counters?
     if (channels[channelNo].enabled == 0) {
@@ -495,7 +496,7 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     channel_buffers[channelNo].enabled = 0;
     // modify channel directly
@@ -514,14 +515,14 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
     noInterrupts();
-    channels[channelNo].period = dataBuffer[1] + dataBuffer[2] * 256;
+    channels[channelNo].period = (uint16_t)dataBuffer[1] + dataBuffer[2] * 256;
     calculatePhaseshift(channels[channelNo]);
     interrupts();
-    channel_buffers[channelNo].period = dataBuffer[1] + dataBuffer[2] * 256;
+    channel_buffers[channelNo].period = (uint16_t)dataBuffer[1] + dataBuffer[2] * 256;
     calculatePhaseshift(channel_buffers[channelNo]);
     *dataSize = 0;
     return ARDUCOM_OK;
@@ -537,7 +538,7 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
     channels[channelNo].phaseshiftPercent = dataBuffer[1];
@@ -560,7 +561,7 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
     channels[channelNo].offset = dataBuffer[1];
@@ -579,7 +580,7 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
     channels[channelNo].brightness = dataBuffer[1];
@@ -598,7 +599,7 @@ public:
     uint8_t channelNo = dataBuffer[0];
     if (channelNo > (LUCINDA_MAXCHANNELS) - 1) {
       *errorInfo = LUCINDA_MAXCHANNELS - 1;
-      return ARDUCOM_LIMIT_EXCEEDED;
+      return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
     channels[channelNo].dutycycle = dataBuffer[1];
@@ -682,7 +683,7 @@ void setup()
 
   uint8_t code;
 	// setup Arducom system
-  addCommand(new ArducomVersionCommand(APP_NAME));
+  addCommand(new ArducomVersionCommand(DEVICE_NAME));
   addCommand(new ArducomGetConfig());
   addCommand(new ArducomDefineChannel());
   addCommand(new ArducomSetGlobalSpeed());
@@ -721,6 +722,7 @@ void setup()
     channel_buffers[i].macrocycle_shift = i * 2;    
   } 
 */    
+/*
     channel_buffers[1].period = WAVETABLE_SIZE;
     channel_buffers[1].bitmask = 1 | 4 | 16 | 64;
     channel_buffers[1].enabled = 1;
@@ -740,7 +742,7 @@ void setup()
     channel_buffers[2].phaseshiftPercent = 50;
     channel_buffers[2].wavetable = &WAVE_SINE;
     calculatePhaseshift(channel_buffers[2]);
-
+*/
 //    channel_buffers[1].enabled = 1;
 //    channel_buffers[6].enabled = 1;
 

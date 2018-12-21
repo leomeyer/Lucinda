@@ -2,8 +2,8 @@
 
 namespace APP_NAMESPACE {
 
-BrightnessSlider::BrightnessSlider(wxWindow* parent, ChannelPanel* channel, const wxString& name)
-    : SliderPanel(parent, channel, SLIDER_BRIGHTNESS, name, 0, 255)
+BrightnessSlider::BrightnessSlider(wxWindow* parent, ChannelPanel* channel, const wxString& name, int value)
+    : SliderPanel(parent, channel, SLIDER_BRIGHTNESS, name, 0, 255, value)
 {
 }
 

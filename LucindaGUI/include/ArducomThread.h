@@ -55,7 +55,7 @@ class ArducomThread : public wxThread
         void send3ByteCommand(uint8_t command, uint8_t data1, uint16_t data2, bool replacable);
 
         /** Send a command to the connected device. */
-        void sendMultiByteCommand(uint8_t command, uint16_t data);
+        void sendMultiByteCommand(uint8_t command, const uint8_t* data, uint8_t length);
 
         /** Try to reconnect after an error */
         void reconnect();

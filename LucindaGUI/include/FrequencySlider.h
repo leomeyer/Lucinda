@@ -10,7 +10,7 @@ namespace APP_NAMESPACE {
 class FrequencySlider : public SliderPanel
 {
     public:
-        FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax);
+        FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax, int value);
         virtual ~FrequencySlider();
 
     protected:

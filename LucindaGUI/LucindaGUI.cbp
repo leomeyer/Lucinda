@@ -39,6 +39,7 @@
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=c++11" />
 					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
 					<Add directory="include" />
 					<Add directory="LucindaGUI/include" />
@@ -86,7 +87,6 @@
 		<Unit filename="include/ApplicationController.h" />
 		<Unit filename="include/ArducomThread.h" />
 		<Unit filename="include/BrightnessSlider.h" />
-		<Unit filename="include/ChannelControls.h" />
 		<Unit filename="include/ChannelPanel.h" />
 		<Unit filename="include/Communication.h" />
 		<Unit filename="include/Configuration.h" />
@@ -104,6 +104,7 @@
 		<Unit filename="include/Processor.h" />
 		<Unit filename="include/RegularChannelPanel.h" />
 		<Unit filename="include/SliderPanel.h" />
+		<Unit filename="include/UndoManager.h" />
 		<Unit filename="include/atomicops.h" />
 		<Unit filename="include/readerwriterqueue.h">
 			<Option target="&lt;{~None~}&gt;" />
@@ -115,7 +116,6 @@
 		<Unit filename="src/ApplicationController.cpp" />
 		<Unit filename="src/ArducomThread.cpp" />
 		<Unit filename="src/BrightnessSlider.cpp" />
-		<Unit filename="src/ChannelControls.cpp" />
 		<Unit filename="src/ChannelPanel.cpp" />
 		<Unit filename="src/Communication.cpp" />
 		<Unit filename="src/Configuration.cpp" />
@@ -128,6 +128,7 @@
 		<Unit filename="src/Processor.cpp" />
 		<Unit filename="src/RegularChannelPanel.cpp" />
 		<Unit filename="src/SliderPanel.cpp" />
+		<Unit filename="src/UndoManager.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

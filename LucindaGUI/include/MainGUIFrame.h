@@ -19,6 +19,7 @@
 namespace APP_NAMESPACE {
 
 class ApplicationController;
+class ChannelPanel;
 
 class MainGUIFrame: public GUIFrame
 {
@@ -38,16 +39,18 @@ class MainGUIFrame: public GUIFrame
         ApplicationController* appController;
         wxTimer* updateTimer;
         Logger::LogPriority minimumLogPriority;
+        wxVector<ChannelPanel*> channelPanels;
 
         void expandGrid(wxGrid* grid, const wxSize& size);
 
- 		virtual void OnShow(wxShowEvent& event);
-        virtual void OnClose(wxCloseEvent& event);
-        virtual void OnQuit(wxCommandEvent& event);
+ 		virtual void OnShow(wxShowEvent& event) override;
+        virtual void OnClose(wxCloseEvent& event) override;
+        virtual void OnQuit(wxCommandEvent& event) override;
         virtual void OnAbout(wxCommandEvent& event);
 
         void OnUpdateTimer(wxTimerEvent& event);
 
+		virtual void OnChannelsSize( wxSizeEvent& event ) override;
         virtual void OnLogPanelSize(wxSizeEvent& event) override;
         virtual void OnDevicePanelSize(wxSizeEvent& event) override;
     };

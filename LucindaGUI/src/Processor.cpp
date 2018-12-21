@@ -1,6 +1,8 @@
 #include "Processor.h"
 
 #include "Context.h"
+
+#include "ChannelPanel.h"
 #include "ApplicationController.h"
 
 namespace APP_NAMESPACE {
@@ -21,8 +23,13 @@ void Processor::OnValueChange(int channel, SliderType type, int value)
     msg << channel;
     msg << " slider ";
     switch (type) {
+    case SLIDER_GLOBAL_SPEED: msg << " Global speed"; break;
     case SLIDER_BRIGHTNESS: msg << " Brightness"; break;
     case SLIDER_PERIOD: msg << " Period"; break;
+    case SLIDER_PHASESHIFT: msg << " Phase shift"; break;
+    case SLIDER_OFFSET: msg << " Offset"; break;
+    case SLIDER_DUTYCYCLE: msg << " Duty cycle"; break;
+    case SLIDER_UNKNOWN: msg << " Unknown"; break;
     }
     msg << " changed to: ";
     msg << value;
@@ -34,5 +41,11 @@ void Processor::OnValueChange(int channel, SliderType type, int value)
         controller->setChannelValue(channel, type, value);
     }
 }
+
+void Processor::OnSetChannelSettings(ChannelPanel* panel)
+{
+    controller->setChannelSettings(panel);
+}
+
 
 }; // namespace

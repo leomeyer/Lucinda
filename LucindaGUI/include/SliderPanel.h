@@ -4,17 +4,22 @@
 #include "GlobalDefines.h"
 
 #include "../GUIFrame.h"
-#include "ChannelPanel.h"
 
 namespace APP_NAMESPACE {
+
+class ChannelPanel;
 
 class SliderPanel : public SliderPanelBase
 {
     public:
 
-        SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max);
+        SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max, int value);
 
         virtual ~SliderPanel();
+
+        SliderType getType();
+
+        uint16_t getValue();
 
     protected:
         ChannelPanel* channel;
@@ -22,7 +27,7 @@ class SliderPanel : public SliderPanelBase
         int min;
         int max;
 
-       virtual int getDeviceValue(int sliderValue);
+        virtual int getDeviceValue(int sliderValue);
 
         virtual wxString valueToString(const int value);
 

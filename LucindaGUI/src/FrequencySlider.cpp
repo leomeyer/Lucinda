@@ -4,8 +4,8 @@ namespace APP_NAMESPACE {
 
 #define FREQ_MAX    512
 
-FrequencySlider::FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax)
-    : SliderPanel(parent, channel, type, name, 0, FREQ_MAX - 1)
+FrequencySlider::FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax, int value)
+    : SliderPanel(parent, channel, type, name, 0, FREQ_MAX - 1, value)
 {
     this->deviceMax = deviceMax;
     setLabels();
@@ -56,6 +56,7 @@ void FrequencySlider::setLabels()
 {
     stLabel->SetLabel("Hz");
     SliderPanel::setLabels();
+    stMaxValue->SetLabel(stMaxValue->GetLabel() + " Hz");
 }
 
 }; // namespace

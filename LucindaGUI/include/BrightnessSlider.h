@@ -10,7 +10,7 @@ namespace APP_NAMESPACE {
 class BrightnessSlider : public SliderPanel
 {
     public:
-        BrightnessSlider(wxWindow* parent, ChannelPanel* channel, const wxString& name);
+        BrightnessSlider(wxWindow* parent, ChannelPanel* channel, const wxString& name, int value);
         virtual ~BrightnessSlider();
 
     protected:

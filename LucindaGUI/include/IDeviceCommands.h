@@ -9,7 +9,24 @@ namespace APP_NAMESPACE {
 class IDeviceCommands {
 
 public:
-    virtual void defineChannel() = 0;
+    virtual void setChannelSettings(
+        int channel,
+        bool enabled,
+        uint8_t bitmask,
+        uint16_t period,
+        uint8_t offset,
+        uint8_t brightness,
+        uint8_t dutycycle,
+        uint8_t phaseshift,
+        uint8_t waveform,
+        bool eyeCorrection,
+        bool invert,
+        bool reverse,
+        bool apply,
+        uint8_t mcCount,
+        uint8_t mcLength,
+        uint8_t mcShift
+    ) = 0;
 
     virtual void setGlobalSpeed(uint8_t speed) = 0;
 

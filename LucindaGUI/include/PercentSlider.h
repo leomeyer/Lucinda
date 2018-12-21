@@ -10,7 +10,7 @@ namespace APP_NAMESPACE {
 class PercentSlider : public SliderPanel
 {
     public:
-        PercentSlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name);
+        PercentSlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int value);
         virtual ~PercentSlider();
 
     protected:

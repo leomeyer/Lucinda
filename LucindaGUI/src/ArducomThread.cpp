@@ -291,9 +291,16 @@ void ArducomThread::send3ByteCommand(uint8_t command, uint8_t data1, uint16_t da
     }
 }
 
-void ArducomThread::sendMultiByteCommand(uint8_t command, uint16_t data)
+void ArducomThread::sendMultiByteCommand(uint8_t command, const uint8_t* data, uint8_t length)
 {
-
+    if (canSend()) {
+        QueueMessage message(MessageType::SEND_COMMAND);
+        message.command = command;
+        message.dataLength = length;
+        memcpy(message.data, data, length);
+        message.isBoundary = true;
+        queue.enqueue(message);
+    }
 }
 
 void ArducomThread::reconnect()
@@ -313,7 +320,11 @@ wxThread::ExitCode ArducomThread::Entry()
 
     while (true) {
         QueueMessage message;
-        queue.wait_dequeue(message);
+         // wait for five seconds for the next message
+        if (!queue.wait_dequeue_timed(message, 5000000)) {
+            // no message? perform a refresh
+            message.type = MessageType::REFRESH;
+        }
 
         switch (message.type) {
         case MessageType::CONNECT: {

@@ -1,7 +1,5 @@
 #include "RegularChannelPanel.h"
 
-#include "ChannelControls.h"
-
 namespace APP_NAMESPACE {
 
 RegularChannelPanel::RegularChannelPanel(wxWindow* parent, Processor* processor, uint8_t channel)

@@ -81,14 +81,29 @@ void MainGUIFrame::initialize(ApplicationController* appController)
     updateTimer->Start(10);
 
     // create GUI elements
-    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pContent, appController->getProcessor());
-    contentSizer->Add(globalPanel, 0, wxALL, 5);
+    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pChannels, appController->getProcessor());
+    channelSizer->Add(globalPanel, 0, wxALL, 5);
+    channelPanels.push_back(globalPanel);
 
-    RegularChannelPanel* regPanel = new RegularChannelPanel(pContent, appController->getProcessor(), 1);
-    contentSizer->Add(regPanel, 0, wxALL, 5);
+    RegularChannelPanel* regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 0);
+    channelSizer->Add(regPanel, 0, wxALL, 5);
+    channelPanels.push_back(regPanel);
 
-    regPanel = new RegularChannelPanel(pContent, appController->getProcessor(), 2);
-    contentSizer->Add(regPanel, 0, wxALL, 5);
+    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 1);
+    channelSizer->Add(regPanel, 0, wxALL, 5);
+    channelPanels.push_back(regPanel);
+
+    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 2);
+    channelSizer->Add(regPanel, 0, wxALL, 5);
+    channelPanels.push_back(regPanel);
+
+    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 3);
+    channelSizer->Add(regPanel, 0, wxALL, 5);
+    channelPanels.push_back(regPanel);
+
+    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 4);
+    channelSizer->Add(regPanel, 0, wxALL, 5);
+    channelPanels.push_back(regPanel);
 
 
     /*
@@ -259,6 +274,19 @@ void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
 {
     // let application logic update GUI data
     appController->OnUpdateTimer(event);
+}
+
+void MainGUIFrame::OnChannelsSize(wxSizeEvent& event)
+{
+    auto end = channelPanels.end();
+    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+        wxSize size = event.GetSize();
+        //size.y = event.GetSize().y - 20;
+        channelSizer->SetMinSize(size);
+//        (*iter)->SetSize(size);
+//        (*iter)->Layout();
+    }
+    pChannels->Layout();
 }
 
 void MainGUIFrame::expandGrid(wxGrid* grid, const wxSize& size)

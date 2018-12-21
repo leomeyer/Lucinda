@@ -10,6 +10,7 @@ namespace APP_NAMESPACE {
 class Context;
 class Communication;
 class Processor;
+class ChannelPanel;
 
 /** The application controller connects application logic and GUI. */
 class ApplicationController
@@ -33,6 +34,8 @@ class ApplicationController
         void setGlobalValue(SliderType type, int value);
 
         void setChannelValue(uint8_t channel, SliderType type, int value);
+
+        void setChannelSettings(ChannelPanel* panel, bool apply = false);
 
     protected:
         Context* context;

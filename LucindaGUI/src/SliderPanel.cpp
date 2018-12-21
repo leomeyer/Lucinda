@@ -4,7 +4,7 @@
 
 namespace APP_NAMESPACE {
 
-SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max)
+SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max, int value)
     : SliderPanelBase(parent)
 {
     this->channel = channel;
@@ -13,15 +13,24 @@ SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType typ
     this->max = max;
     slider->SetMin(min);
     slider->SetMax(max);
+    slider->SetValue(value);
 
     stSliderName->SetLabel(name);
-    slider->SetValue((max - min) / 2);
     setLabels();
 }
 
 SliderPanel::~SliderPanel()
 {
+}
 
+SliderType SliderPanel::getType()
+{
+    return type;
+}
+
+uint16_t SliderPanel::getValue()
+{
+    return getDeviceValue(slider->GetValue());
 }
 
 int SliderPanel::getDeviceValue(int sliderValue)

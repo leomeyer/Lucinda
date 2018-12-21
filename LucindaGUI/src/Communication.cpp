@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 // include for Arducom command numbers
-#include "../../commands.h"
+#include "../../lucinda.h"
 
 namespace APP_NAMESPACE {
 
@@ -114,6 +114,9 @@ wxString Communication::getThreadStatus(ArducomThread* thread) {
     case DeviceStatus::DEVICE_ERROR_CONNECTING: return wxString("Connection error: ").append(result);
     case DeviceStatus::DEVICE_READY: return wxString("Ready: ").append(result);
     case DeviceStatus::DEVICE_ERROR: return wxString("Error: ").append(result);
+    case DeviceStatus::DEVICE_DISCONNECTING: return wxString("Disconnecting from: ").append(thread->params.device);
+    case DeviceStatus::DEVICE_RECONNECTING: return wxString("Reconnecting to: ").append(thread->params.device);
+    case DeviceStatus::DEVICE_TERMINATED: return wxString("Terminated.");
     }
     return result;
 }
@@ -138,9 +141,42 @@ void Communication::getDeviceInfos(wxVector<DeviceInfo>& deviceInfos)
 }
 
 // device commands
-void Communication::defineChannel()
+void Communication::setChannelSettings(int channel, bool enabled, uint8_t bitmask, uint16_t period, uint8_t offset, uint8_t brightness, uint8_t dutycycle, uint8_t phaseshift, uint8_t waveform, bool eyeCorrection, bool invert, bool reverse, bool apply, uint8_t mcCount, uint8_t mcLength, uint8_t mcShift)
 {
+    const int dataLength = 14;
 
+    uint8_t flags = 0;
+    if (!eyeCorrection)
+        flags |= CHANNELFLAG_NO_EYE_CORRECTION;
+    if (invert)
+        flags |= CHANNELFLAG_INVERT;
+    if (reverse)
+        flags |= CHANNELFLAG_REVERSE;
+    if (apply)
+        flags |= CHANNELFLAG_APPLY;
+
+    // prepare data buffer
+    uint8_t data[dataLength];
+    data[0] = channel;
+    data[1] = (enabled ? 1 : 0);
+    data[2] = bitmask;
+    data[3] = period & 255;
+    data[4] = period / 256;
+    data[5] = offset;
+    data[6] = brightness;
+    data[7] = dutycycle;
+    data[8] = phaseshift;
+    data[9] = waveform;
+    data[10] = flags;
+    data[11] = mcCount;
+    data[12] = mcLength;
+    data[13] = mcShift;
+
+    // enqueue command in each thread
+    auto end = threads.end();
+    for (auto iter = threads.begin(); iter != end; ++iter) {
+        (*iter)->sendMultiByteCommand(ARDUCOM_CMD_DEFINE_CHANNEL, &(data[0]), dataLength);
+    }
 }
 
 void Communication::setGlobalSpeed(uint8_t speed)

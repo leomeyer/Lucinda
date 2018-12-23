@@ -40,7 +40,6 @@ class ApplicationController
     protected:
         Context* context;
         Communication* comm;
-        Processor* processor;
 
         MainGUIFrame* frame;
 

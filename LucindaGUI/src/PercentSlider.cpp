@@ -2,8 +2,8 @@
 
 namespace APP_NAMESPACE {
 
-PercentSlider::PercentSlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int value)
-    : SliderPanel(parent, channel, type, name, 0, 255, value)
+PercentSlider::PercentSlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int value, const wxColour* colour)
+    : SliderPanel(parent, channel, type, name, 0, 255, value, colour)
 {
     setLabels();
     slider->SetValue(value);

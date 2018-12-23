@@ -8,7 +8,7 @@ namespace APP_NAMESPACE {
 class RegularChannelPanel : public ChannelPanel
 {
     public:
-        RegularChannelPanel(wxWindow* parent, Processor* processor, uint8_t channel);
+        RegularChannelPanel(wxWindow* parent, Context* context, uint8_t channel);
         virtual ~RegularChannelPanel();
 
     protected:

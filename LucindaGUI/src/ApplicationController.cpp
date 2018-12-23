@@ -26,9 +26,9 @@ void ApplicationController::start()
 
     lastLogQuery = wxDateTime::UNow();
 
-    comm->loadFromSettings();
+    context->processor = new Processor(this);
 
-    processor = new Processor(this);
+    comm->loadFromSettings();
 }
 
 void ApplicationController::shutdown()
@@ -39,7 +39,7 @@ void ApplicationController::shutdown()
 
 Processor* ApplicationController::getProcessor()
 {
-    return processor;
+    return context->processor;
 }
 
 Context* ApplicationController::getContext()
@@ -121,6 +121,7 @@ void ApplicationController::setChannelSettings(ChannelPanel* panel, bool apply)
         panel->getSettings()->eyeCorrection,
         panel->getSettings()->invert,
         panel->getSettings()->reverse,
+        panel->getSettings()->getNoLightsFlag(),
         apply,
         panel->getSettings()->mcLength,
         panel->getSettings()->mcCount,

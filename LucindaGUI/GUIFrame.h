@@ -54,8 +54,10 @@ class GUIFrame : public wxFrame
 		wxMenu* m_menu41;
 		wxAuiToolBar* m_auiToolBar1;
 		wxAuiToolBarItem* tNew;
-		wxAuiToolBarItem* mOpen;
-		wxAuiToolBarItem* mSave;
+		wxAuiToolBarItem* tOpen;
+		wxAuiToolBarItem* tSave;
+		wxAuiToolBarItem* tUndo;
+		wxAuiToolBarItem* tRedo;
 		wxPanel* pSequenceProperties;
 		wxPanel* m_panel85;
 		wxStaticText* m_staticText13;
@@ -82,7 +84,10 @@ class GUIFrame : public wxFrame
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnShow( wxShowEvent& event ) { event.Skip(); }
+		virtual void OnMenuSequenceNew( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnQuit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSplitterChanged( wxSplitterEvent& event ) { event.Skip(); }
+		virtual void OnSplitterChanging( wxSplitterEvent& event ) { event.Skip(); }
 		virtual void OnChannelsSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnDevicePanelSize( wxSizeEvent& event ) { event.Skip(); }

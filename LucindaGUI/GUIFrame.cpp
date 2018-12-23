@@ -17,6 +17,8 @@
 
 #include "GUIFrame.h"
 
+#include "res/arrow_redo.png.h"
+#include "res/arrow_undo.png.h"
 #include "res/disk.png.h"
 #include "res/folder.png.h"
 #include "res/page_white_star.png.h"
@@ -33,15 +35,30 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	mbMenuBar = new wxMenuBar( 0 );
 	m_menu3 = new wxMenu();
 	wxMenuItem* miNew;
-	miNew = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("New") ) , wxEmptyString, wxITEM_NORMAL );
+	miNew = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("New") ) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	miNew->SetBitmaps( page_white_star_png_to_wx_bitmap() );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	miNew->SetBitmap( page_white_star_png_to_wx_bitmap() );
+	#endif
 	m_menu3->Append( miNew );
 
 	wxMenuItem* miOpen;
 	miOpen = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Open...") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	miOpen->SetBitmaps( folder_png_to_wx_bitmap() );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	miOpen->SetBitmap( folder_png_to_wx_bitmap() );
+	#endif
 	m_menu3->Append( miOpen );
 
 	wxMenuItem* miSave;
 	miSave = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Save") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	miSave->SetBitmaps( disk_png_to_wx_bitmap() );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	miSave->SetBitmap( disk_png_to_wx_bitmap() );
+	#endif
 	m_menu3->Append( miSave );
 
 	wxMenuItem* miSaveAs;
@@ -57,6 +74,24 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	mbMenuBar->Append( m_menu3, wxT("Sequence") );
 
 	m_menu4 = new wxMenu();
+	wxMenuItem* miUndo;
+	miUndo = new wxMenuItem( m_menu4, wxID_ANY, wxString( wxT("MyMenuItem") ) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	miUndo->SetBitmaps( arrow_undo_png_to_wx_bitmap() );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	miUndo->SetBitmap( arrow_undo_png_to_wx_bitmap() );
+	#endif
+	m_menu4->Append( miUndo );
+
+	wxMenuItem* miRedo;
+	miRedo = new wxMenuItem( m_menu4, wxID_ANY, wxString( wxT("MyMenuItem") ) + wxT('\t') + wxT("Ctrl+Y"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	miRedo->SetBitmaps( arrow_redo_png_to_wx_bitmap() );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	miRedo->SetBitmap( arrow_redo_png_to_wx_bitmap() );
+	#endif
+	m_menu4->Append( miRedo );
+
 	mbMenuBar->Append( m_menu4, wxT("Edit") );
 
 	m_menu5 = new wxMenu();
@@ -72,13 +107,17 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	this->SetMenuBar( mbMenuBar );
 
 	m_auiToolBar1 = new wxAuiToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT );
-	tNew = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), page_white_star_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+	tNew = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), page_white_star_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("New"), wxEmptyString, NULL );
 
-	mOpen = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), folder_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+	tOpen = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), folder_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Open"), wxEmptyString, NULL );
 
-	mSave = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), disk_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+	tSave = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), disk_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Save"), wxEmptyString, NULL );
 
 	m_auiToolBar1->AddSeparator();
+
+	tUndo = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), arrow_undo_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Undo"), wxEmptyString, NULL );
+
+	tRedo = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), arrow_redo_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Redo"), wxEmptyString, NULL );
 
 	m_auiToolBar1->Realize();
 	m_mgr.AddPane( m_auiToolBar1, wxAuiPaneInfo().Top().CaptionVisible( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 37,44 ) ).Row( 1 ) );
@@ -143,7 +182,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	contentSizer = new wxBoxSizer( wxVERTICAL );
 
-	m_splitter1 = new wxSplitterWindow( pContent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D );
+	m_splitter1 = new wxSplitterWindow( pContent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxSP_NO_XP_THEME );
 	m_splitter1->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::m_splitter1OnIdle ), NULL, this );
 
 	pChannels = new wxScrolledWindow( m_splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
@@ -295,7 +334,10 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
 	this->Connect( wxEVT_SHOW, wxShowEventHandler( GUIFrame::OnShow ) );
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuSequenceNew ), this, miNew->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnQuit ), this, miQuit->GetId());
+	m_splitter1->Connect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, wxSplitterEventHandler( GUIFrame::OnSplitterChanged ), NULL, this );
+	m_splitter1->Connect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING, wxSplitterEventHandler( GUIFrame::OnSplitterChanging ), NULL, this );
 	pChannels->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnChannelsSize ), NULL, this );
 	pLog->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	pDevices->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnDevicePanelSize ), NULL, this );
@@ -306,6 +348,8 @@ GUIFrame::~GUIFrame()
 	// Disconnect Events
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
 	this->Disconnect( wxEVT_SHOW, wxShowEventHandler( GUIFrame::OnShow ) );
+	m_splitter1->Disconnect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, wxSplitterEventHandler( GUIFrame::OnSplitterChanged ), NULL, this );
+	m_splitter1->Disconnect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING, wxSplitterEventHandler( GUIFrame::OnSplitterChanging ), NULL, this );
 	pChannels->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnChannelsSize ), NULL, this );
 	pLog->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	pDevices->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnDevicePanelSize ), NULL, this );

@@ -13,7 +13,8 @@ class SliderPanel : public SliderPanelBase
 {
     public:
 
-        SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max, int value);
+        SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max, int value,
+                    const wxColour* colour = nullptr);
 
         virtual ~SliderPanel();
 

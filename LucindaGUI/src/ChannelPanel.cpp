@@ -4,14 +4,16 @@
 #include "PercentSlider.h"
 #include "FrequencySlider.h"
 
+#include "Context.h"
 #include "Processor.h"
+#include "ColorManagement.h"
 
 namespace APP_NAMESPACE {
 
-ChannelPanel::ChannelPanel(wxWindow* parent, Processor* processor, const wxString& name, int number)
+ChannelPanel::ChannelPanel(wxWindow* parent, Context* context, const wxString& name, int number)
     : ChannelPanelBase(parent)
 {
-    this->processor = processor;
+    this->context = context;
     this->channel = number;
 
     wxString cName = name;
@@ -35,18 +37,24 @@ void ChannelPanel::addSlider(const wxString& name, SliderType type)
     // construct slider depending on type
     SliderPanel* slider;
     switch (type) {
-        case SLIDER_BRIGHTNESS: slider = new PercentSlider(pInternal, this, type, name, 127); break;
-        case SLIDER_GLOBAL_SPEED: slider = new SliderPanel(pInternal, this, type, name, 0, GLOBAL_SPEED_MAX, 1); break;
-        case SLIDER_PERIOD: slider = new FrequencySlider(pInternal, this, type, name, CHANNEL_PERIOD_MAX, 89); break;
-        case SLIDER_PHASESHIFT: slider = new PercentSlider(pInternal, this, type, name, 0); break;
-        case SLIDER_OFFSET: slider = new PercentSlider(pInternal, this, type, name, 0); break;
-        case SLIDER_DUTYCYCLE: slider = new PercentSlider(pInternal, this, type, name, 255); break;
+        case SLIDER_BRIGHTNESS: slider = new PercentSlider(pInternal, this, type, name, 127,
+                                                           context->colorManagement->getBrightnessColor()); break;
+        case SLIDER_GLOBAL_SPEED: slider = new SliderPanel(pInternal, this, type, name, 0, GLOBAL_SPEED_MAX, 1,
+                                                           context->colorManagement->getFrequencyColor()); break;
+        case SLIDER_PERIOD: slider = new FrequencySlider(pInternal, this, type, name, CHANNEL_PERIOD_MAX, 89,
+                                                         context->colorManagement->getFrequencyColor()); break;
+        case SLIDER_PHASESHIFT: slider = new PercentSlider(pInternal, this, type, name, 0,
+                                                           context->colorManagement->getPhaseshiftColor()); break;
+        case SLIDER_OFFSET: slider = new PercentSlider(pInternal, this, type, name, 0,
+                                                       context->colorManagement->getOffsetColor()); break;
+        case SLIDER_DUTYCYCLE: slider = new PercentSlider(pInternal, this, type, name, 255,
+                                                          context->colorManagement->getDutycycleColor()); break;
         default: return;
     }
 
     sliders.push_back(slider);
 
-    sizerInternal->Add(slider, 0, wxALL, 1);
+    sizerInternal->Add(slider, 0, wxALL | wxEXPAND, 1);
 
     wxSize cSize = GetClientSize();
     wxSize pSize = slider->GetMinSize();
@@ -105,7 +113,7 @@ uint16_t ChannelPanel::getSliderValue(SliderType type, uint16_t defaultValue)
 
 void ChannelPanel::OnSliderChange(SliderType type, int value)
 {
-    processor->OnValueChange(channel, type, value);
+    context->processor->OnValueChange(channel, type, value);
 }
 
 void ChannelPanel::updateControls()
@@ -151,8 +159,6 @@ void ChannelPanel::updateControls()
         btnSet->SetBackgroundColour(*wxYELLOW);
     else
         btnSet->SetBackgroundColour(startupButtonBackground);
-    // a channel can only be set if there are lights defined
-    btnSet->Enable(settings.lights > -1);
 }
 
 void ChannelPanel::loadPresets()
@@ -293,7 +299,7 @@ void ChannelPanel::OnText(wxCommandEvent& event)
 
 void ChannelPanel::OnButtonSet(wxCommandEvent& event)
 {
-    processor->OnSetChannelSettings(this);
+    context->processor->OnSetChannelSettings(this);
     settings.dirty = false;
     settings.validate();
     updateControls();

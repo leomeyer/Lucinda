@@ -4,7 +4,8 @@
 
 namespace APP_NAMESPACE {
 
-SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max, int value)
+SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int min, int max, int value,
+                    const wxColour* colour)
     : SliderPanelBase(parent)
 {
     this->channel = channel;
@@ -17,6 +18,11 @@ SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType typ
 
     stSliderName->SetLabel(name);
     setLabels();
+    if (colour != nullptr) {
+        stSliderName->SetBackgroundColour(*colour);
+        // slider->SetForegroundColour(*colour);
+    }
+
 }
 
 SliderPanel::~SliderPanel()

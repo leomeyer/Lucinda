@@ -141,7 +141,10 @@ void Communication::getDeviceInfos(wxVector<DeviceInfo>& deviceInfos)
 }
 
 // device commands
-void Communication::setChannelSettings(int channel, bool enabled, uint8_t bitmask, uint16_t period, uint8_t offset, uint8_t brightness, uint8_t dutycycle, uint8_t phaseshift, uint8_t waveform, bool eyeCorrection, bool invert, bool reverse, bool apply, uint8_t mcCount, uint8_t mcLength, uint8_t mcShift)
+void Communication::setChannelSettings(int channel, bool enabled, uint8_t bitmask, uint16_t period,
+                                       uint8_t offset, uint8_t brightness, uint8_t dutycycle, uint8_t phaseshift,
+                                       uint8_t waveform, bool eyeCorrection, bool invert, bool reverse, bool noLights,
+                                       bool apply, uint8_t mcCount, uint8_t mcLength, uint8_t mcShift)
 {
     const int dataLength = 14;
 
@@ -152,6 +155,8 @@ void Communication::setChannelSettings(int channel, bool enabled, uint8_t bitmas
         flags |= CHANNELFLAG_INVERT;
     if (reverse)
         flags |= CHANNELFLAG_REVERSE;
+    if (noLights)
+        flags |= CHANNELFLAG_NO_LIGHTS;
     if (apply)
         flags |= CHANNELFLAG_APPLY;
 

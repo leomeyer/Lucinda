@@ -72,43 +72,43 @@ MainGUIFrame::~MainGUIFrame()
 {
 }
 
-void MainGUIFrame::initialize(ApplicationController* appController)
+void MainGUIFrame::initialize(ApplicationController* controller)
 {
-    this->appController = appController;
+    this->controller = controller;
 
     updateTimer = new wxTimer(this, wxID_ANY);
 	Connect(updateTimer->GetId(), wxEVT_TIMER, wxTimerEventHandler(MainGUIFrame::OnUpdateTimer));
     updateTimer->Start(10);
 
     // create GUI elements
-    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pChannels, appController->getProcessor());
+    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pChannels, controller->getContext());
     channelSizer->Add(globalPanel, 0, wxALL, 5);
     channelPanels.push_back(globalPanel);
 
-    RegularChannelPanel* regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 0);
+    RegularChannelPanel* regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 0);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 1);
+    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 1);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 2);
+    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 2);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 3);
+    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 3);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, appController->getProcessor(), 4);
+    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 4);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
 
 
     /*
     // create GUI elements
-    ChannelPanel* panel = new ChannelPanel(pContent, appController->getProcessor(), "Test", 0);
+    ChannelPanel* panel = new ChannelPanel(pContent, controller->getProcessor(), "Test", 0);
     panel->addSlider("Testslider", 0, 100);
     bContentSizer->Add(panel, 0, wxALL|wxEXPAND, 5);
 
@@ -251,10 +251,10 @@ void MainGUIFrame::OnClose(wxCloseEvent &event)
 {
     updateTimer->Stop();
     // shut down all dependent threads
-    appController->shutdown();
+    controller->shutdown();
 
     wxString auiPerspective = m_mgr.SavePerspective();
-    appController->getContext()->config->setString(CFG_AUI_PERSPECTIVE, "Perspective", auiPerspective);
+    controller->getContext()->config->setString(CFG_AUI_PERSPECTIVE, "Perspective", auiPerspective);
 
     Destroy();
 }
@@ -273,7 +273,34 @@ void MainGUIFrame::OnAbout(wxCommandEvent &event)
 void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
 {
     // let application logic update GUI data
-    appController->OnUpdateTimer(event);
+    controller->OnUpdateTimer(event);
+}
+
+void MainGUIFrame::OnSplitterChanging(wxSplitterEvent& event)
+{
+    auto end = channelPanels.end();
+    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+        wxSize size = (*iter)->GetSize();
+        size.y = event.GetSashPosition() - 30;
+        //size.y = event.GetSize().y - 20;
+        (*iter)->SetSize(size);
+        (*iter)->SetMinSize(size);
+        (*iter)->Layout();
+    }
+}
+
+void MainGUIFrame::OnSplitterChanged(wxSplitterEvent& event)
+{
+    auto end = channelPanels.end();
+    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+        wxSize size = (*iter)->GetSize();
+        size.y = event.GetSashPosition();
+        //size.y = event.GetSize().y - 20;
+        (*iter)->SetSize(size);
+//        (*iter)->SetSize(size);
+//        (*iter)->Layout();
+    }
+    pChannels->Layout();
 }
 
 void MainGUIFrame::OnChannelsSize(wxSizeEvent& event)
@@ -319,4 +346,11 @@ void MainGUIFrame::OnDevicePanelSize(wxSizeEvent& event)
         expandGrid(deviceGrid, event.GetSize());
     }
 }
+
+void MainGUIFrame::OnMenuSequenceNew(wxCommandEvent& event)
+{
+    controller->getContext()->logger->logDebug("OnMenuSequenceNew");
+}
+
+
 }; // namespace

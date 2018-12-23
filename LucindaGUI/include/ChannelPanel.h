@@ -8,6 +8,7 @@
 
 namespace APP_NAMESPACE {
 
+class Context;
 class Processor;
 class SliderPanel;
 
@@ -60,12 +61,17 @@ struct ChannelSettings
         else
             return lights;
     }
+
+    bool getNoLightsFlag() const
+    {
+        return lights < 0;
+    }
 };
 
 class ChannelPanel : public ChannelPanelBase
 {
     public:
-        ChannelPanel(wxWindow* parent, Processor* processor, const wxString& name, int number);
+        ChannelPanel(wxWindow* parent, Context* context, const wxString& name, int number);
         virtual ~ChannelPanel();
 
         void addSlider(const wxString& name, SliderType type);
@@ -82,7 +88,7 @@ class ChannelPanel : public ChannelPanelBase
         uint8_t getDutyCycle();
 
     protected:
-        Processor* processor;
+        Context* context;
         int channel;
         ChannelSettings settings;
         wxVector<SliderPanel*> sliders;

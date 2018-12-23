@@ -23,3 +23,6 @@
 /LucindaGUI/bin
 /LucindaGUI/obj
 /LucindaGUI/*.layout
+/LucindaGUI/*.save
+*.save
+/TableGenerator/x64/Debug

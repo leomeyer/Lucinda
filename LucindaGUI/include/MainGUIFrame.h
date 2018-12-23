@@ -36,23 +36,29 @@ class MainGUIFrame: public GUIFrame
         void updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos);
 
     private:
-        ApplicationController* appController;
+        ApplicationController* controller;
         wxTimer* updateTimer;
         Logger::LogPriority minimumLogPriority;
         wxVector<ChannelPanel*> channelPanels;
 
         void expandGrid(wxGrid* grid, const wxSize& size);
 
+        void OnUpdateTimer(wxTimerEvent& event);
+
  		virtual void OnShow(wxShowEvent& event) override;
         virtual void OnClose(wxCloseEvent& event) override;
         virtual void OnQuit(wxCommandEvent& event) override;
         virtual void OnAbout(wxCommandEvent& event);
 
-        void OnUpdateTimer(wxTimerEvent& event);
+		virtual void OnSplitterChanging( wxSplitterEvent& event ) override;
+		virtual void OnSplitterChanged( wxSplitterEvent& event ) override;
 
 		virtual void OnChannelsSize( wxSizeEvent& event ) override;
         virtual void OnLogPanelSize(wxSizeEvent& event) override;
         virtual void OnDevicePanelSize(wxSizeEvent& event) override;
+
+		virtual void OnMenuSequenceNew( wxCommandEvent& event ) override;
+
     };
 
 }; // namespace

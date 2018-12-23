@@ -1,9 +1,11 @@
 #include "RegularChannelPanel.h"
 
+#include "Context.h"
+
 namespace APP_NAMESPACE {
 
-RegularChannelPanel::RegularChannelPanel(wxWindow* parent, Processor* processor, uint8_t channel)
-    : ChannelPanel(parent, processor, "Channel", channel)
+RegularChannelPanel::RegularChannelPanel(wxWindow* parent, Context* context, uint8_t channel)
+    : ChannelPanel(parent, context, "Channel", channel)
 {
     addSlider("Frequency", SLIDER_PERIOD);
     addSlider("Phase shift", SLIDER_PHASESHIFT);

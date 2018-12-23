@@ -318,116 +318,135 @@ wxThread::ExitCode ArducomThread::Entry()
     uint8_t destBuffer[ARDUCOM_BUFFERSIZE];
     uint8_t error;
 
-    while (true) {
-        QueueMessage message;
-         // wait for five seconds for the next message
-        if (!queue.wait_dequeue_timed(message, 5000000)) {
-            // no message? perform a refresh
-            message.type = MessageType::REFRESH;
-        }
-
-        switch (message.type) {
-        case MessageType::CONNECT: {
-            // clear the queue
-            while (queue.pop());
-            wxString msg("Connecting to ");
-            msg.append(params.device);
-            setStatus(DEVICE_CONNECTING, msg);
-            // fall through to REFRESH
-        }
-        case MessageType::REFRESH: {
-            uint8_t buffer[ARDUCOM_BUFFERSIZE];
-            uint8_t size = 0;
-            try {
-                // execute version command
-                arducom->execute(params, ARDUCOM_VERSION_COMMAND, &(buffer[0]), &size, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
-                // analyze result
-#ifdef WIN32
-                #pragma pack(1)
-				struct
-#else
-				struct __attribute__((packed))
-#endif
-					VersionInfo {
-					uint8_t version;
-					uint32_t uptime;
-					uint8_t flags;
-					uint16_t freeRAM;
-					char info[64];
-				} versionInfo;
-#ifdef WIN32
-				#pragma pack(0)
-#endif
-                // ensure
-				// clear structure
-				memset(&versionInfo, 0, sizeof(versionInfo));
-				// copy received data
-				memcpy(&versionInfo, destBuffer, size);
-				wxString info;
-				if (versionInfo.version != 1)
-                    throw std::runtime_error("Unsupported Arducom version or not an Arducom device");
-                if (strcmp(versionInfo.info, "Lucinda v2") != 0)
-                    throw std::runtime_error("Unsupported device version or not a compatible device");
-
-                deviceInfo.name = versionInfo.info;
-                deviceInfo.uptime = versionInfo.uptime;
-                deviceInfo.flags = versionInfo.flags;
-                deviceInfo.freeMem = versionInfo.freeRAM;
-
-                setStatus(DEVICE_READY, wxString(versionInfo.info));
-            } catch (const std::exception& e) {
-                setStatus(DEVICE_NOT_CONNECTED, arducom->getExceptionMessage(e));
-            }
-            break;
-        }
-        case MessageType::SEND_COMMAND: {
-            if (deviceInfo.statusCode == DEVICE_READY) {
-                wxString msg("Sending data to ");
-                msg.append(params.device);
-                comm->getContext()->logger->logDebug(msg);
-                try {
-                    // execute command
-                    arducom->execute(params, message.command, &(message.data[0]), &message.dataLength, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
-                } catch (const Arducom::FunctionError& e) {
-                    // this is a programming error, simply log it
-                    comm->getContext()->logger->logError(arducom->getExceptionMessage(e));
-                } catch (const std::exception& e) {
-                    // other errors are more serious, reconnect to the device
-                    setStatus(DEVICE_ERROR, arducom->getExceptionMessage(e));
-                    reconnect();
+    try {
+        while (true) {
+            QueueMessage message;
+             // wait for five seconds for the next message
+            if (!queue.wait_dequeue_timed(message, 5000000)) {
+                // not properly initialized?
+                if (arducom == nullptr) {
+                    if (!setParameters(deviceInfo.parameters))
+                        continue;
+                    else
+                        message.type = MessageType::CONNECT;
+                } else {
+                    // Arducom is initialized
+                    // not connected? try to connect
+                    if (deviceInfo.statusCode == DEVICE_NOT_CONNECTED)
+                        message.type = MessageType::CONNECT;
+                    else
+                        // no message? perform a refresh
+                        message.type = MessageType::REFRESH;
                 }
             }
-            break;
-        }
-        case MessageType::DISCONNECT: {
-            wxString msg("Disconnecting from ");
-            msg.append(params.device);
-            comm->getContext()->logger->logDebug(msg);
-            try {
-                arducom->close(false);
-                setStatus(DEVICE_TERMINATED, "");
-            } catch (const std::exception& e) {
-                setStatus(DEVICE_ERROR, arducom->getExceptionMessage(e));
+
+            switch (message.type) {
+            case MessageType::CONNECT: {
+                // clear the queue
+                while (queue.pop());
+                wxString msg("Connecting to ");
+                msg.append(params.device);
+                setStatus(DEVICE_CONNECTING, msg);
+                // fall through to REFRESH
             }
-            break;
-        }
-        case MessageType::TERMINATE: {
-            if (deviceInfo.statusCode == DEVICE_READY) {
-                wxString msg("Terminating connection to ");
+            case MessageType::REFRESH: {
+                uint8_t buffer[ARDUCOM_BUFFERSIZE];
+                uint8_t size = 0;
+                try {
+                    // execute version command
+                    arducom->execute(params, ARDUCOM_VERSION_COMMAND, &(buffer[0]), &size, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
+                    // analyze result
+    #ifdef WIN32
+                    #pragma pack(1)
+                    struct
+    #else
+                    struct __attribute__((packed))
+    #endif
+                        VersionInfo {
+                        uint8_t version;
+                        uint32_t uptime;
+                        uint8_t flags;
+                        uint16_t freeRAM;
+                        char info[64];
+                    } versionInfo;
+    #ifdef WIN32
+                    #pragma pack(0)
+    #endif
+                    // ensure
+                    // clear structure
+                    memset(&versionInfo, 0, sizeof(versionInfo));
+                    // copy received data
+                    memcpy(&versionInfo, destBuffer, size);
+                    wxString info;
+                    if (versionInfo.version != 1)
+                        throw std::runtime_error("Unsupported Arducom version or not an Arducom device");
+                    if (strcmp(versionInfo.info, "Lucinda v2") != 0)
+                        throw std::runtime_error("Unsupported device version or not a compatible device");
+
+                    deviceInfo.name = versionInfo.info;
+                    deviceInfo.uptime = versionInfo.uptime;
+                    deviceInfo.flags = versionInfo.flags;
+                    deviceInfo.freeMem = versionInfo.freeRAM;
+
+                    setStatus(DEVICE_READY, wxString(versionInfo.info));
+                } catch (const std::exception& e) {
+                    setStatus(DEVICE_NOT_CONNECTED, arducom->getExceptionMessage(e));
+                }
+                break;
+            }
+            case MessageType::SEND_COMMAND: {
+                if (deviceInfo.statusCode == DEVICE_READY) {
+                    wxString msg("Sending data to ");
+                    msg.append(params.device);
+                    comm->getContext()->logger->logDebug(msg);
+                    try {
+                        // execute command
+                        arducom->execute(params, message.command, &(message.data[0]), &message.dataLength, ARDUCOM_BUFFERSIZE, &(destBuffer[0]), &error);
+                    } catch (const Arducom::FunctionError& e) {
+                        // this is a programming error, simply log it
+                        comm->getContext()->logger->logError(arducom->getExceptionMessage(e));
+                    } catch (const std::exception& e) {
+                        // other errors are more serious, reconnect to the device
+                        setStatus(DEVICE_ERROR, arducom->getExceptionMessage(e));
+                        reconnect();
+                    }
+                }
+                break;
+            }
+            case MessageType::DISCONNECT: {
+                wxString msg("Disconnecting from ");
                 msg.append(params.device);
                 comm->getContext()->logger->logDebug(msg);
-
                 try {
                     arducom->close(false);
+                    setStatus(DEVICE_TERMINATED, "");
                 } catch (const std::exception& e) {
-                    comm->getContext()->logger->logDebug(msg);
+                    setStatus(DEVICE_ERROR, arducom->getExceptionMessage(e));
                 }
+                break;
             }
-            setStatus(DEVICE_TERMINATED, "");
-            // end thread processing
-            return 0;
+            case MessageType::TERMINATE: {
+                if (deviceInfo.statusCode == DEVICE_READY) {
+                    wxString msg("Terminating connection to ");
+                    msg.append(params.device);
+                    comm->getContext()->logger->logDebug(msg);
+
+                    try {
+                        arducom->close(false);
+                    } catch (const std::exception& e) {
+                        comm->getContext()->logger->logDebug(msg);
+                    }
+                }
+                setStatus(DEVICE_TERMINATED, "");
+                // end thread processing
+                return 0;
+            }
+            }
         }
-        }
+    } catch (const std::exception& e) {
+        wxString msg("Arducom thread crash: ");
+        msg << e.what();
+        comm->getContext()->logger->logError(msg);
     }
 }
 

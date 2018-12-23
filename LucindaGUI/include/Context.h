@@ -9,6 +9,8 @@ namespace APP_NAMESPACE {
 
 class Configuration;
 class Logger;
+class Processor;
+class ColorManagement;
 
 class Context
 {
@@ -18,6 +20,8 @@ class Context
 
         Configuration* config;
         Logger* logger;
+        Processor* processor;
+        ColorManagement* colorManagement;
 
         void initialize(const wxString& configFileName);
 

@@ -48,6 +48,7 @@ class Communication: IDeviceCommands
             bool eyeCorrection,
             bool invert,
             bool reverse,
+            bool noLights,
             bool apply,
             uint8_t mcCount,
             uint8_t mcLength,

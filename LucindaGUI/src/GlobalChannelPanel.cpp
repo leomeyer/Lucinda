@@ -2,13 +2,13 @@
 
 #include "ChannelPanel.h"
 
-#include "Processor.h"
+#include "Context.h"
 
 namespace APP_NAMESPACE {
 
 
-GlobalChannelPanel::GlobalChannelPanel(wxWindow* parent, Processor* processor)
-    : ChannelPanel(parent, processor, "", -1)
+GlobalChannelPanel::GlobalChannelPanel(wxWindow* parent, Context* context)
+    : ChannelPanel(parent, context, "", -1)
 {
     stChannelName->SetLabel("Global");
 

@@ -4,8 +4,9 @@ namespace APP_NAMESPACE {
 
 #define FREQ_MAX    512
 
-FrequencySlider::FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax, int value)
-    : SliderPanel(parent, channel, type, name, 0, FREQ_MAX - 1, value)
+FrequencySlider::FrequencySlider(wxWindow* parent, ChannelPanel* channel, SliderType type, const wxString& name, int deviceMax, int value,
+                        const wxColour* color)
+    : SliderPanel(parent, channel, type, name, 0, FREQ_MAX - 1, value, color)
 {
     this->deviceMax = deviceMax;
     setLabels();

@@ -10,9 +10,10 @@
 #define CHANNELFLAG_NO_EYE_CORRECTION   1   // no not apply the eye correction table
 #define CHANNELFLAG_INVERT              2   // invert the channel brightness
 #define CHANNELFLAG_REVERSE             4   // when using a wave table, index from the end
+#define CHANNELFLAG_NO_LIGHTS           64   // specifies that this channel controls no lights
 #define CHANNELFLAG_APPLY               128   // when this flag is set all channel modifications of command DEFINE_CHANNEL are applied directly
 
-#define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE)
+#define CHANNELFLAG_ALL (CHANNELFLAG_NO_EYE_CORRECTION | CHANNELFLAG_INVERT | CHANNELFLAG_REVERSE | CHANNELFLAG_NO_LIGHTS)
 
 // Defines the Arducom commands used for communicating with a Lucinda sketch
 

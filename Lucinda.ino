@@ -11,9 +11,6 @@
 
 // #define LUCINDA_DEBUG 1
 
-// for some reason this forward declaration is necessary
-// void addCommand(ArducomCommand* cmd);
-
 /*******************************************************
 * Data Structures
 *******************************************************/
@@ -69,7 +66,9 @@ inline void setPinValue(uint8_t pin, timermap_t* timermap, uint8_t val) {
   *(volatile char*)(timermap->ocrReg) = (pin == outputPins[0] ? 255 - val : val);
 }
 
-inline void setChannelValues(channel_t* channel, uint8_t val) {
+inline void setLightValues(channel_t* channel, uint8_t val) {
+  if ((channel->flags & CHANNELFLAG_NO_LIGHTS) == CHANNELFLAG_NO_LIGHTS)
+    return;
   // apply value to the controlled pins
   // special case: first pin (halogen lamp) is controlled by
   // any channel that has its bitmask value set to 0
@@ -109,7 +108,7 @@ inline void processChannel(int i) {
     Serial.println("Channel is disabled");
 #endif          
     // a disabled channel's lights will be switched off
-    setChannelValues(&(channels[i]), 0);
+    setLightValues(&(channels[i]), 0);
   } else {
     // assume an active cycle when macrocycle length is less than 2
     bool activeCycle = channels[i].macrocycle_length < 2;
@@ -267,7 +266,7 @@ inline void processChannel(int i) {
 #endif
 
     // set value to all controlled outputs
-    setChannelValues(&(channels[i]), val);
+    setLightValues(&(channels[i]), val);
   }  // if (channel enabled)
 
   channels[i].counter += global_speed;
@@ -275,6 +274,8 @@ inline void processChannel(int i) {
   if (channels[i].counter > channels[i].period) {
     // copy from buffer requested?
     if ((channels[i].internal_flags & CHANNEL_IFLAG_COPY) == CHANNEL_IFLAG_COPY) {
+      // before applying new channel settings, switch off all lights
+      setLightValues(&(channels[i]), 0);
       channels[i] = channel_buffers[i];
     } else {
       channels[i].counter = 0;
@@ -295,7 +296,7 @@ ISR(PWM_TIMER_VECTOR)        // interrupt service routine
   // disable all LEDs when the speed is 0
   if (global_speed == 0) {
     for (int i = 0; i < LUCINDA_MAXCHANNELS; i++)
-      setChannelValues(&(channels[i]), 0);
+      setLightValues(&(channels[i]), 0);
     return;
   }
 
@@ -414,6 +415,8 @@ public:
       // copy the local changes to the channel
       // disable interrupts during copy
       noInterrupts();
+      // switch off all previous lights
+      setLightValues(&(channels[channelNo]), 0);      
       channels[channelNo] = local;
       interrupts();
     } else {

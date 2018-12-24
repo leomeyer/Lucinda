@@ -32,9 +32,9 @@
 #include <wx/aui/auibook.h>
 #include <wx/frame.h>
 #include <wx/slider.h>
+#include <wx/button.h>
 #include <wx/checkbox.h>
 #include <wx/combobox.h>
-#include <wx/button.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -176,6 +176,8 @@ class ChannelPanelBase : public wxPanel
 	protected:
 		wxBoxSizer* channelSizer;
 		wxStaticText* stChannelName;
+		wxPanel* pGlobalControls;
+		wxButton* btnSendAll;
 		wxPanel* pControls;
 		wxPanel* pLights;
 		wxPanel* m_panel53;
@@ -218,18 +220,19 @@ class ChannelPanelBase : public wxPanel
 		wxTextCtrl* txtMCShift;
 		wxPanel* m_panel80;
 		wxCheckBox* cbEnabled;
-		wxButton* btnSet;
+		wxButton* btnSend;
 		wxButton* btnReset;
 		wxPanel* pInternal;
 		wxBoxSizer* sizerInternal;
 
 		// Virtual event handlers, overide them in your derived class
+		virtual void OnSendAll( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCombobox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTextKillFocus( wxFocusEvent& event ) { event.Skip(); }
 		virtual void OnText( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnButtonSet( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButtonSend( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonReset( wxCommandEvent& event ) { event.Skip(); }
 
 
@@ -237,6 +240,22 @@ class ChannelPanelBase : public wxPanel
 
 		ChannelPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 350,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 		~ChannelPanelBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class GlobalControlsPanel
+///////////////////////////////////////////////////////////////////////////////
+class GlobalControlsPanel : public wxPanel
+{
+	private:
+
+	protected:
+
+	public:
+
+		GlobalControlsPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 80,50 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		~GlobalControlsPanel();
 
 };
 

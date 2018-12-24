@@ -4,9 +4,11 @@
 
 namespace APP_NAMESPACE {
 
-RegularChannelPanel::RegularChannelPanel(wxWindow* parent, Context* context, uint8_t channel)
-    : ChannelPanel(parent, context, "Channel", channel)
+RegularChannelPanel::RegularChannelPanel(wxWindow* parent, Controller* controller, uint8_t channel)
+    : ChannelPanel(parent, controller, "Channel", channel)
 {
+    pGlobalControls->Hide();
+
     addSlider("Frequency", SLIDER_PERIOD);
     addSlider("Phase shift", SLIDER_PHASESHIFT);
     addSlider("Brightness", SLIDER_BRIGHTNESS);

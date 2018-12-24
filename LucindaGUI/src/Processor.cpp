@@ -36,15 +36,15 @@ void Processor::OnValueChange(int channel, SliderType type, int value)
     controller->getContext()->logger->logDebug(msg);
 
     if (channel == -1) {
-        controller->setGlobalValue(type, value);
+        controller->sendGlobalValue(type, value);
     } else {
-        controller->setChannelValue(channel, type, value);
+        controller->sendChannelValue(channel, type, value);
     }
 }
 
-void Processor::OnSetChannelSettings(ChannelPanel* panel)
+void Processor::OnSendChannelSettings(ChannelPanel* panel, bool apply)
 {
-    controller->setChannelSettings(panel);
+    controller->sendChannelSettings(panel, apply);
 }
 
 

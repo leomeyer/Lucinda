@@ -8,6 +8,7 @@
 
 namespace APP_NAMESPACE {
 
+class Controller;
 class Context;
 class Processor;
 class SliderPanel;
@@ -88,9 +89,7 @@ struct ChannelSettings
 class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
 {
     public:
-        Context* context;
-
-        ChannelPanel(wxWindow* parent, Context* context, const wxString& name, int number);
+        ChannelPanel(wxWindow* parent, Controller* controller, const wxString& name, int number);
         virtual ~ChannelPanel();
 
         SliderPanel* addSlider(const wxString& name, SliderType type);
@@ -99,6 +98,9 @@ class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
 
         int getChannel();
         const ChannelSettings* getSettings();
+        void setSettings(const ChannelSettings& settings);
+
+        void sendSettings(bool apply = false);
 
         uint16_t getPeriod();
         uint8_t getBrightness();
@@ -117,6 +119,8 @@ class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
             ChannelSettings current;
         } UndoInfo_t;
 
+        Controller* controller;
+        Context* context;
         int channel;
         ChannelSettings settings;
         wxVector<SliderPanel*> sliders;
@@ -135,15 +139,19 @@ class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
 
    		void applyUndoableChange(ChannelSettings settings);
 
+        virtual void OnSendAll( wxCommandEvent& event ) override;
+
 		virtual void OnCheckBox( wxCommandEvent& event ) override;
 		virtual void OnCombobox( wxCommandEvent& event ) override;
 		virtual void OnTextKillFocus( wxFocusEvent& event ) override;
 		virtual void OnText( wxCommandEvent& event ) override;
 		virtual void OnTextEnter( wxCommandEvent& event ) override;
-		virtual void OnButtonSet( wxCommandEvent& event ) override;
+		virtual void OnButtonSend( wxCommandEvent& event ) override;
 		virtual void OnButtonReset( wxCommandEvent& event ) override;
 
     private:
+
+friend class SliderPanel;
 };
 
 }; // namespace

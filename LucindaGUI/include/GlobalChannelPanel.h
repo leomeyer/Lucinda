@@ -13,7 +13,7 @@ class Processor;
 class GlobalChannelPanel : public ChannelPanel
 {
     public:
-        GlobalChannelPanel(wxWindow* parent, Context* context);
+        GlobalChannelPanel(wxWindow* parent, Controller* controller);
         virtual ~GlobalChannelPanel();
 
     protected:

@@ -68,7 +68,6 @@ class MainGUIFrame: public GUIFrame
         virtual void OnMenuDefaultChannelPreset( wxCommandEvent& event ) override;
 
 		virtual void OnMenuSequenceNew( wxCommandEvent& event ) override;
-
     };
 
 }; // namespace

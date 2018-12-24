@@ -114,7 +114,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_menu1 = new wxMenu();
 	wxMenuItem* m_menu1Item = new wxMenuItem( mnuChannels, wxID_ANY, wxT("Presets"), wxEmptyString, wxITEM_NORMAL, m_menu1 );
 	wxMenuItem* miSetDefaultPreset;
-	miSetDefaultPreset = new wxMenuItem( m_menu1, wxID_ANY, wxString( wxT("Set default") ) , wxEmptyString, wxITEM_NORMAL );
+	miSetDefaultPreset = new wxMenuItem( m_menu1, wxID_ANY, wxString( wxT("Set defaults") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menu1->Append( miSetDefaultPreset );
 
 	mnuChannels->Append( m_menu1Item );
@@ -519,6 +519,21 @@ ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoi
 
 	channelSizer->Add( stChannelName, 0, wxALL|wxEXPAND, 2 );
 
+	pGlobalControls = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer21;
+	bSizer21 = new wxBoxSizer( wxVERTICAL );
+
+	btnSendAll = new wxButton( pGlobalControls, wxID_ANY, wxT("Send All"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnSendAll->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer21->Add( btnSendAll, 0, wxALL, 0 );
+
+
+	pGlobalControls->SetSizer( bSizer21 );
+	pGlobalControls->Layout();
+	bSizer21->Fit( pGlobalControls );
+	channelSizer->Add( pGlobalControls, 0, wxALL|wxFIXED_MINSIZE, 1 );
+
 	pControls = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer32;
 	bSizer32 = new wxBoxSizer( wxHORIZONTAL );
@@ -704,10 +719,10 @@ ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoi
 
 	bSizer321->Add( cbEnabled, 1, wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 1 );
 
-	btnSet = new wxButton( m_panel80, wxID_ANY, wxT("Set"), wxDefaultPosition, wxSize( 30,-1 ), 0 );
-	btnSet->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	btnSend = new wxButton( m_panel80, wxID_ANY, wxT("Send"), wxDefaultPosition, wxSize( 30,-1 ), 0 );
+	btnSend->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
-	bSizer321->Add( btnSet, 1, wxALL, 1 );
+	bSizer321->Add( btnSend, 1, wxALL, 1 );
 
 	btnReset = new wxButton( m_panel80, wxID_ANY, wxT("Reset"), wxDefaultPosition, wxSize( 50,-1 ), 0 );
 	btnReset->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
@@ -739,13 +754,14 @@ ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoi
 	pInternal->SetSizer( sizerInternal );
 	pInternal->Layout();
 	sizerInternal->Fit( pInternal );
-	channelSizer->Add( pInternal, 1, wxALL|wxEXPAND, 5 );
+	channelSizer->Add( pInternal, 10, wxALL|wxEXPAND, 5 );
 
 
 	this->SetSizer( channelSizer );
 	this->Layout();
 
 	// Connect Events
+	btnSendAll->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnSendAll ), NULL, this );
 	cb1->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb5->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb2->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
@@ -769,13 +785,14 @@ ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoi
 	txtMCShift->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( ChannelPanelBase::OnText ), NULL, this );
 	txtMCShift->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( ChannelPanelBase::OnTextEnter ), NULL, this );
 	cbEnabled->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
-	btnSet->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonSet ), NULL, this );
+	btnSend->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonSend ), NULL, this );
 	btnReset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonReset ), NULL, this );
 }
 
 ChannelPanelBase::~ChannelPanelBase()
 {
 	// Disconnect Events
+	btnSendAll->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnSendAll ), NULL, this );
 	cb1->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb5->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb2->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
@@ -799,7 +816,15 @@ ChannelPanelBase::~ChannelPanelBase()
 	txtMCShift->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( ChannelPanelBase::OnText ), NULL, this );
 	txtMCShift->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( ChannelPanelBase::OnTextEnter ), NULL, this );
 	cbEnabled->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
-	btnSet->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonSet ), NULL, this );
+	btnSend->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonSend ), NULL, this );
 	btnReset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnButtonReset ), NULL, this );
 
+}
+
+GlobalControlsPanel::GlobalControlsPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+}
+
+GlobalControlsPanel::~GlobalControlsPanel()
+{
 }

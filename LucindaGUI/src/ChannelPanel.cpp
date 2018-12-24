@@ -5,22 +5,24 @@
 #include "FrequencySlider.h"
 
 #include "Context.h"
+#include "Controller.h"
 #include "Processor.h"
 #include "ColorManagement.h"
 
 namespace APP_NAMESPACE {
 
-ChannelPanel::ChannelPanel(wxWindow* parent, Context* context, const wxString& name, int number)
+ChannelPanel::ChannelPanel(wxWindow* parent, Controller* controller, const wxString& name, int number)
     : ChannelPanelBase(parent)
 {
-    this->context = context;
+    this->controller = controller;
+    this->context = controller->getContext();
     this->channel = number;
 
     wxString cName = name;
     cName << " (Channel " << number << ")";
     stChannelName->SetLabel(cName);
 
-    startupButtonBackground = btnSet->GetBackgroundColour();
+    startupButtonBackground = btnSend->GetBackgroundColour();
 
     loadPresets();
     settings.dirty = false;
@@ -72,6 +74,19 @@ int ChannelPanel::getChannel()
 const ChannelSettings* ChannelPanel::getSettings()
 {
     return &settings;
+}
+
+void ChannelPanel::setSettings(const ChannelSettings& settings)
+{
+    applyUndoableChange(settings);
+}
+
+void ChannelPanel::sendSettings(bool apply)
+{
+    context->processor->OnSendChannelSettings(this);
+    settings.dirty = false;
+    settings.validate();
+    updateControls();
 }
 
 uint16_t ChannelPanel::getPeriod()
@@ -157,9 +172,9 @@ void ChannelPanel::updateControls()
     txtMCShift->SetValue(std::to_string(settings.mcShift));
 
     if (settings.dirty)
-        btnSet->SetBackgroundColour(*wxYELLOW);
+        btnSend->SetBackgroundColour(*wxYELLOW);
     else
-        btnSet->SetBackgroundColour(startupButtonBackground);
+        btnSend->SetBackgroundColour(startupButtonBackground);
 }
 
 void ChannelPanel::loadPresets()
@@ -296,12 +311,14 @@ void ChannelPanel::OnText(wxCommandEvent& event)
 {
 }
 
-void ChannelPanel::OnButtonSet(wxCommandEvent& event)
+void ChannelPanel::OnSendAll(wxCommandEvent& event)
 {
-    context->processor->OnSetChannelSettings(this);
-    settings.dirty = false;
-    settings.validate();
-    updateControls();
+    controller->sendAllChannelSettings();
+}
+
+void ChannelPanel::OnButtonSend(wxCommandEvent& event)
+{
+    sendSettings();
 }
 
 void ChannelPanel::OnButtonReset(wxCommandEvent& event)

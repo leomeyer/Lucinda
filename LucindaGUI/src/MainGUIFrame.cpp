@@ -84,30 +84,35 @@ void MainGUIFrame::initialize(Controller* controller)
     updateTimer->Start(10);
 
     // create GUI elements
-    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pChannels, controller->getContext());
+    GlobalChannelPanel* globalPanel = new GlobalChannelPanel(pChannels, controller);
     channelSizer->Add(globalPanel, 0, wxALL, 5);
     channelPanels.push_back(globalPanel);
+    controller->addPanel(globalPanel);
 
-    RegularChannelPanel* regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 0);
+    RegularChannelPanel* regPanel = new RegularChannelPanel(pChannels, controller, 0);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
+    controller->addPanel(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 1);
+    regPanel = new RegularChannelPanel(pChannels, controller, 1);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
+    controller->addPanel(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 2);
+    regPanel = new RegularChannelPanel(pChannels, controller, 2);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
+    controller->addPanel(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 3);
+    regPanel = new RegularChannelPanel(pChannels, controller, 3);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
+    controller->addPanel(regPanel);
 
-    regPanel = new RegularChannelPanel(pChannels, controller->getContext(), 4);
+    regPanel = new RegularChannelPanel(pChannels, controller, 4);
     channelSizer->Add(regPanel, 0, wxALL, 5);
     channelPanels.push_back(regPanel);
-
+    controller->addPanel(regPanel);
 
     /*
     // create GUI elements
@@ -329,29 +334,37 @@ void MainGUIFrame::OnUpdateTimer(wxTimerEvent& event)
 
 void MainGUIFrame::OnSplitterChanging(wxSplitterEvent& event)
 {
-    auto end = channelPanels.end();
-    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
-        wxSize size = (*iter)->GetSize();
-        size.y = event.GetSashPosition() - 30;
-        //size.y = event.GetSize().y - 20;
-        (*iter)->SetSize(size);
-        (*iter)->SetMinSize(size);
-        (*iter)->Layout();
+    // for some reason the trackSplitter also generates these events
+    // even though it is not connected
+    if (event.GetEventObject() == contentSplitter) {
+        auto end = channelPanels.end();
+        for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+            wxSize size = (*iter)->GetSize();
+            size.y = event.GetSashPosition() - 30;
+            //size.y = event.GetSize().y - 20;
+            (*iter)->SetSize(size);
+            (*iter)->SetMinSize(size);
+            (*iter)->Layout();
+        }
     }
 }
 
 void MainGUIFrame::OnSplitterChanged(wxSplitterEvent& event)
 {
-    auto end = channelPanels.end();
-    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
-        wxSize size = (*iter)->GetSize();
-        size.y = event.GetSashPosition();
-        //size.y = event.GetSize().y - 20;
-        (*iter)->SetSize(size);
-//        (*iter)->SetSize(size);
-//        (*iter)->Layout();
+    // for some reason the trackSplitter also generates these events
+    // even though it is not connected
+    if (event.GetEventObject() == contentSplitter) {
+        auto end = channelPanels.end();
+        for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+            wxSize size = (*iter)->GetSize();
+            size.y = event.GetSashPosition();
+            //size.y = event.GetSize().y - 20;
+            (*iter)->SetSize(size);
+    //        (*iter)->SetSize(size);
+    //        (*iter)->Layout();
+        }
+        pChannels->Layout();
     }
-    pChannels->Layout();
 }
 
 void MainGUIFrame::OnChannelsSize(wxSizeEvent& event)
@@ -405,8 +418,7 @@ void MainGUIFrame::OnMenuSequenceNew(wxCommandEvent& event)
 
 void MainGUIFrame::OnMenuDefaultChannelPreset(wxCommandEvent& event)
 {
-
+    controller->loadDefaultChannelSettings();
 }
-
 
 }; // namespace

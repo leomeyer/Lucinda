@@ -49,6 +49,11 @@ Context* Controller::getContext()
     return context;
 }
 
+void Controller::addPanel(ChannelPanel* panel)
+{
+    channelPanels.push_back(panel);
+}
+
 void Controller::OnUpdateTimer(wxTimerEvent& event)
 {
     // update device info
@@ -66,7 +71,38 @@ void Controller::OnUpdateTimer(wxTimerEvent& event)
     }
 }
 
-void Controller::setGlobalValue(SliderType type, int value)
+void Controller::loadDefaultChannelSettings()
+{
+    ChannelSettings settings;
+    settings.waveform = WAVEFORM_SINE;
+    settings.reverse = false;
+    settings.invert = false;
+    settings.eyeCorrection = true;
+    settings.mcCount = 0;
+    settings.mcLength = 0;
+    settings.mcShift = 0;
+    settings.enabled = true;
+
+    auto end = channelPanels.end();
+    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+        if ((*iter)->getChannel() == 0)
+            settings.lights = 0;
+        else if ((*iter)->getChannel() == 1)
+            settings.lights = 5;
+        else if ((*iter)->getChannel() == 2)
+            settings.lights = 160;
+        else if ((*iter)->getChannel() == 3)
+            settings.lights = 10;
+        else if ((*iter)->getChannel() == 4)
+            settings.lights = 80;
+        else
+            settings.lights = -1;
+
+        (*iter)->setSettings(settings);
+    }
+}
+
+void Controller::sendGlobalValue(SliderType type, int value)
 {
     switch (type) {
         case SLIDER_BRIGHTNESS: {
@@ -81,7 +117,7 @@ void Controller::setGlobalValue(SliderType type, int value)
     }
 }
 
-void Controller::setChannelValue(uint8_t channel, SliderType type, int value)
+void Controller::sendChannelValue(uint8_t channel, SliderType type, int value)
 {
     switch (type) {
         case SLIDER_PERIOD: {
@@ -108,7 +144,7 @@ void Controller::setChannelValue(uint8_t channel, SliderType type, int value)
     }
 }
 
-void Controller::setChannelSettings(ChannelPanel* panel, bool apply)
+void Controller::sendChannelSettings(ChannelPanel* panel, bool apply)
 {
     comm->setChannelSettings(
         panel->getChannel(),
@@ -130,6 +166,16 @@ void Controller::setChannelSettings(ChannelPanel* panel, bool apply)
         panel->getSettings()->mcShift
     );
 }
+
+void Controller::sendAllChannelSettings(bool apply)
+{
+    auto end = channelPanels.end();
+    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+        if ((*iter)->getChannel() >= 0)
+            (*iter)->sendSettings(apply);
+    }
+}
+
 
 void Controller::updateUndoState(UndoManager* undoManager)
 {

@@ -8,12 +8,14 @@
 namespace APP_NAMESPACE {
 
 
-GlobalChannelPanel::GlobalChannelPanel(wxWindow* parent, Context* context)
-    : ChannelPanel(parent, context, "", -1)
+GlobalChannelPanel::GlobalChannelPanel(wxWindow* parent, Controller* controller)
+    : ChannelPanel(parent, controller, "", -1)
 {
     stChannelName->SetLabel("Global");
 
     pControls->Hide();
+    pGlobalControls->Show();
+
     addSlider("Brightness", SLIDER_BRIGHTNESS)->setSliderValue(255);
 //    addSlider("Speed", SLIDER_GLOBAL_SPEED);
 }

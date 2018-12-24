@@ -32,11 +32,17 @@ class Controller
 
         Context* getContext();
 
-        void setGlobalValue(SliderType type, int value);
+        void addPanel(ChannelPanel* panel);
 
-        void setChannelValue(uint8_t channel, SliderType type, int value);
+        void loadDefaultChannelSettings();
 
-        void setChannelSettings(ChannelPanel* panel, bool apply = false);
+        void sendGlobalValue(SliderType type, int value);
+
+        void sendChannelValue(uint8_t channel, SliderType type, int value);
+
+        void sendAllChannelSettings(bool apply = false);
+
+        void sendChannelSettings(ChannelPanel* panel, bool apply = false);
 
         void updateUndoState(UndoManager* undoManager);
 
@@ -45,6 +51,7 @@ class Controller
         Communication* comm;
 
         MainGUIFrame* frame;
+        wxVector<ChannelPanel*> channelPanels;
 
         wxDateTime lastLogQuery;
 

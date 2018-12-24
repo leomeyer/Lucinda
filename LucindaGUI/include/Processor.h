@@ -20,7 +20,7 @@ class Processor
 
         void OnValueChange(int channel, SliderType type, int value);
 
-        void OnSetChannelSettings(ChannelPanel* panel);
+        void OnSendChannelSettings(ChannelPanel* panel, bool apply = false);
 
     protected:
         Controller* controller;

@@ -80,7 +80,7 @@
 /*******************************************************
 * Types
 *******************************************************/
-typedef const uint8_t wavetable_t[WAVETABLE_SIZE];
+typedef const uint16_t wavetable_t[WAVETABLE_SIZE];
 
 // Defines a PWM channel. It can be mapped to multiple outputs.
 typedef struct {
@@ -88,8 +88,8 @@ typedef struct {
   uint8_t enabled;
   uint8_t bitmask;
   uint16_t period;
-  uint8_t offset;
-  uint8_t brightness;
+  uint16_t offset;
+  uint16_t brightness;
   uint8_t dutycycle;
   uint8_t phaseshiftPercent;
   uint16_t phaseshift;

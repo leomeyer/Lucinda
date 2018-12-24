@@ -528,6 +528,11 @@ ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoi
 
 	bSizer21->Add( btnSendAll, 0, wxALL, 0 );
 
+	btnSyncAll = new wxButton( pGlobalControls, wxID_ANY, wxT("Synchronize"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnSyncAll->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer21->Add( btnSyncAll, 0, wxALL, 0 );
+
 
 	pGlobalControls->SetSizer( bSizer21 );
 	pGlobalControls->Layout();
@@ -762,6 +767,7 @@ ChannelPanelBase::ChannelPanelBase( wxWindow* parent, wxWindowID id, const wxPoi
 
 	// Connect Events
 	btnSendAll->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnSendAll ), NULL, this );
+	btnSyncAll->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnSynchronize ), NULL, this );
 	cb1->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb5->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb2->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
@@ -793,6 +799,7 @@ ChannelPanelBase::~ChannelPanelBase()
 {
 	// Disconnect Events
 	btnSendAll->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnSendAll ), NULL, this );
+	btnSyncAll->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnSynchronize ), NULL, this );
 	cb1->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb5->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );
 	cb2->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ChannelPanelBase::OnCheckBox ), NULL, this );

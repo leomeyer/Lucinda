@@ -140,6 +140,7 @@ class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
    		void applyUndoableChange(ChannelSettings settings);
 
         virtual void OnSendAll( wxCommandEvent& event ) override;
+		virtual void OnSynchronize( wxCommandEvent& event ) override;
 
 		virtual void OnCheckBox( wxCommandEvent& event ) override;
 		virtual void OnCombobox( wxCommandEvent& event ) override;

@@ -176,6 +176,14 @@ void Controller::sendAllChannelSettings(bool apply)
     }
 }
 
+void Controller::synchronize()
+{
+    // synchronize by setting global speed to 0
+    // and then to 1 again after some time
+    comm->setGlobalSpeed(0);
+    Sleep(100);
+    comm->setGlobalSpeed(1);
+}
 
 void Controller::updateUndoState(UndoManager* undoManager)
 {

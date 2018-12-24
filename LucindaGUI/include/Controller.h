@@ -44,6 +44,8 @@ class Controller
 
         void sendChannelSettings(ChannelPanel* panel, bool apply = false);
 
+        void synchronize();
+
         void updateUndoState(UndoManager* undoManager);
 
     protected:

@@ -56,17 +56,17 @@ inline void resetCounters(channel_t* channel) {
 * PWM Control
 *******************************************************/
 
-inline void setPinValue(uint8_t pin, timermap_t* timermap, uint8_t val) {
+inline void setPinValue(uint8_t pin, timermap_t* timermap, uint16_t val) {
   if (pin == 0)
     return;
-
+  uint8_t mval = val / 4;
   // set PWM value, do not use analogWrite for performance
   *(volatile char*)(timermap->timerReg) |= _BV(timermap->outputMode);
   // special treatment for halogen pin (invert)
-  *(volatile char*)(timermap->ocrReg) = (pin == outputPins[0] ? 255 - val : val);
+  *(volatile char*)(timermap->ocrReg) = (pin == outputPins[0] ? 255 - mval : mval);
 }
 
-inline void setLightValues(channel_t* channel, uint8_t val) {
+inline void setLightValues(channel_t* channel, uint16_t val) {
   if ((channel->flags & CHANNELFLAG_NO_LIGHTS) == CHANNELFLAG_NO_LIGHTS)
     return;
   // apply value to the controlled pins
@@ -83,7 +83,7 @@ inline void setLightValues(channel_t* channel, uint8_t val) {
         // bit is set, i. e. LED no. b is controlled by this channel
         // special treatment for pin 4 (won't turn off completely on Mega)
         if (outputPins[b] == 4)
-          analogWrite(outputPins[b], val);
+          analogWrite(outputPins[b], val / 4);
         else {
           // set PWM value, do not use analogWrite for performance
           setPinValue(outputPins[b], &(timerMaps[b]), val);
@@ -102,7 +102,7 @@ inline void processChannel(int i) {
     Serial.print(" @: ");
     Serial.println(channels[i].counter);
 #endif          
-  uint8_t val = 0;
+  uint16_t val = 0;
   if (channels[i].enabled == 0) {
 #ifdef LUCINDA_DEBUG  
     Serial.println("Channel is disabled");
@@ -208,11 +208,15 @@ inline void processChannel(int i) {
           // reverse?
           if ((channels[i].flags & CHANNELFLAG_REVERSE) == CHANNELFLAG_REVERSE)
             index = (WAVETABLE_SIZE - 1) - index;
-          val = pgm_read_byte((uint32_t)channels[i].wavetable + index);
+#ifdef LUCINDA_DEBUG
+          Serial.print("WT index: ");
+          Serial.println(index);
+#endif
+          val = pgm_read_word((uint32_t)channels[i].wavetable + index * 2);
         }
         // adjust brightness
         if (channels[i].brightness < 255) {
-          val = ((uint16_t)val * channels[i].brightness) / 256;
+          val = ((uint32_t)val * channels[i].brightness) / 256;
         }
         // apply offset
         if (val < channels[i].offset)
@@ -249,22 +253,21 @@ inline void processChannel(int i) {
 
     // inversion?
     if ((channels[i].flags & CHANNELFLAG_INVERT) == CHANNELFLAG_INVERT)
-      val = 255 - val;
+      val = 1024 - val;
 
     // apply global brightness
     if (global_brightness < 255) {
-      val = ((uint16_t)val * global_brightness) / 256;
+      val = ((uint32_t)val * global_brightness) / 256;
     }
     
     // apply eye correction?
     if ((channels[i].flags & CHANNELFLAG_NO_EYE_CORRECTION) == 0)
-      val = pgm_read_byte((uint32_t)&eye_correction + val);
+      val = pgm_read_word((uint32_t)&eye_correction + val * 2);
 
 #ifdef LUCINDA_DEBUG
         Serial.print("val: " );
         Serial.println(val);
 #endif
-
     // set value to all controlled outputs
     setLightValues(&(channels[i]), val);
   }  // if (channel enabled)
@@ -366,8 +369,8 @@ public:
       *errorInfo = 3;
       return ARDUCOM_FUNCTION_ERROR;
     }
-    local.offset = dataBuffer[5];
-    local.brightness = dataBuffer[6];
+    local.offset = dataBuffer[5] * 4;
+    local.brightness = dataBuffer[6] * 4;
     local.dutycycle = dataBuffer[7];
     local.phaseshiftPercent = dataBuffer[8];
     calculatePhaseshift(local);
@@ -567,8 +570,8 @@ public:
       return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
-    channels[channelNo].offset = dataBuffer[1];
-    channel_buffers[channelNo].offset = dataBuffer[1];
+    channels[channelNo].offset = dataBuffer[1] * 4;
+    channel_buffers[channelNo].offset = dataBuffer[1] * 4;
     *dataSize = 0;
     return ARDUCOM_OK;
   }
@@ -586,8 +589,8 @@ public:
       return ARDUCOM_FUNCTION_ERROR;
     }
     // modify channel directly
-    channels[channelNo].brightness = dataBuffer[1];
-    channel_buffers[channelNo].brightness = dataBuffer[1];
+    channels[channelNo].brightness = dataBuffer[1] * 4;
+    channel_buffers[channelNo].brightness = dataBuffer[1] * 4;
     *dataSize = 0;
     return ARDUCOM_OK;
   }
@@ -679,7 +682,7 @@ void setup()
 	Serial.begin(ARDUCOM_DEFAULT_BAUDRATE);
 
 #ifdef LUCINDA_DEBUG
-  Serial.println(F(APP_NAME));
+  Serial.println(F(DEVICE_NAME));
 #endif
 
   fillTimerMaps();
@@ -703,8 +706,6 @@ void setup()
   Serial.println(F("Setup complete."));
 #endif
 
-  noInterrupts();
-
   // test: initialize channel 0
   channel_buffers[0].period = WAVETABLE_SIZE;
   channel_buffers[0].enabled = 0;
@@ -725,11 +726,11 @@ void setup()
     channel_buffers[i].macrocycle_shift = i * 2;    
   } 
 */    
-/*
+#ifdef LUCINDA_DEBUG
     channel_buffers[1].period = WAVETABLE_SIZE;
     channel_buffers[1].bitmask = 1 | 4 | 16 | 64;
     channel_buffers[1].enabled = 1;
-    channel_buffers[1].brightness = 127;
+    channel_buffers[1].brightness = 512;
     channel_buffers[1].offset = 0;
     channel_buffers[1].dutycycle = 127;
     channel_buffers[1].phaseshiftPercent = 0;
@@ -739,28 +740,31 @@ void setup()
     channel_buffers[2].period = WAVETABLE_SIZE;
     channel_buffers[2].bitmask = 2 | 8 | 32 | 128;
     channel_buffers[2].enabled = 1;
-    channel_buffers[2].brightness = 127;
+    channel_buffers[2].brightness = 512;
     channel_buffers[2].offset = 0;
     channel_buffers[2].dutycycle = 127;
     channel_buffers[2].phaseshiftPercent = 50;
     channel_buffers[2].wavetable = &WAVE_SINE;
     calculatePhaseshift(channel_buffers[2]);
-*/
 //    channel_buffers[1].enabled = 1;
 //    channel_buffers[6].enabled = 1;
 
   // copy buffers to channels
   memcpy(channels, channel_buffers, sizeof(channel_t) * LUCINDA_MAXCHANNELS);
 
-#ifdef LUCINDA_DEBUG
-  Serial.println("Start debug");
 
-  int i = 8;
+  Serial.println("Start test");
 
-  int j = 0;
-  while (j++ < 20 * channels[i].period) {
+  int i = 1;
+
+  int32_t j = 0;
+  while (j++ < channels[i].period) {
       processChannel(i);
   }
+
+  Serial.println("Test done");
+  while (1);
+
 #endif
 /*  
   channels[2].period = WAVETABLE_SIZE * 2;
@@ -770,6 +774,7 @@ void setup()
   channels[2].dutycycle = 127;
   channels[2].phaseshift = WAVETABLE_SIZE;
 */
+  noInterrupts();
 
   // copy buffers to channels
   memcpy(channels, channel_buffers, sizeof(channel_t) * LUCINDA_MAXCHANNELS);

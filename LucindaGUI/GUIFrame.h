@@ -178,6 +178,7 @@ class ChannelPanelBase : public wxPanel
 		wxStaticText* stChannelName;
 		wxPanel* pGlobalControls;
 		wxButton* btnSendAll;
+		wxButton* btnSyncAll;
 		wxPanel* pControls;
 		wxPanel* pLights;
 		wxPanel* m_panel53;
@@ -227,6 +228,7 @@ class ChannelPanelBase : public wxPanel
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnSendAll( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSynchronize( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCombobox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTextKillFocus( wxFocusEvent& event ) { event.Skip(); }

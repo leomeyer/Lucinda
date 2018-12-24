@@ -316,6 +316,11 @@ void ChannelPanel::OnSendAll(wxCommandEvent& event)
     controller->sendAllChannelSettings();
 }
 
+void ChannelPanel::OnSynchronize(wxCommandEvent& event)
+{
+    controller->synchronize();
+}
+
 void ChannelPanel::OnButtonSend(wxCommandEvent& event)
 {
     sendSettings();

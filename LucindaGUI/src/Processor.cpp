@@ -3,11 +3,11 @@
 #include "Context.h"
 
 #include "ChannelPanel.h"
-#include "ApplicationController.h"
+#include "Controller.h"
 
 namespace APP_NAMESPACE {
 
-Processor::Processor(ApplicationController* controller)
+Processor::Processor(Controller* controller)
 {
     this->controller = controller;
 }

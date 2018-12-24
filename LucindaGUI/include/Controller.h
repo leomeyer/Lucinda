@@ -11,13 +11,14 @@ class Context;
 class Communication;
 class Processor;
 class ChannelPanel;
+class UndoManager;
 
 /** The application controller connects application logic and GUI. */
-class ApplicationController
+class Controller
 {
     public:
-        ApplicationController(Context* context, Communication* comm, MainGUIFrame* frame);
-        virtual ~ApplicationController();
+        Controller(Context* context, Communication* comm, MainGUIFrame* frame);
+        virtual ~Controller();
 
         /** Starts the application logic. */
         void start();
@@ -36,6 +37,8 @@ class ApplicationController
         void setChannelValue(uint8_t channel, SliderType type, int value);
 
         void setChannelSettings(ChannelPanel* panel, bool apply = false);
+
+        void updateUndoState(UndoManager* undoManager);
 
     protected:
         Context* context;

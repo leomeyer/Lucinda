@@ -19,9 +19,17 @@
 
 #include "res/arrow_redo.png.h"
 #include "res/arrow_undo.png.h"
+#include "res/control_end_blue.png.h"
+#include "res/control_fastforward_blue.png.h"
+#include "res/control_play_blue.png.h"
+#include "res/control_repeat_blue.png.h"
+#include "res/control_rewind_blue.png.h"
+#include "res/control_start_blue.png.h"
+#include "res/control_stop_blue.png.h"
 #include "res/disk.png.h"
 #include "res/folder.png.h"
 #include "res/page_white_star.png.h"
+#include "res/stop.png.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -33,94 +41,103 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	statusBar = this->CreateStatusBar( 2, wxSTB_SIZEGRIP, wxID_ANY );
 	mbMenuBar = new wxMenuBar( 0 );
-	m_menu3 = new wxMenu();
+	mnuSequence = new wxMenu();
 	wxMenuItem* miNew;
-	miNew = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("New") ) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL );
+	miNew = new wxMenuItem( mnuSequence, wxID_ANY, wxString( wxT("New") ) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	miNew->SetBitmaps( page_white_star_png_to_wx_bitmap() );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
 	miNew->SetBitmap( page_white_star_png_to_wx_bitmap() );
 	#endif
-	m_menu3->Append( miNew );
+	mnuSequence->Append( miNew );
 
 	wxMenuItem* miOpen;
-	miOpen = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Open...") ) , wxEmptyString, wxITEM_NORMAL );
+	miOpen = new wxMenuItem( mnuSequence, wxID_ANY, wxString( wxT("Open...") ) , wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	miOpen->SetBitmaps( folder_png_to_wx_bitmap() );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
 	miOpen->SetBitmap( folder_png_to_wx_bitmap() );
 	#endif
-	m_menu3->Append( miOpen );
+	mnuSequence->Append( miOpen );
 
 	wxMenuItem* miSave;
-	miSave = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Save") ) , wxEmptyString, wxITEM_NORMAL );
+	miSave = new wxMenuItem( mnuSequence, wxID_ANY, wxString( wxT("Save") ) , wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	miSave->SetBitmaps( disk_png_to_wx_bitmap() );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
 	miSave->SetBitmap( disk_png_to_wx_bitmap() );
 	#endif
-	m_menu3->Append( miSave );
+	mnuSequence->Append( miSave );
 
 	wxMenuItem* miSaveAs;
-	miSaveAs = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Save As...") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu3->Append( miSaveAs );
+	miSaveAs = new wxMenuItem( mnuSequence, wxID_ANY, wxString( wxT("Save As...") ) , wxEmptyString, wxITEM_NORMAL );
+	mnuSequence->Append( miSaveAs );
 
-	m_menu3->AppendSeparator();
+	mnuSequence->AppendSeparator();
 
 	wxMenuItem* miQuit;
-	miQuit = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Quit") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu3->Append( miQuit );
+	miQuit = new wxMenuItem( mnuSequence, wxID_ANY, wxString( wxT("Quit") ) , wxEmptyString, wxITEM_NORMAL );
+	mnuSequence->Append( miQuit );
 
-	mbMenuBar->Append( m_menu3, wxT("Sequence") );
+	mbMenuBar->Append( mnuSequence, wxT("Sequence") );
 
-	m_menu4 = new wxMenu();
-	wxMenuItem* miUndo;
-	miUndo = new wxMenuItem( m_menu4, wxID_ANY, wxString( wxT("MyMenuItem") ) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL );
+	mnuEdit = new wxMenu();
+	miUndo = new wxMenuItem( mnuEdit, wxID_ANY, wxString( wxT("Undo") ) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	miUndo->SetBitmaps( arrow_undo_png_to_wx_bitmap() );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
 	miUndo->SetBitmap( arrow_undo_png_to_wx_bitmap() );
 	#endif
-	m_menu4->Append( miUndo );
+	mnuEdit->Append( miUndo );
 
-	wxMenuItem* miRedo;
-	miRedo = new wxMenuItem( m_menu4, wxID_ANY, wxString( wxT("MyMenuItem") ) + wxT('\t') + wxT("Ctrl+Y"), wxEmptyString, wxITEM_NORMAL );
+	miRedo = new wxMenuItem( mnuEdit, wxID_ANY, wxString( wxT("Redo") ) + wxT('\t') + wxT("Ctrl+Y"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	miRedo->SetBitmaps( arrow_redo_png_to_wx_bitmap() );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
 	miRedo->SetBitmap( arrow_redo_png_to_wx_bitmap() );
 	#endif
-	m_menu4->Append( miRedo );
+	mnuEdit->Append( miRedo );
 
-	mbMenuBar->Append( m_menu4, wxT("Edit") );
+	mbMenuBar->Append( mnuEdit, wxT("Edit") );
 
-	m_menu5 = new wxMenu();
-	mbMenuBar->Append( m_menu5, wxT("View") );
+	mnuView = new wxMenu();
+	mbMenuBar->Append( mnuView, wxT("View") );
 
-	m_menu41 = new wxMenu();
+	mnuDevices = new wxMenu();
 	wxMenuItem* m_menuItem6;
-	m_menuItem6 = new wxMenuItem( m_menu41, wxID_ANY, wxString( wxT("MyMenuItem") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu41->Append( m_menuItem6 );
+	m_menuItem6 = new wxMenuItem( mnuDevices, wxID_ANY, wxString( wxT("MyMenuItem") ) , wxEmptyString, wxITEM_NORMAL );
+	mnuDevices->Append( m_menuItem6 );
 
-	mbMenuBar->Append( m_menu41, wxT("Devices") );
+	mbMenuBar->Append( mnuDevices, wxT("Devices") );
+
+	mnuChannels = new wxMenu();
+	m_menu1 = new wxMenu();
+	wxMenuItem* m_menu1Item = new wxMenuItem( mnuChannels, wxID_ANY, wxT("Presets"), wxEmptyString, wxITEM_NORMAL, m_menu1 );
+	wxMenuItem* miSetDefaultPreset;
+	miSetDefaultPreset = new wxMenuItem( m_menu1, wxID_ANY, wxString( wxT("Set default") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu1->Append( miSetDefaultPreset );
+
+	mnuChannels->Append( m_menu1Item );
+
+	mbMenuBar->Append( mnuChannels, wxT("Channels") );
 
 	this->SetMenuBar( mbMenuBar );
 
-	m_auiToolBar1 = new wxAuiToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT );
-	tNew = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), page_white_star_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("New"), wxEmptyString, NULL );
+	toolbar = new wxAuiToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT );
+	tNew = toolbar->AddTool( wxID_ANY, wxT("tool"), page_white_star_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("New"), wxEmptyString, NULL );
 
-	tOpen = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), folder_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Open"), wxEmptyString, NULL );
+	tOpen = toolbar->AddTool( wxID_ANY, wxT("tool"), folder_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Open"), wxEmptyString, NULL );
 
-	tSave = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), disk_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Save"), wxEmptyString, NULL );
+	tSave = toolbar->AddTool( wxID_ANY, wxT("tool"), disk_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Save"), wxEmptyString, NULL );
 
-	m_auiToolBar1->AddSeparator();
+	toolbar->AddSeparator();
 
-	tUndo = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), arrow_undo_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Undo"), wxEmptyString, NULL );
+	tUndo = toolbar->AddTool( wxID_ANY, wxT("tool"), arrow_undo_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Undo"), wxEmptyString, NULL );
 
-	tRedo = m_auiToolBar1->AddTool( wxID_ANY, wxT("tool"), arrow_redo_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Redo"), wxEmptyString, NULL );
+	tRedo = toolbar->AddTool( wxID_ANY, wxT("tool"), arrow_redo_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Redo"), wxEmptyString, NULL );
 
-	m_auiToolBar1->Realize();
-	m_mgr.AddPane( m_auiToolBar1, wxAuiPaneInfo().Top().CaptionVisible( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 37,44 ) ).Row( 1 ) );
+	toolbar->Realize();
+	m_mgr.AddPane( toolbar, wxAuiPaneInfo().Top().CaptionVisible( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 37,44 ) ).Row( 1 ) );
 
 	pSequenceProperties = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,60 ), wxTAB_TRAVERSAL );
 	pSequenceProperties->SetMinSize( wxSize( -1,60 ) );
@@ -182,10 +199,10 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	contentSizer = new wxBoxSizer( wxVERTICAL );
 
-	m_splitter1 = new wxSplitterWindow( pContent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxSP_NO_XP_THEME );
-	m_splitter1->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::m_splitter1OnIdle ), NULL, this );
+	contentSplitter = new wxSplitterWindow( pContent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxSP_NO_XP_THEME );
+	contentSplitter->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::contentSplitterOnIdle ), NULL, this );
 
-	pChannels = new wxScrolledWindow( m_splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	pChannels = new wxScrolledWindow( contentSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
 	pChannels->SetScrollRate( 5, 5 );
 	channelSizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -193,20 +210,47 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pChannels->SetSizer( channelSizer );
 	pChannels->Layout();
 	channelSizer->Fit( pChannels );
-	m_panel54 = new wxPanel( m_splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	pTracks = new wxPanel( contentSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer25;
 	bSizer25 = new wxBoxSizer( wxVERTICAL );
 
-	m_staticText17 = new wxStaticText( m_panel54, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText17->Wrap( -1 );
-	bSizer25->Add( m_staticText17, 0, wxALL, 5 );
+	m_toolBar1 = new wxToolBar( pTracks, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
+	tbRecord = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), stop_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbStop = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_stop_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbPlay = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_play_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbStart = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_start_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbBack = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_rewind_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbForward = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_fastforward_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbEnd = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_end_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbRepeat = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_repeat_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	m_toolBar1->Realize();
+
+	bSizer25->Add( m_toolBar1, 0, wxEXPAND, 5 );
+
+	trackSplitter = new wxSplitterWindow( pTracks, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_NO_XP_THEME );
+	trackSplitter->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::trackSplitterOnIdle ), NULL, this );
+
+	m_scrolledWindow2 = new wxScrolledWindow( trackSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow2->SetScrollRate( 5, 5 );
+	m_scrolledWindow3 = new wxScrolledWindow( trackSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow3->SetScrollRate( 5, 5 );
+	trackSplitter->SplitVertically( m_scrolledWindow2, m_scrolledWindow3, 100 );
+	bSizer25->Add( trackSplitter, 1, wxEXPAND, 5 );
 
 
-	m_panel54->SetSizer( bSizer25 );
-	m_panel54->Layout();
-	bSizer25->Fit( m_panel54 );
-	m_splitter1->SplitHorizontally( pChannels, m_panel54, 0 );
-	contentSizer->Add( m_splitter1, 1, wxEXPAND, 5 );
+	pTracks->SetSizer( bSizer25 );
+	pTracks->Layout();
+	bSizer25->Fit( pTracks );
+	contentSplitter->SplitHorizontally( pChannels, pTracks, 0 );
+	contentSizer->Add( contentSplitter, 1, wxEXPAND, 5 );
 
 
 	pContent->SetSizer( contentSizer );
@@ -334,10 +378,15 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
 	this->Connect( wxEVT_SHOW, wxShowEventHandler( GUIFrame::OnShow ) );
-	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuSequenceNew ), this, miNew->GetId());
-	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnQuit ), this, miQuit->GetId());
-	m_splitter1->Connect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, wxSplitterEventHandler( GUIFrame::OnSplitterChanged ), NULL, this );
-	m_splitter1->Connect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING, wxSplitterEventHandler( GUIFrame::OnSplitterChanging ), NULL, this );
+	mnuSequence->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuSequenceNew ), this, miNew->GetId());
+	mnuSequence->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnQuit ), this, miQuit->GetId());
+	mnuEdit->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnUndo ), this, miUndo->GetId());
+	mnuEdit->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnRedo ), this, miRedo->GetId());
+	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuDefaultChannelPreset ), this, miSetDefaultPreset->GetId());
+	this->Connect( tUndo->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnUndo ));
+	this->Connect( tRedo->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnRedo ));
+	contentSplitter->Connect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, wxSplitterEventHandler( GUIFrame::OnSplitterChanged ), NULL, this );
+	contentSplitter->Connect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING, wxSplitterEventHandler( GUIFrame::OnSplitterChanging ), NULL, this );
 	pChannels->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnChannelsSize ), NULL, this );
 	pLog->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	pDevices->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnDevicePanelSize ), NULL, this );
@@ -348,8 +397,10 @@ GUIFrame::~GUIFrame()
 	// Disconnect Events
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrame::OnClose ) );
 	this->Disconnect( wxEVT_SHOW, wxShowEventHandler( GUIFrame::OnShow ) );
-	m_splitter1->Disconnect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, wxSplitterEventHandler( GUIFrame::OnSplitterChanged ), NULL, this );
-	m_splitter1->Disconnect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING, wxSplitterEventHandler( GUIFrame::OnSplitterChanging ), NULL, this );
+	this->Disconnect( tUndo->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnUndo ));
+	this->Disconnect( tRedo->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnRedo ));
+	contentSplitter->Disconnect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, wxSplitterEventHandler( GUIFrame::OnSplitterChanged ), NULL, this );
+	contentSplitter->Disconnect( wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING, wxSplitterEventHandler( GUIFrame::OnSplitterChanging ), NULL, this );
 	pChannels->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnChannelsSize ), NULL, this );
 	pLog->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	pDevices->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnDevicePanelSize ), NULL, this );
@@ -430,6 +481,8 @@ SliderPanelBase::SliderPanelBase( wxWindow* parent, wxWindowID id, const wxPoint
 	slider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( SliderPanelBase::OnSlider ), NULL, this );
 	slider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( SliderPanelBase::OnSlider ), NULL, this );
 	slider->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( SliderPanelBase::OnSlider ), NULL, this );
+	slider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( SliderPanelBase::OnSliderRelease ), NULL, this );
+	slider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( SliderPanelBase::OnSliderTrack ), NULL, this );
 	slider->Connect( wxEVT_SLIDER, wxCommandEventHandler( SliderPanelBase::OnSlider ), NULL, this );
 }
 
@@ -448,6 +501,8 @@ SliderPanelBase::~SliderPanelBase()
 	slider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( SliderPanelBase::OnSlider ), NULL, this );
 	slider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( SliderPanelBase::OnSlider ), NULL, this );
 	slider->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( SliderPanelBase::OnSlider ), NULL, this );
+	slider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( SliderPanelBase::OnSliderRelease ), NULL, this );
+	slider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( SliderPanelBase::OnSliderTrack ), NULL, this );
 	slider->Disconnect( wxEVT_SLIDER, wxCommandEventHandler( SliderPanelBase::OnSlider ), NULL, this );
 
 }

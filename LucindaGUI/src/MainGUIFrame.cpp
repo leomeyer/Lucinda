@@ -27,7 +27,7 @@
 #include "GlobalChannelPanel.h"
 #include "RegularChannelPanel.h"
 
-#include "ApplicationController.h"
+#include "Controller.h"
 
 namespace APP_NAMESPACE {
 
@@ -66,13 +66,16 @@ MainGUIFrame::MainGUIFrame(wxFrame *frame)
     : GUIFrame(frame)
 {
     minimumLogPriority = Logger::LogPriority::LOG_DEBUG;
+
+    tUndo->SetState(wxAUI_BUTTON_STATE_DISABLED);
+    tRedo->SetState(wxAUI_BUTTON_STATE_DISABLED);
 }
 
 MainGUIFrame::~MainGUIFrame()
 {
 }
 
-void MainGUIFrame::initialize(ApplicationController* controller)
+void MainGUIFrame::initialize(Controller* controller)
 {
     this->controller = controller;
 
@@ -115,6 +118,13 @@ void MainGUIFrame::initialize(ApplicationController* controller)
 
 */
 
+}
+
+void MainGUIFrame::applyGUISettings()
+{
+    wxSize contentSize = pContent->GetSize();
+    int contentSplitterPos = controller->getContext()->config->getLong(SETTING_CONTENT_SPLITTER_POS, contentSize.y / 2);
+    contentSplitter->SetSashPosition(contentSplitterPos);
 }
 
 void MainGUIFrame::insertLogMessage(const Logger::LogMessage& message) {
@@ -235,16 +245,57 @@ void MainGUIFrame::updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos)
     }
 }
 
+void MainGUIFrame::updateUndoState(UndoManager* undoManager)
+{
+    // update menu item and toolbar button states
+    if (undoManager->canUndo()) {
+        miUndo->Enable(true);
+        tUndo->SetState(wxAUI_BUTTON_STATE_NORMAL);
+        tUndo->SetShortHelp(undoManager->getUndoLabel());
+    } else {
+        miUndo->Enable(false);
+        tUndo->SetState(wxAUI_BUTTON_STATE_DISABLED);
+        tUndo->SetShortHelp("Undo");
+    }
+    if (undoManager->canRedo()) {
+        miRedo->Enable(true);
+        tRedo->SetState(wxAUI_BUTTON_STATE_NORMAL);
+        tRedo->SetShortHelp(undoManager->getRedoLabel());
+    } else {
+        miRedo->Enable(false);
+        tRedo->SetState(wxAUI_BUTTON_STATE_DISABLED);
+        tRedo->SetShortHelp("Redo");
+    }
+    toolbar->Refresh();
+}
+
+void MainGUIFrame::OnUndo(wxCommandEvent& event)
+{
+    controller->getContext()->undoManager->undo();
+
+    updateUndoState(controller->getContext()->undoManager);
+}
+
+void MainGUIFrame::OnRedo(wxCommandEvent& event)
+{
+    controller->getContext()->undoManager->redo();
+
+    updateUndoState(controller->getContext()->undoManager);
+}
+
 void MainGUIFrame::OnShow(wxShowEvent& event)
 {
+    // not called ???
 /*
     // load perspective
     wxString auiPerspective;
-    if (appController->getContext()->config->getString(CFG_AUI_PERSPECTIVE, "Perspective", "", &auiPerspective)) {
+    if (controller->getContext()->config->getString(CFG_AUI_PERSPECTIVE, "Perspective", "", &auiPerspective)) {
         if (auiPerspective != "")
             m_mgr.LoadPerspective(auiPerspective, true);
     }
 */
+
+    updateUndoState(controller->getContext()->undoManager);
 }
 
 void MainGUIFrame::OnClose(wxCloseEvent &event)
@@ -255,7 +306,7 @@ void MainGUIFrame::OnClose(wxCloseEvent &event)
 
     wxString auiPerspective = m_mgr.SavePerspective();
     controller->getContext()->config->setString(CFG_AUI_PERSPECTIVE, "Perspective", auiPerspective);
-
+    controller->getContext()->config->setLong(SETTING_CONTENT_SPLITTER_POS, contentSplitter->GetSashPosition());
     Destroy();
 }
 
@@ -350,6 +401,11 @@ void MainGUIFrame::OnDevicePanelSize(wxSizeEvent& event)
 void MainGUIFrame::OnMenuSequenceNew(wxCommandEvent& event)
 {
     controller->getContext()->logger->logDebug("OnMenuSequenceNew");
+}
+
+void MainGUIFrame::OnMenuDefaultChannelPreset(wxCommandEvent& event)
+{
+
 }
 
 

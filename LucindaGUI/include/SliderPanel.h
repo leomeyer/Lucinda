@@ -9,7 +9,7 @@ namespace APP_NAMESPACE {
 
 class ChannelPanel;
 
-class SliderPanel : public SliderPanelBase
+class SliderPanel : public SliderPanelBase, public IUndoRedoable
 {
     public:
 
@@ -18,15 +18,28 @@ class SliderPanel : public SliderPanelBase
 
         virtual ~SliderPanel();
 
+        void setSliderValue(int value);
+
         SliderType getType();
 
         uint16_t getValue();
 
+        void undo(UndoChange* change) override;
+
+        void redo(UndoChange* change) override;
+
     protected:
+        typedef struct {
+            int previous;
+            int current;
+        } UndoInfo_t;
+
         ChannelPanel* channel;
         SliderType type;
         int min;
         int max;
+        int currentValue;
+        int preTrackValue;
 
         virtual int getDeviceValue(int sliderValue);
 
@@ -36,13 +49,17 @@ class SliderPanel : public SliderPanelBase
 
    		virtual void setLabels();
 
-   		void updateControls();
+   		virtual void updateControls();
+
+   		void applyUndoableChange(int value);
 
     private:
-        virtual void OnValCharHook(wxKeyEvent& event);
-		virtual void OnFocusValue( wxFocusEvent& event );
-        virtual void OnValueEnter( wxCommandEvent& event );     // enter key
-   		virtual void OnSlider( wxCommandEvent& event );
+        virtual void OnValCharHook(wxKeyEvent& event) override;
+		virtual void OnFocusValue( wxFocusEvent& event ) override;
+        virtual void OnValueEnter( wxCommandEvent& event ) override;     // enter key
+		virtual void OnSliderRelease( wxScrollEvent& event ) override;
+		virtual void OnSliderTrack( wxScrollEvent& event ) override;
+   		virtual void OnSlider( wxCommandEvent& event ) override;
 };
 
 }; // namespace

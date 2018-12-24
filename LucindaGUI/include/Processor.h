@@ -5,7 +5,7 @@
 
 namespace APP_NAMESPACE {
 
-class ApplicationController;
+class Controller;
 struct ChannelSettings;
 class ChannelPanel;
 
@@ -14,7 +14,7 @@ class ChannelPanel;
 class Processor
 {
     public:
-        Processor(ApplicationController* controller);
+        Processor(Controller* controller);
 
         virtual ~Processor();
 
@@ -23,7 +23,7 @@ class Processor
         void OnSetChannelSettings(ChannelPanel* panel);
 
     protected:
-        ApplicationController* controller;
+        Controller* controller;
 
     private:
 };

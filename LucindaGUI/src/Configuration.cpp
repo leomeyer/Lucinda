@@ -68,4 +68,20 @@ void Configuration::setString(const wxString& group, const wxString& key, const 
     config->SetPath("");
 }
 
+void Configuration::setLong(const wxString& key, const long value)
+{
+    setLong(APPSETTING_MAINGROUP, key, value);
+}
+
+void Configuration::setLong(const wxString& group, const wxString& key, const long value)
+{
+    wxString realGroup = group;
+    if (!realGroup.StartsWith("/"))
+        realGroup = "/" + realGroup;
+    config->SetPath(realGroup);
+    config->Write(key, value);
+    // reset path
+    config->SetPath("");
+}
+
 };  // namespace

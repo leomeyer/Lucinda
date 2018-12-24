@@ -32,7 +32,7 @@ ChannelPanel::~ChannelPanel()
 {
 }
 
-void ChannelPanel::addSlider(const wxString& name, SliderType type)
+SliderPanel* ChannelPanel::addSlider(const wxString& name, SliderType type)
 {
     // construct slider depending on type
     SliderPanel* slider;
@@ -49,7 +49,7 @@ void ChannelPanel::addSlider(const wxString& name, SliderType type)
                                                        context->colorManagement->getOffsetColor()); break;
         case SLIDER_DUTYCYCLE: slider = new PercentSlider(pInternal, this, type, name, 255,
                                                           context->colorManagement->getDutycycleColor()); break;
-        default: return;
+        default: return nullptr;
     }
 
     sliders.push_back(slider);
@@ -61,7 +61,7 @@ void ChannelPanel::addSlider(const wxString& name, SliderType type)
     SetClientSize(wxSize(cSize.x + pSize.x, cSize.y));
     SetMinSize(wxSize(sliders.size() * pSize.x + 20, -1));
 
-    //channelSizer->Fit(pInternal);
+    return slider;
 }
 
 int ChannelPanel::getChannel()
@@ -113,6 +113,7 @@ uint16_t ChannelPanel::getSliderValue(SliderType type, uint16_t defaultValue)
 
 void ChannelPanel::OnSliderChange(SliderType type, int value)
 {
+    // context->undoManager->
     context->processor->OnValueChange(channel, type, value);
 }
 
@@ -185,54 +186,51 @@ void ChannelPanel::loadPresets()
     settings.validate();
 }
 
-UndoAction ChannelPanel::createUndoAction()
-{
-    return UndoAction();
-}
-
-void ChannelPanel::setLightBit(int lightNo) {
-    if (settings.lights < 0) {
-        settings.lights = 0;
-        settings.enabled = true;
+void ChannelPanel::setLightBit(ChannelSettings& localSettings, int lightNo) {
+    if (localSettings.lights < 0) {
+        localSettings.lights = 0;
+        localSettings.enabled = true;
     }
-    settings.lights |= 1 << lightNo;
+    localSettings.lights |= 1 << lightNo;
 }
 
-void ChannelPanel::clearLightBit(int lightNo) {
-    settings.lights &= ~(1 << lightNo);
-    if (settings.lights == 0)
-        settings.lights = -1;
+void ChannelPanel::clearLightBit(ChannelSettings& localSettings, int lightNo) {
+    localSettings.lights &= ~(1 << lightNo);
+    if (localSettings.lights == 0)
+        localSettings.lights = -1;
 }
 
 void ChannelPanel::OnCheckBox(wxCommandEvent& event)
 {
     #define TEST_LIGHT_CHECKBOX(number)     if (event.GetEventObject() == cb##number) { \
         if (cb##number->GetValue()) \
-            setLightBit((number - 1)); \
+            setLightBit(localSettings, (number - 1)); \
         else \
-            clearLightBit((number - 1)); \
+            clearLightBit(localSettings, (number - 1)); \
     }
 
-    settings.dirty = true;
+    ChannelSettings localSettings = settings;
+
+    localSettings.dirty = true;
 
     if (event.GetEventObject() == cbReverse) {
-        settings.reverse = cbReverse->GetValue();
+        localSettings.reverse = cbReverse->GetValue();
     }
     if (event.GetEventObject() == cbInvert) {
-        settings.invert = cbInvert->GetValue();
+        localSettings.invert = cbInvert->GetValue();
     }
     if (event.GetEventObject() == cbEyeCorrection) {
-        settings.eyeCorrection = cbEyeCorrection->GetValue();
+        localSettings.eyeCorrection = cbEyeCorrection->GetValue();
     }
     if (event.GetEventObject() == cbEnabled) {
-        settings.enabled = cbEnabled->GetValue();
+        localSettings.enabled = cbEnabled->GetValue();
     }
     if (event.GetEventObject() == cbHalogen) {
         if (cbHalogen->GetValue()) {
-            settings.lights = 0;
-            settings.enabled = true;
+            localSettings.lights = 0;
+            localSettings.enabled = true;
         } else
-            settings.lights = -1;
+            localSettings.lights = -1;
     }
     TEST_LIGHT_CHECKBOX(1)
     TEST_LIGHT_CHECKBOX(2)
@@ -243,28 +241,30 @@ void ChannelPanel::OnCheckBox(wxCommandEvent& event)
     TEST_LIGHT_CHECKBOX(7)
     TEST_LIGHT_CHECKBOX(8)
 
-    settings.validate();
-    updateControls();
+    applyUndoableChange(localSettings);
 }
 
 void ChannelPanel::OnCombobox(wxCommandEvent& event)
 {
-    if (event.GetEventObject() == cmbWaveform)
-        settings.waveform = (Waveform)cmbWaveform->GetSelection();
+    ChannelSettings localSettings = settings;
 
-    settings.validate();
-    updateControls();
+    if (event.GetEventObject() == cmbWaveform)
+        localSettings.waveform = (Waveform)cmbWaveform->GetSelection();
+
+    applyUndoableChange(localSettings);
 }
 
 void ChannelPanel::setMulticycleValue(wxTextCtrl* ctrl)
 {
+    ChannelSettings localSettings = settings;
+
     uint8_t* target = nullptr;
     if (ctrl == txtMCLength)
-        target = &settings.mcLength;
+        target = &localSettings.mcLength;
     else if (ctrl == txtMCCount)
-        target = &settings.mcCount;
+        target = &localSettings.mcCount;
     else if (ctrl == txtMCShift)
-        target = &settings.mcShift;
+        target = &localSettings.mcShift;
     if (target == nullptr)
         return;
 
@@ -278,8 +278,7 @@ void ChannelPanel::setMulticycleValue(wxTextCtrl* ctrl)
         *target = (uint8_t)lvalue;
     }
 
-    settings.validate();
-    updateControls();
+    applyUndoableChange(localSettings);
 }
 
 void ChannelPanel::OnTextKillFocus(wxFocusEvent& event)
@@ -309,6 +308,42 @@ void ChannelPanel::OnButtonReset(wxCommandEvent& event)
 {
     loadPresets();
     updateControls();
+}
+
+
+void ChannelPanel::undo(UndoChange* change)
+{
+    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    settings = data->previous;
+    settings.dirty = true;
+    settings.validate();
+    updateControls();
+}
+
+void ChannelPanel::redo(UndoChange* change)
+{
+    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    settings = data->current;
+    settings.dirty = true;
+    settings.validate();
+    updateControls();
+}
+
+void ChannelPanel::applyUndoableChange(ChannelSettings newSettings)
+{
+    if (newSettings != settings) {
+        // register change, store previous and current slider value
+        UndoInfo_t* data = (UndoInfo_t*)malloc(sizeof(UndoInfo_t));
+        data->previous = settings;
+        data->current = newSettings;
+        UndoChange* undoChange = new UndoChange(this, 0, stChannelName->GetLabel() + " Settings", (void*)data);
+
+        context->undoManager->addUndoChange(undoChange);
+
+        settings = newSettings;
+        settings.validate();
+        updateControls();
+    }
 }
 
 

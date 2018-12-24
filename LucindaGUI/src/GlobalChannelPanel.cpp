@@ -1,6 +1,7 @@
 #include "GlobalChannelPanel.h"
 
 #include "ChannelPanel.h"
+#include "SliderPanel.h"
 
 #include "Context.h"
 
@@ -13,7 +14,7 @@ GlobalChannelPanel::GlobalChannelPanel(wxWindow* parent, Context* context)
     stChannelName->SetLabel("Global");
 
     pControls->Hide();
-    addSlider("Brightness", SLIDER_BRIGHTNESS);
+    addSlider("Brightness", SLIDER_BRIGHTNESS)->setSliderValue(255);
 //    addSlider("Speed", SLIDER_GLOBAL_SPEED);
 }
 

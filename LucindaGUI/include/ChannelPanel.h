@@ -66,15 +66,34 @@ struct ChannelSettings
     {
         return lights < 0;
     }
+
+    bool operator==(const ChannelSettings& rhs) {
+        return
+            lights == rhs.lights
+            && enabled == rhs.enabled
+            && waveform == rhs.waveform
+            && reverse == rhs.reverse
+            && invert == rhs.invert
+            && eyeCorrection == rhs.eyeCorrection
+            && mcLength == rhs.mcLength
+            && mcCount == rhs.mcLength
+            && mcShift == rhs.mcShift;
+    }
+
+    bool operator!=(const ChannelSettings& rhs) {
+        return !(*this == rhs);
+    }
 };
 
-class ChannelPanel : public ChannelPanelBase
+class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
 {
     public:
+        Context* context;
+
         ChannelPanel(wxWindow* parent, Context* context, const wxString& name, int number);
         virtual ~ChannelPanel();
 
-        void addSlider(const wxString& name, SliderType type);
+        SliderPanel* addSlider(const wxString& name, SliderType type);
 
         void OnSliderChange(SliderType type, int value);
 
@@ -87,25 +106,34 @@ class ChannelPanel : public ChannelPanelBase
         uint8_t getPhaseshift();
         uint8_t getDutyCycle();
 
+        void undo(UndoChange* change) override;
+
+        void redo(UndoChange* change) override;
+
     protected:
-        Context* context;
+
+        typedef struct {
+            ChannelSettings previous;
+            ChannelSettings current;
+        } UndoInfo_t;
+
         int channel;
         ChannelSettings settings;
         wxVector<SliderPanel*> sliders;
         wxColour startupButtonBackground;
 
-        UndoAction createUndoAction();
-
         uint16_t getSliderValue(SliderType type, uint16_t defaultValue);
 
-        void setLightBit(int lightNo);
-        void clearLightBit(int lightNo);
+        void setLightBit(ChannelSettings& localSettings, int lightNo);
+        void clearLightBit(ChannelSettings& localSettings, int lightNo);
 
         void updateControls();
 
         void loadPresets();
 
         void setMulticycleValue(wxTextCtrl* ctrl);
+
+   		void applyUndoableChange(ChannelSettings settings);
 
 		virtual void OnCheckBox( wxCommandEvent& event ) override;
 		virtual void OnCombobox( wxCommandEvent& event ) override;

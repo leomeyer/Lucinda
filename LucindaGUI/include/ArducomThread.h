@@ -7,7 +7,7 @@
 #include "../Arducom/src/master/ArducomMaster.h"
 #include "../Arducom/src/slave/lib/Arducom/Arducom.h"
 
-#include "readerwriterqueue.h"
+// #include "readerwriterqueue.h"
 
 namespace APP_NAMESPACE {
 

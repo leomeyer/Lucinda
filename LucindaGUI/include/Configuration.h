@@ -29,6 +29,13 @@ class Configuration
 
         void setString(const wxString& group, const wxString& key, const wxString& value);
 
+        /** Sets a long to the main group (APPSETTING_MAINGROUP). */
+        void setLong(const wxString& key, const long value);
+
+        /** Sets a long using the specified group. */
+        void setLong(const wxString& group, const wxString& key, const long value);
+
+
     protected:
         wxFileConfig* config;
         wxString origin;

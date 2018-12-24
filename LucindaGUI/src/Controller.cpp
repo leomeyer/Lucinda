@@ -1,53 +1,55 @@
-#include "ApplicationController.h"
+#include "Controller.h"
 
 #include "Communication.h"
 #include "Processor.h"
 #include "Logger.h"
 #include "DeviceInfo.h"
 #include "ChannelPanel.h"
+#include "UndoManager.h"
 
 namespace APP_NAMESPACE {
 
-ApplicationController::ApplicationController(Context* context, Communication* comm, MainGUIFrame* frame)
+Controller::Controller(Context* context, Communication* comm, MainGUIFrame* frame)
 {
     this->context = context;
     this->comm = comm;
     this->frame = frame;
 }
 
-ApplicationController::~ApplicationController()
+Controller::~Controller()
 {
     //dtor
 }
 
-void ApplicationController::start()
+void Controller::start()
 {
     context->logger->logInfo("Application startup.");
 
     lastLogQuery = wxDateTime::UNow();
 
     context->processor = new Processor(this);
+    context->undoManager = new UndoManager(this);
 
     comm->loadFromSettings();
 }
 
-void ApplicationController::shutdown()
+void Controller::shutdown()
 {
     // stop communication
     comm->stop();
 }
 
-Processor* ApplicationController::getProcessor()
+Processor* Controller::getProcessor()
 {
     return context->processor;
 }
 
-Context* ApplicationController::getContext()
+Context* Controller::getContext()
 {
     return context;
 }
 
-void ApplicationController::OnUpdateTimer(wxTimerEvent& event)
+void Controller::OnUpdateTimer(wxTimerEvent& event)
 {
     // update device info
     wxVector<DeviceInfo> deviceInfos;
@@ -64,7 +66,7 @@ void ApplicationController::OnUpdateTimer(wxTimerEvent& event)
     }
 }
 
-void ApplicationController::setGlobalValue(SliderType type, int value)
+void Controller::setGlobalValue(SliderType type, int value)
 {
     switch (type) {
         case SLIDER_BRIGHTNESS: {
@@ -79,7 +81,7 @@ void ApplicationController::setGlobalValue(SliderType type, int value)
     }
 }
 
-void ApplicationController::setChannelValue(uint8_t channel, SliderType type, int value)
+void Controller::setChannelValue(uint8_t channel, SliderType type, int value)
 {
     switch (type) {
         case SLIDER_PERIOD: {
@@ -106,7 +108,7 @@ void ApplicationController::setChannelValue(uint8_t channel, SliderType type, in
     }
 }
 
-void ApplicationController::setChannelSettings(ChannelPanel* panel, bool apply)
+void Controller::setChannelSettings(ChannelPanel* panel, bool apply)
 {
     comm->setChannelSettings(
         panel->getChannel(),
@@ -127,6 +129,11 @@ void ApplicationController::setChannelSettings(ChannelPanel* panel, bool apply)
         panel->getSettings()->mcCount,
         panel->getSettings()->mcShift
     );
+}
+
+void Controller::updateUndoState(UndoManager* undoManager)
+{
+    frame->updateUndoState(undoManager);
 }
 
 

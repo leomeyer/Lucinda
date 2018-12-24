@@ -7,6 +7,7 @@ PercentSlider::PercentSlider(wxWindow* parent, ChannelPanel* channel, SliderType
 {
     setLabels();
     slider->SetValue(value);
+    updateControls();
 }
 
 PercentSlider::~PercentSlider()
@@ -24,7 +25,7 @@ void PercentSlider::setLabels()
 
 wxString PercentSlider::valueToString(const int value)
 {
-    wxString result = wxString::Format(wxT("%.1f"), value / 256.0f * 100.0f);
+    wxString result = wxString::Format(wxT("%.1f"), value / 255.0f * 100.0f);
 /*    while (result.EndsWith("0") || result.EndsWith("."))
         result = result.RemoveLast(1);
 */

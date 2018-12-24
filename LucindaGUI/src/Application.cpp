@@ -23,7 +23,7 @@
 #include "Configuration.h"
 #include "Context.h"
 #include "Communication.h"
-#include "ApplicationController.h"
+#include "Controller.h"
 
 #include "Application.h"
 
@@ -67,11 +67,13 @@ bool Application::OnInit()
     }
 
     // initialize application controller
-    appController = new ApplicationController(context, new Communication(context), frame);
-    appController->start();
-    frame->initialize(appController);
+    controller = new Controller(context, new Communication(context), frame);
+    controller->start();
+    frame->initialize(controller);
 
     frame->Show();
+
+    frame->applyGUISettings();
 
     return true;
 }

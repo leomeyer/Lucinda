@@ -26,6 +26,7 @@
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/scrolwin.h>
+#include <wx/toolbar.h>
 #include <wx/splitter.h>
 #include <wx/grid.h>
 #include <wx/aui/auibook.h>
@@ -48,11 +49,15 @@ class GUIFrame : public wxFrame
 	protected:
 		wxStatusBar* statusBar;
 		wxMenuBar* mbMenuBar;
-		wxMenu* m_menu3;
-		wxMenu* m_menu4;
-		wxMenu* m_menu5;
-		wxMenu* m_menu41;
-		wxAuiToolBar* m_auiToolBar1;
+		wxMenu* mnuSequence;
+		wxMenu* mnuEdit;
+		wxMenuItem* miUndo;
+		wxMenuItem* miRedo;
+		wxMenu* mnuView;
+		wxMenu* mnuDevices;
+		wxMenu* mnuChannels;
+		wxMenu* m_menu1;
+		wxAuiToolBar* toolbar;
 		wxAuiToolBarItem* tNew;
 		wxAuiToolBarItem* tOpen;
 		wxAuiToolBarItem* tSave;
@@ -69,11 +74,22 @@ class GUIFrame : public wxFrame
 		wxStaticText* m_staticText16;
 		wxPanel* pContent;
 		wxBoxSizer* contentSizer;
-		wxSplitterWindow* m_splitter1;
+		wxSplitterWindow* contentSplitter;
 		wxScrolledWindow* pChannels;
 		wxBoxSizer* channelSizer;
-		wxPanel* m_panel54;
-		wxStaticText* m_staticText17;
+		wxPanel* pTracks;
+		wxToolBar* m_toolBar1;
+		wxToolBarToolBase* tbRecord;
+		wxToolBarToolBase* tbStop;
+		wxToolBarToolBase* tbPlay;
+		wxToolBarToolBase* tbStart;
+		wxToolBarToolBase* tbBack;
+		wxToolBarToolBase* tbForward;
+		wxToolBarToolBase* tbEnd;
+		wxToolBarToolBase* tbRepeat;
+		wxSplitterWindow* trackSplitter;
+		wxScrolledWindow* m_scrolledWindow2;
+		wxScrolledWindow* m_scrolledWindow3;
 		wxPanel* pInformation;
 		wxAuiNotebook* m_auinotebook4;
 		wxPanel* pLog;
@@ -86,6 +102,9 @@ class GUIFrame : public wxFrame
 		virtual void OnShow( wxShowEvent& event ) { event.Skip(); }
 		virtual void OnMenuSequenceNew( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnQuit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnUndo( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnRedo( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuDefaultChannelPreset( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSplitterChanged( wxSplitterEvent& event ) { event.Skip(); }
 		virtual void OnSplitterChanging( wxSplitterEvent& event ) { event.Skip(); }
 		virtual void OnChannelsSize( wxSizeEvent& event ) { event.Skip(); }
@@ -100,10 +119,16 @@ class GUIFrame : public wxFrame
 
 		~GUIFrame();
 
-		void m_splitter1OnIdle( wxIdleEvent& )
+		void contentSplitterOnIdle( wxIdleEvent& )
 		{
-			m_splitter1->SetSashPosition( 0 );
-			m_splitter1->Disconnect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::m_splitter1OnIdle ), NULL, this );
+			contentSplitter->SetSashPosition( 0 );
+			contentSplitter->Disconnect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::contentSplitterOnIdle ), NULL, this );
+		}
+
+		void trackSplitterOnIdle( wxIdleEvent& )
+		{
+			trackSplitter->SetSashPosition( 100 );
+			trackSplitter->Disconnect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::trackSplitterOnIdle ), NULL, this );
 		}
 
 };
@@ -129,6 +154,8 @@ class SliderPanelBase : public wxPanel
 		virtual void OnFocusValue( wxFocusEvent& event ) { event.Skip(); }
 		virtual void OnValueEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSlider( wxScrollEvent& event ) { event.Skip(); }
+		virtual void OnSliderRelease( wxScrollEvent& event ) { event.Skip(); }
+		virtual void OnSliderTrack( wxScrollEvent& event ) { event.Skip(); }
 		virtual void OnSlider( wxCommandEvent& event ) { event.Skip(); }
 
 

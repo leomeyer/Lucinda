@@ -1,6 +1,8 @@
 #include "SliderPanel.h"
 
 #include "ChannelPanel.h"
+#include "Context.h"
+#include "UndoManager.h"
 
 namespace APP_NAMESPACE {
 
@@ -14,7 +16,8 @@ SliderPanel::SliderPanel(wxWindow* parent, ChannelPanel* channel, SliderType typ
     this->max = max;
     slider->SetMin(min);
     slider->SetMax(max);
-    slider->SetValue(value);
+    setSliderValue(value);
+    preTrackValue = -1;
 
     stSliderName->SetLabel(name);
     setLabels();
@@ -37,6 +40,15 @@ SliderType SliderPanel::getType()
 uint16_t SliderPanel::getValue()
 {
     return getDeviceValue(slider->GetValue());
+}
+
+void SliderPanel::setSliderValue(int value)
+{
+    slider->SetValue(value);
+    // store current value
+    currentValue = slider->GetValue();
+
+    updateControls();
 }
 
 int SliderPanel::getDeviceValue(int sliderValue)
@@ -78,6 +90,8 @@ void SliderPanel::OnFocusValue(wxFocusEvent& event)
 
 void SliderPanel::OnValCharHook(wxKeyEvent& event)
 {
+    int previousValue = currentValue;
+
     // shift, ctrl and alt accelerate change to different degrees
     int increment = 1;
     if (event.ShiftDown())
@@ -88,31 +102,33 @@ void SliderPanel::OnValCharHook(wxKeyEvent& event)
         increment *= 4;
 
     if (event.GetKeyCode() == wxKeyCode::WXK_UP) {
-        slider->SetValue(slider->GetValue() + increment);
+        setSliderValue(slider->GetValue() + increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_DOWN) {
-        slider->SetValue(slider->GetValue() - increment);
+        setSliderValue(slider->GetValue() - increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_PAGEUP) {
-        slider->SetValue(slider->GetValue() + slider->GetPageSize() * increment);
+        setSliderValue(slider->GetValue() + slider->GetPageSize() * increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_PAGEDOWN) {
-        slider->SetValue(slider->GetValue() - slider->GetPageSize() * increment);
+        setSliderValue(slider->GetValue() - slider->GetPageSize() * increment);
     } else if (event.GetKeyCode() == wxKeyCode::WXK_HOME && event.ControlDown()) {
-        slider->SetValue(slider->GetMax());
+        setSliderValue(slider->GetMax());
     } else if (event.GetKeyCode() == wxKeyCode::WXK_END && event.ControlDown()) {
-        slider->SetValue(0);
+        setSliderValue(0);
     } else {
         event.Skip();
         return;
     }
     // for unknown reasons the OnSlider isn't fired as documented,
     // so we have to do this manually
-    updateControls();
     txtValue->SelectAll();
-    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
-}
 
+    if (previousValue != slider->GetValue())
+        applyUndoableChange(previousValue);
+}
 
 void SliderPanel::OnValueEnter(wxCommandEvent& event)
 {
+    int previousValue = currentValue;
+
     // parse entered value
     int value;
 
@@ -121,20 +137,40 @@ void SliderPanel::OnValueEnter(wxCommandEvent& event)
             value = max;
         if (value < min)
             value = min;
-        slider->SetValue(value);
+        setSliderValue(value);
     }
-    updateControls();
     // select all text
     txtValue->SelectAll();
 
+    if (previousValue != slider->GetValue())
+        applyUndoableChange(previousValue);
+}
+
+void SliderPanel::OnSliderRelease(wxScrollEvent& event)
+{
+    // protocol all changes as one undo event
+    applyUndoableChange(preTrackValue);
+    setSliderValue(slider->GetValue());
+    preTrackValue = -1;
+}
+
+void SliderPanel::OnSliderTrack(wxScrollEvent& event)
+{
+    preTrackValue = currentValue;  // value at start of tracking
     channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
+    updateControls();
 }
 
 void SliderPanel::OnSlider(wxCommandEvent& event)
 {
-    updateControls();
+    // tracking?
+    if (preTrackValue >= 0)
+        return;
 
-    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
+    int previousValue = currentValue;
+    setSliderValue(slider->GetValue());
+
+    applyUndoableChange(previousValue);
 }
 
 void SliderPanel::updateControls()
@@ -143,5 +179,39 @@ void SliderPanel::updateControls()
     wxString txt = valueToString(value);
     txtValue->SetValue(txt);
 }
+
+// undo/redo logic
+
+void SliderPanel::applyUndoableChange(int previousValue)
+{
+    // important! OnSlider will generate multiple events after tracking has been released
+    // so generating undo changes with the same value must be avoided
+    if (slider->GetValue() != previousValue) {
+        // register change, store previous and current slider value
+        UndoInfo_t* data = (UndoInfo_t*)malloc(sizeof(UndoInfo_t));
+        data->previous = previousValue;
+        data->current = slider->GetValue();
+        UndoChange* undoChange = new UndoChange(this, 0, stSliderName->GetLabel(), (void*)data);
+
+        channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
+
+        channel->context->undoManager->addUndoChange(undoChange);
+    }
+}
+
+void SliderPanel::undo(UndoChange* change)
+{
+    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    setSliderValue(data->previous);
+    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
+}
+
+void SliderPanel::redo(UndoChange* change)
+{
+    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    setSliderValue(data->current);
+    channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
+}
+
 
 }; // namespace

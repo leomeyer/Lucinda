@@ -17,7 +17,7 @@
 namespace APP_NAMESPACE {
 
 class Context;
-class ApplicationController;
+class Controller;
 
 class Application : public wxApp
 {
@@ -25,7 +25,7 @@ class Application : public wxApp
         virtual bool OnInit();
 
         Context* context;
-        ApplicationController* appController;
+        Controller* controller;
 };
 
 }; // namespace

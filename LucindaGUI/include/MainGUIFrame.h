@@ -18,8 +18,9 @@
 
 namespace APP_NAMESPACE {
 
-class ApplicationController;
+class Controller;
 class ChannelPanel;
+class UndoManager;
 
 class MainGUIFrame: public GUIFrame
 {
@@ -27,7 +28,9 @@ class MainGUIFrame: public GUIFrame
         MainGUIFrame(wxFrame *frame);
         ~MainGUIFrame();
 
-        void initialize(ApplicationController* appController);
+        void initialize(Controller* controller);
+
+        void applyGUISettings();
 
         void insertLogMessage(const Logger::LogMessage& message);
 
@@ -35,8 +38,10 @@ class MainGUIFrame: public GUIFrame
 
         void updateDeviceInfos(const wxVector<DeviceInfo>& deviceInfos);
 
+        void updateUndoState(UndoManager* undoManager);
+
     private:
-        ApplicationController* controller;
+        Controller* controller;
         wxTimer* updateTimer;
         Logger::LogPriority minimumLogPriority;
         wxVector<ChannelPanel*> channelPanels;
@@ -44,6 +49,9 @@ class MainGUIFrame: public GUIFrame
         void expandGrid(wxGrid* grid, const wxSize& size);
 
         void OnUpdateTimer(wxTimerEvent& event);
+
+   		virtual void OnUndo( wxCommandEvent& event ) override;
+		virtual void OnRedo( wxCommandEvent& event ) override;
 
  		virtual void OnShow(wxShowEvent& event) override;
         virtual void OnClose(wxCloseEvent& event) override;
@@ -56,6 +64,8 @@ class MainGUIFrame: public GUIFrame
 		virtual void OnChannelsSize( wxSizeEvent& event ) override;
         virtual void OnLogPanelSize(wxSizeEvent& event) override;
         virtual void OnDevicePanelSize(wxSizeEvent& event) override;
+
+        virtual void OnMenuDefaultChannelPreset( wxCommandEvent& event ) override;
 
 		virtual void OnMenuSequenceNew( wxCommandEvent& event ) override;
 

@@ -17,9 +17,22 @@
 #define APPKEY_NR_OF_DEVICES     "DeviceCount"
 #define APPKEY_DEVICENAME_PREFIX "Device"
 
+#define SETTING_CONTENT_SPLITTER_POS    "ContentSplitterPos"
 
 #define GLOBAL_SPEED_MAX     255
 #define CHANNEL_PERIOD_MAX   10240
+
+namespace APP_NAMESPACE {
+
+class UndoChange;
+// interface for any class that supports undo/redo operations
+class IUndoRedoable
+{
+    public:
+        virtual void undo(UndoChange* change) = 0;
+
+        virtual void redo(UndoChange* change) = 0;
+};
 
 enum SliderType {
     SLIDER_UNKNOWN,
@@ -30,5 +43,7 @@ enum SliderType {
     SLIDER_OFFSET,
     SLIDER_DUTYCYCLE
 };
+
+}; // namespace
 
 #endif // GLOBALDEFINES_H_INCLUDED

@@ -29,10 +29,11 @@ class SliderPanel : public SliderPanelBase, public IUndoRedoable
         void redo(UndoChange* change) override;
 
     protected:
-        typedef struct {
+        class SliderUndoInfo: public UndoInfo {
+        public:
             int previous;
             int current;
-        } UndoInfo_t;
+        };
 
         ChannelPanel* channel;
         SliderType type;

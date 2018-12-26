@@ -24,10 +24,12 @@
 
 namespace APP_NAMESPACE {
 
+class UndoInfo {};
+
 class UndoChange;
+
 // interface for any class that supports undo/redo operations
-class IUndoRedoable
-{
+class IUndoRedoable {
     public:
         virtual void undo(UndoChange* change) = 0;
 

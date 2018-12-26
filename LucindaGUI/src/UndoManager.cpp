@@ -3,8 +3,7 @@
 
 namespace APP_NAMESPACE {
 
-
-UndoChange::UndoChange(IUndoRedoable* actor, int action, wxString label, void* data)
+UndoChange::UndoChange(IUndoRedoable* actor, int action, wxString label, UndoInfo* data)
 {
     this->actor = actor;
     this->action = action;
@@ -14,8 +13,13 @@ UndoChange::UndoChange(IUndoRedoable* actor, int action, wxString label, void* d
 
 UndoChange::~UndoChange()
 {
+    // delete collected changes to free memory
+    auto end = changes.end();
+    for (auto iter = changes.begin(); iter != end; ++iter)
+        delete *iter;
+
     if (data != nullptr)
-        free(data);
+        delete data;
 }
 
 UndoManager::UndoManager(Controller* controller)
@@ -98,9 +102,9 @@ void UndoManager::undo()
         // collected change?
         if (change->changes.size() > 0) {
             // undo changes in reverse order
-            auto end = changes.rend();
-            for (auto iter = changes.rbegin(); iter != end; ++iter) {
-                change->actor->undo(*iter);
+            auto end = change->changes.rend();
+            for (auto iter = change->changes.rbegin(); iter != end; ++iter) {
+                (*iter)->actor->undo(*iter);
             }
         }
         change->actor->undo(change);
@@ -116,9 +120,9 @@ void UndoManager::redo()
         // collected change?
         if (change->changes.size() > 0) {
             // redo changes in proper order
-            auto end = changes.end();
-            for (auto iter = changes.begin(); iter != end; ++iter) {
-                change->actor->redo(*iter);
+            auto end = change->changes.end();
+            for (auto iter = change->changes.begin(); iter != end; ++iter) {
+                (*iter)->actor->redo(*iter);
             }
         }
         position++;

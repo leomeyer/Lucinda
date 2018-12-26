@@ -8,6 +8,7 @@
 #include "Controller.h"
 #include "Processor.h"
 #include "ColorManagement.h"
+#include "UndoManager.h"
 
 namespace APP_NAMESPACE {
 
@@ -335,7 +336,7 @@ void ChannelPanel::OnButtonReset(wxCommandEvent& event)
 
 void ChannelPanel::undo(UndoChange* change)
 {
-    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    ChannelUndoInfo* data = (ChannelUndoInfo*)change->data;
     settings = data->previous;
     settings.dirty = true;
     settings.validate();
@@ -344,7 +345,7 @@ void ChannelPanel::undo(UndoChange* change)
 
 void ChannelPanel::redo(UndoChange* change)
 {
-    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    ChannelUndoInfo* data = (ChannelUndoInfo*)change->data;
     settings = data->current;
     settings.dirty = true;
     settings.validate();
@@ -355,10 +356,10 @@ void ChannelPanel::applyUndoableChange(ChannelSettings newSettings)
 {
     if (newSettings != settings) {
         // register change, store previous and current slider value
-        UndoInfo_t* data = (UndoInfo_t*)malloc(sizeof(UndoInfo_t));
+        ChannelUndoInfo* data = new ChannelUndoInfo();
         data->previous = settings;
         data->current = newSettings;
-        UndoChange* undoChange = new UndoChange(this, 0, stChannelName->GetLabel() + " Settings", (void*)data);
+        UndoChange* undoChange = new UndoChange(this, 0, stChannelName->GetLabel() + " Settings", data);
 
         context->undoManager->addUndoChange(undoChange);
 

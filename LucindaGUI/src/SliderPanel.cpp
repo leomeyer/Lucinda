@@ -188,10 +188,10 @@ void SliderPanel::applyUndoableChange(int previousValue)
     // so generating undo changes with the same value must be avoided
     if (slider->GetValue() != previousValue) {
         // register change, store previous and current slider value
-        UndoInfo_t* data = (UndoInfo_t*)malloc(sizeof(UndoInfo_t));
+        SliderUndoInfo* data = new SliderUndoInfo();
         data->previous = previousValue;
         data->current = slider->GetValue();
-        UndoChange* undoChange = new UndoChange(this, 0, stSliderName->GetLabel(), (void*)data);
+        UndoChange* undoChange = new UndoChange(this, 0, stSliderName->GetLabel(), data);
 
         channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
 
@@ -201,14 +201,14 @@ void SliderPanel::applyUndoableChange(int previousValue)
 
 void SliderPanel::undo(UndoChange* change)
 {
-    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    SliderUndoInfo* data = (SliderUndoInfo*)change->data;
     setSliderValue(data->previous);
     channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
 }
 
 void SliderPanel::redo(UndoChange* change)
 {
-    UndoInfo_t* data = (UndoInfo_t*)change->data;
+    SliderUndoInfo* data = (SliderUndoInfo*)change->data;
     setSliderValue(data->current);
     channel->OnSliderChange(type, getDeviceValue(slider->GetValue()));
 }

@@ -113,11 +113,11 @@ class ChannelPanel : public ChannelPanelBase, public IUndoRedoable
         void redo(UndoChange* change) override;
 
     protected:
-
-        typedef struct {
+        class ChannelUndoInfo: public UndoInfo {
+        public:
             ChannelSettings previous;
             ChannelSettings current;
-        } UndoInfo_t;
+        };
 
         Controller* controller;
         Context* context;

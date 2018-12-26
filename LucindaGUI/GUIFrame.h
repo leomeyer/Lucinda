@@ -26,8 +26,8 @@
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/scrolwin.h>
-#include <wx/splitter.h>
 #include <wx/toolbar.h>
+#include <wx/splitter.h>
 #include <wx/grid.h>
 #include <wx/notebook.h>
 #include <wx/aui/auibook.h>
@@ -79,6 +79,15 @@ class GUIFrame : public wxFrame
 		wxScrolledWindow* pChannels;
 		wxBoxSizer* channelSizer;
 		wxPanel* m_panel35;
+		wxToolBar* m_toolBar1;
+		wxToolBarToolBase* tbRecord;
+		wxToolBarToolBase* tbStop;
+		wxToolBarToolBase* tbPlay;
+		wxToolBarToolBase* tbStart;
+		wxToolBarToolBase* tbBack;
+		wxToolBarToolBase* tbForward;
+		wxToolBarToolBase* tbEnd;
+		wxToolBarToolBase* tbRepeat;
 		wxNotebook* m_notebook1;
 		wxPanel* pTracks;
 		wxSplitterWindow* trackSplitter;
@@ -89,15 +98,6 @@ class GUIFrame : public wxFrame
 		wxToolBarToolBase* tbClearEvents;
 		wxToolBarToolBase* tbDeleteEvents;
 		wxGrid* eventGrid;
-		wxToolBar* m_toolBar1;
-		wxToolBarToolBase* tbRecord;
-		wxToolBarToolBase* tbStop;
-		wxToolBarToolBase* tbPlay;
-		wxToolBarToolBase* tbStart;
-		wxToolBarToolBase* tbBack;
-		wxToolBarToolBase* tbForward;
-		wxToolBarToolBase* tbEnd;
-		wxToolBarToolBase* tbRepeat;
 		wxPanel* pInformation;
 		wxAuiNotebook* m_auinotebook4;
 		wxPanel* pLog;

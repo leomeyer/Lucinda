@@ -216,6 +216,27 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxBoxSizer* bSizer22;
 	bSizer22 = new wxBoxSizer( wxVERTICAL );
 
+	m_toolBar1 = new wxToolBar( m_panel35, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
+	tbRecord = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), stop_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbStop = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_stop_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbPlay = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_play_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbStart = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_start_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbBack = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_rewind_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbForward = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_fastforward_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbEnd = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_end_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	tbRepeat = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_repeat_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+
+	m_toolBar1->Realize();
+
+	bSizer22->Add( m_toolBar1, 0, wxEXPAND, 5 );
+
 	m_notebook1 = new wxNotebook( m_panel35, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	m_notebook1->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
@@ -299,27 +320,6 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	bSizer22->Fit( m_panel35 );
 	contentSplitter->SplitHorizontally( pChannels, m_panel35, 0 );
 	contentSizer->Add( contentSplitter, 1, wxEXPAND, 5 );
-
-	m_toolBar1 = new wxToolBar( pContent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
-	tbRecord = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), stop_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbStop = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_stop_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbPlay = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_play_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbStart = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_start_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbBack = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_rewind_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbForward = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_fastforward_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbEnd = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_end_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	tbRepeat = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_repeat_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
-
-	m_toolBar1->Realize();
-
-	contentSizer->Add( m_toolBar1, 0, wxEXPAND, 5 );
 
 
 	pContent->SetSizer( contentSizer );

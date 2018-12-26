@@ -11,13 +11,13 @@ namespace APP_NAMESPACE {
 class UndoChange
 {
     public:
-        IUndoRedoable* actor;    // the object responsible for undoing/redoing the change
-        int action;             // what has been changed (specific to the actor)
+        IUndoRedoable* actor;   // the object responsible for undoing/redoing the change
         wxString label;         // what to show to the user
-        void* data;             // pointer to previous state
+        int action;             // what has been changed (specific to the actor)
+        UndoInfo* data;             // pointer to previous state
 
         // create an UndoChange
-        UndoChange(IUndoRedoable* actor, int action, wxString label, void* data = nullptr);
+        UndoChange(IUndoRedoable* actor, int action, wxString label, UndoInfo* data = nullptr);
 
         // when this object is destroyed associated data is automatically freed
         virtual ~UndoChange();

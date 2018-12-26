@@ -84,13 +84,14 @@
 		<Unit filename="GUIFrame.cpp" />
 		<Unit filename="GUIFrame.h" />
 		<Unit filename="include/Application.h" />
-		<Unit filename="include/ApplicationController.h" />
 		<Unit filename="include/ArducomThread.h" />
 		<Unit filename="include/BrightnessSlider.h" />
 		<Unit filename="include/ChannelPanel.h" />
+		<Unit filename="include/ColorManagement.h" />
 		<Unit filename="include/Communication.h" />
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/Context.h" />
+		<Unit filename="include/Controller.h" />
 		<Unit filename="include/DeviceInfo.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -109,17 +110,19 @@
 		<Unit filename="include/readerwriterqueue.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="lib/lua/Makefile" />
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
 		<Unit filename="src/Application.cpp" />
-		<Unit filename="src/ApplicationController.cpp" />
 		<Unit filename="src/ArducomThread.cpp" />
 		<Unit filename="src/BrightnessSlider.cpp" />
 		<Unit filename="src/ChannelPanel.cpp" />
+		<Unit filename="src/ColorManagement.cpp" />
 		<Unit filename="src/Communication.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/Context.cpp" />
+		<Unit filename="src/Controller.cpp" />
 		<Unit filename="src/FrequencySlider.cpp" />
 		<Unit filename="src/GlobalChannelPanel.cpp" />
 		<Unit filename="src/Logger.cpp" />

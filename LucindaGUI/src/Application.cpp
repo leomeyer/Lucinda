@@ -71,7 +71,7 @@ bool Application::OnInit()
     controller->start();
     frame->initialize(controller);
 
-    frame->Show();
+        frame->Show();
 
     frame->applyGUISettings();
 

@@ -41,7 +41,7 @@ class UndoManager
         void addUndoChange(UndoChange* change);
 
         // if multiple changes are to be collected, start by calling this method
-        void collect(UndoChange* change);
+        void collect();
 
         // must be called when all changes to collect have been made
         void collectDone();
@@ -64,9 +64,10 @@ class UndoManager
 
     protected:
         Controller* controller;
-        bool collecting;
-
+        int collectLevel;
+        bool isCollecting;
         std::vector<UndoChange*> changes;
+
         // current undo position, will be 0 if the list is empty
         // otherwise, is the index plus one of the element to undo
         size_t position;

@@ -30,6 +30,8 @@
 #include "res/folder.png.h"
 #include "res/page_white_star.png.h"
 #include "res/stop.png.h"
+#include "res/table_delete.png.h"
+#include "res/table_row_delete.png.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -210,11 +212,95 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	pChannels->SetSizer( channelSizer );
 	pChannels->Layout();
 	channelSizer->Fit( pChannels );
-	pTracks = new wxPanel( contentSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_panel35 = new wxPanel( contentSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer22;
+	bSizer22 = new wxBoxSizer( wxVERTICAL );
+
+	m_notebook1 = new wxNotebook( m_panel35, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	m_notebook1->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	pTracks = new wxPanel( m_notebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer25;
 	bSizer25 = new wxBoxSizer( wxVERTICAL );
 
-	m_toolBar1 = new wxToolBar( pTracks, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
+	trackSplitter = new wxSplitterWindow( pTracks, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_NO_XP_THEME );
+	trackSplitter->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::trackSplitterOnIdle ), NULL, this );
+
+	m_scrolledWindow2 = new wxScrolledWindow( trackSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow2->SetScrollRate( 5, 5 );
+	m_scrolledWindow3 = new wxScrolledWindow( trackSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow3->SetScrollRate( 5, 5 );
+	trackSplitter->SplitVertically( m_scrolledWindow2, m_scrolledWindow3, 100 );
+	bSizer25->Add( trackSplitter, 1, wxEXPAND, 5 );
+
+
+	pTracks->SetSizer( bSizer25 );
+	pTracks->Layout();
+	bSizer25->Fit( pTracks );
+	m_notebook1->AddPage( pTracks, wxT("Tracks"), false );
+	pEvents = new wxPanel( m_notebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	pEvents->SetFont( wxFont( 8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	wxBoxSizer* bSizer21;
+	bSizer21 = new wxBoxSizer( wxVERTICAL );
+
+	m_toolBar2 = new wxToolBar( pEvents, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
+	tbClearEvents = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), table_delete_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Clear all events"), wxEmptyString, NULL );
+
+	tbDeleteEvents = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), table_row_delete_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxT("Delete selected events"), wxEmptyString, NULL );
+
+	m_toolBar2->Realize();
+
+	bSizer21->Add( m_toolBar2, 0, wxEXPAND, 5 );
+
+	eventGrid = new wxGrid( pEvents, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+
+	// Grid
+	eventGrid->CreateGrid( 0, 3 );
+	eventGrid->EnableEditing( false );
+	eventGrid->EnableGridLines( true );
+	eventGrid->EnableDragGridSize( false );
+	eventGrid->SetMargins( 0, 0 );
+
+	// Columns
+	eventGrid->SetColSize( 0, 80 );
+	eventGrid->SetColSize( 1, 107 );
+	eventGrid->SetColSize( 2, 402 );
+	eventGrid->EnableDragColMove( false );
+	eventGrid->EnableDragColSize( true );
+	eventGrid->SetColLabelSize( 20 );
+	eventGrid->SetColLabelValue( 0, wxT("Time") );
+	eventGrid->SetColLabelValue( 1, wxT("Event") );
+	eventGrid->SetColLabelValue( 2, wxT("Data") );
+	eventGrid->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Rows
+	eventGrid->EnableDragRowSize( true );
+	eventGrid->SetRowLabelSize( 0 );
+	eventGrid->SetRowLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Label Appearance
+
+	// Cell Defaults
+	eventGrid->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
+	bSizer21->Add( eventGrid, 1, wxALL|wxEXPAND, 5 );
+
+
+	pEvents->SetSizer( bSizer21 );
+	pEvents->Layout();
+	bSizer21->Fit( pEvents );
+	m_notebook1->AddPage( pEvents, wxT("Events"), true );
+
+	bSizer22->Add( m_notebook1, 1, wxEXPAND | wxALL, 5 );
+
+
+	m_panel35->SetSizer( bSizer22 );
+	m_panel35->Layout();
+	bSizer22->Fit( m_panel35 );
+	contentSplitter->SplitHorizontally( pChannels, m_panel35, 0 );
+	contentSizer->Add( contentSplitter, 1, wxEXPAND, 5 );
+
+	m_toolBar1 = new wxToolBar( pContent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
 	tbRecord = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), stop_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
 
 	tbStop = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), control_stop_blue_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
@@ -233,24 +319,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_toolBar1->Realize();
 
-	bSizer25->Add( m_toolBar1, 0, wxEXPAND, 5 );
-
-	trackSplitter = new wxSplitterWindow( pTracks, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_NO_XP_THEME );
-	trackSplitter->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrame::trackSplitterOnIdle ), NULL, this );
-
-	m_scrolledWindow2 = new wxScrolledWindow( trackSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
-	m_scrolledWindow2->SetScrollRate( 5, 5 );
-	m_scrolledWindow3 = new wxScrolledWindow( trackSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
-	m_scrolledWindow3->SetScrollRate( 5, 5 );
-	trackSplitter->SplitVertically( m_scrolledWindow2, m_scrolledWindow3, 100 );
-	bSizer25->Add( trackSplitter, 1, wxEXPAND, 5 );
-
-
-	pTracks->SetSizer( bSizer25 );
-	pTracks->Layout();
-	bSizer25->Fit( pTracks );
-	contentSplitter->SplitHorizontally( pChannels, pTracks, 0 );
-	contentSizer->Add( contentSplitter, 1, wxEXPAND, 5 );
+	contentSizer->Add( m_toolBar1, 0, wxEXPAND, 5 );
 
 
 	pContent->SetSizer( contentSizer );

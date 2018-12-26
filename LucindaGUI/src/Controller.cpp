@@ -73,32 +73,39 @@ void Controller::OnUpdateTimer(wxTimerEvent& event)
 
 void Controller::loadDefaultChannelSettings()
 {
-    ChannelSettings settings;
-    settings.waveform = WAVEFORM_SINE;
-    settings.reverse = false;
-    settings.invert = false;
-    settings.eyeCorrection = true;
-    settings.mcCount = 0;
-    settings.mcLength = 0;
-    settings.mcShift = 0;
-    settings.enabled = true;
+    context->undoManager->collect();
 
-    auto end = channelPanels.end();
-    for (auto iter = channelPanels.begin(); iter != end; ++iter) {
-        if ((*iter)->getChannel() == 0)
-            settings.lights = 0;
-        else if ((*iter)->getChannel() == 1)
-            settings.lights = 5;
-        else if ((*iter)->getChannel() == 2)
-            settings.lights = 160;
-        else if ((*iter)->getChannel() == 3)
-            settings.lights = 10;
-        else if ((*iter)->getChannel() == 4)
-            settings.lights = 80;
-        else
-            settings.lights = -1;
+    try {
+        ChannelSettings settings;
+        settings.waveform = WAVEFORM_SINE;
+        settings.reverse = false;
+        settings.invert = false;
+        settings.eyeCorrection = true;
+        settings.mcCount = 0;
+        settings.mcLength = 0;
+        settings.mcShift = 0;
+        settings.enabled = true;
 
-        (*iter)->setSettings(settings);
+        auto end = channelPanels.end();
+        for (auto iter = channelPanels.begin(); iter != end; ++iter) {
+            if ((*iter)->getChannel() == 0)
+                settings.lights = 0;
+            else if ((*iter)->getChannel() == 1)
+                settings.lights = 5;
+            else if ((*iter)->getChannel() == 2)
+                settings.lights = 160;
+            else if ((*iter)->getChannel() == 3)
+                settings.lights = 10;
+            else if ((*iter)->getChannel() == 4)
+                settings.lights = 80;
+            else
+                settings.lights = -1;
+
+            (*iter)->setSettings(settings);
+        }
+        context->undoManager->collectDone();
+    } catch (...) {
+        context->undoManager->collectDone();
     }
 }
 

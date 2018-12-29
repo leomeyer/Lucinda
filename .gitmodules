@@ -1,3 +1,6 @@
 [submodule "LucindaGUI/Arducom"]
 	path = LucindaGUI/Arducom
 	url = https://github.com/leomeyer/Arducom.git
+[submodule "LucindaGUI/lib/ponder"]
+	path = LucindaGUI/lib/ponder
+	url = https://github.com/leomeyer/ponder.git

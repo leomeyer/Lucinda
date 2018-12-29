@@ -67,6 +67,7 @@
 			<Add directory="$(#wx312)/include" />
 			<Add directory="include" />
 			<Add directory="lib/ponder/include" />
+			<Add directory="lib" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="$(#wx312)/include" />

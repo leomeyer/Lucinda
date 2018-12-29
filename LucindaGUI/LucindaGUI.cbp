@@ -15,9 +15,6 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
-					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
-					<Add directory="include" />
-					<Add directory="LucindaGUI/include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
@@ -40,9 +37,6 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
-					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
-					<Add directory="include" />
-					<Add directory="LucindaGUI/include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
@@ -68,7 +62,11 @@
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DWIN32" />
 			<Add option="-DARDUCOM_DISABLE_TCPIP" />
+			<Add option="-DPONDER_STATIC" />
+			<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
 			<Add directory="$(#wx312)/include" />
+			<Add directory="include" />
+			<Add directory="lib/ponder/include" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="$(#wx312)/include" />
@@ -100,6 +98,7 @@
 		<Unit filename="include/GlobalDefines.h" />
 		<Unit filename="include/IDeviceCommands.h" />
 		<Unit filename="include/Logger.h" />
+		<Unit filename="include/LuaHost.h" />
 		<Unit filename="include/MainGUIFrame.h" />
 		<Unit filename="include/PercentSlider.h" />
 		<Unit filename="include/Processor.h" />
@@ -110,7 +109,197 @@
 		<Unit filename="include/readerwriterqueue.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="lib/lua/Makefile" />
+		<Unit filename="lib/lua/lapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lapi.h" />
+		<Unit filename="lib/lua/lauxlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lauxlib.h" />
+		<Unit filename="lib/lua/lbaselib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lbitlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lcode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lcode.h" />
+		<Unit filename="lib/lua/lcorolib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lctype.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lctype.h" />
+		<Unit filename="lib/lua/ldblib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ldebug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ldebug.h" />
+		<Unit filename="lib/lua/ldo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ldo.h" />
+		<Unit filename="lib/lua/ldump.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lfunc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lfunc.h" />
+		<Unit filename="lib/lua/lgc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lgc.h" />
+		<Unit filename="lib/lua/linit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/liolib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/llex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/llex.h" />
+		<Unit filename="lib/lua/llimits.h" />
+		<Unit filename="lib/lua/lmathlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lmem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lmem.h" />
+		<Unit filename="lib/lua/loadlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lobject.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lobject.h" />
+		<Unit filename="lib/lua/lopcodes.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lopcodes.h" />
+		<Unit filename="lib/lua/loslib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lparser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lparser.h" />
+		<Unit filename="lib/lua/lprefix.h" />
+		<Unit filename="lib/lua/lstate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lstate.h" />
+		<Unit filename="lib/lua/lstring.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lstring.h" />
+		<Unit filename="lib/lua/lstrlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ltable.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ltable.h" />
+		<Unit filename="lib/lua/ltablib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ltm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/ltm.h" />
+		<Unit filename="lib/lua/lua.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lua.h" />
+		<Unit filename="lib/lua/lua.hpp" />
+		<Unit filename="lib/lua/luaconf.h" />
+		<Unit filename="lib/lua/lualib.h" />
+		<Unit filename="lib/lua/lundump.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lundump.h" />
+		<Unit filename="lib/lua/lutf8lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lvm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lvm.h" />
+		<Unit filename="lib/lua/lzio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/lua/lzio.h" />
+		<Unit filename="lib/ponder/include/ponder/args.hpp" />
+		<Unit filename="lib/ponder/include/ponder/arraymapper.hpp" />
+		<Unit filename="lib/ponder/include/ponder/arrayproperty.hpp" />
+		<Unit filename="lib/ponder/include/ponder/class.hpp" />
+		<Unit filename="lib/ponder/include/ponder/class.inl" />
+		<Unit filename="lib/ponder/include/ponder/classbuilder.hpp" />
+		<Unit filename="lib/ponder/include/ponder/classbuilder.inl" />
+		<Unit filename="lib/ponder/include/ponder/classcast.hpp" />
+		<Unit filename="lib/ponder/include/ponder/classget.hpp" />
+		<Unit filename="lib/ponder/include/ponder/classget.inl" />
+		<Unit filename="lib/ponder/include/ponder/classvisitor.hpp" />
+		<Unit filename="lib/ponder/include/ponder/config.hpp" />
+		<Unit filename="lib/ponder/include/ponder/constructor.hpp" />
+		<Unit filename="lib/ponder/include/ponder/enum.hpp" />
+		<Unit filename="lib/ponder/include/ponder/enum.inl" />
+		<Unit filename="lib/ponder/include/ponder/enumbuilder.hpp" />
+		<Unit filename="lib/ponder/include/ponder/enumget.hpp" />
+		<Unit filename="lib/ponder/include/ponder/enumget.inl" />
+		<Unit filename="lib/ponder/include/ponder/enumobject.hpp" />
+		<Unit filename="lib/ponder/include/ponder/enumobject.inl" />
+		<Unit filename="lib/ponder/include/ponder/enumproperty.hpp" />
+		<Unit filename="lib/ponder/include/ponder/error.hpp" />
+		<Unit filename="lib/ponder/include/ponder/error.inl" />
+		<Unit filename="lib/ponder/include/ponder/errors.hpp" />
+		<Unit filename="lib/ponder/include/ponder/function.hpp" />
+		<Unit filename="lib/ponder/include/ponder/observer.hpp" />
+		<Unit filename="lib/ponder/include/ponder/pondertype.hpp" />
+		<Unit filename="lib/ponder/include/ponder/property.hpp" />
+		<Unit filename="lib/ponder/include/ponder/simpleproperty.hpp" />
+		<Unit filename="lib/ponder/include/ponder/type.hpp" />
+		<Unit filename="lib/ponder/include/ponder/userdata.hpp" />
+		<Unit filename="lib/ponder/include/ponder/userobject.hpp" />
+		<Unit filename="lib/ponder/include/ponder/userobject.inl" />
+		<Unit filename="lib/ponder/include/ponder/userproperty.hpp" />
+		<Unit filename="lib/ponder/include/ponder/value.hpp" />
+		<Unit filename="lib/ponder/include/ponder/value.inl" />
+		<Unit filename="lib/ponder/include/ponder/valuemapper.hpp" />
+		<Unit filename="lib/ponder/include/ponder/valuevisitor.hpp" />
+		<Unit filename="lib/ponder/src/args.cpp" />
+		<Unit filename="lib/ponder/src/arrayproperty.cpp" />
+		<Unit filename="lib/ponder/src/class.cpp" />
+		<Unit filename="lib/ponder/src/classcast.cpp" />
+		<Unit filename="lib/ponder/src/classmanager.cpp" />
+		<Unit filename="lib/ponder/src/classvisitor.cpp" />
+		<Unit filename="lib/ponder/src/enum.cpp" />
+		<Unit filename="lib/ponder/src/enumbuilder.cpp" />
+		<Unit filename="lib/ponder/src/enummanager.cpp" />
+		<Unit filename="lib/ponder/src/enumobject.cpp" />
+		<Unit filename="lib/ponder/src/enumproperty.cpp" />
+		<Unit filename="lib/ponder/src/error.cpp" />
+		<Unit filename="lib/ponder/src/errors.cpp" />
+		<Unit filename="lib/ponder/src/function.cpp" />
+		<Unit filename="lib/ponder/src/observer.cpp" />
+		<Unit filename="lib/ponder/src/observernotifier.cpp" />
+		<Unit filename="lib/ponder/src/pondertype.cpp" />
+		<Unit filename="lib/ponder/src/property.cpp" />
+		<Unit filename="lib/ponder/src/simpleproperty.cpp" />
+		<Unit filename="lib/ponder/src/type.cpp" />
+		<Unit filename="lib/ponder/src/userdata.cpp" />
+		<Unit filename="lib/ponder/src/userobject.cpp" />
+		<Unit filename="lib/ponder/src/userproperty.cpp" />
+		<Unit filename="lib/ponder/src/util.cpp" />
+		<Unit filename="lib/ponder/src/value.cpp" />
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
@@ -126,6 +315,7 @@
 		<Unit filename="src/FrequencySlider.cpp" />
 		<Unit filename="src/GlobalChannelPanel.cpp" />
 		<Unit filename="src/Logger.cpp" />
+		<Unit filename="src/LuaHost.cpp" />
 		<Unit filename="src/MainGUIFrame.cpp" />
 		<Unit filename="src/PercentSlider.cpp" />
 		<Unit filename="src/Processor.cpp" />

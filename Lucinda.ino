@@ -35,7 +35,9 @@ volatile uint8_t global_speed = 1;
 // Defines the pins of the connected lamps.
 // The first pin is for the halogen lamp.
 // The others are for the LEDs. If a lamp is not connected use 0.
-uint8_t outputPins[LUCINDA_MAXCHANNELS] = {11, 2, 3, 4, 5, 6, 7, 8, 9};
+// The halogen lamp should be connected to a TIMER2 pin (9 or 10) because it can run on an 8 bit PWM.
+// All other lamps must be connected to a pin that uses as 10-bit PWM capable timer except TIMER0 (pins 4, 13).
+uint8_t outputPins[LUCINDA_MAXCHANNELS] = {10, 2, 3, 5, 6, 7, 8, 11, 12};
 
 // minimal test definitions for Uno etc.
 // uint8_t outputPins[LUCINDA_MAXCHANNELS] = {11, 3, 5, 6, 9, 10, 0, 0, 0};
@@ -59,11 +61,21 @@ inline void resetCounters(channel_t* channel) {
 inline void setPinValue(uint8_t pin, timermap_t* timermap, uint16_t val) {
   if (pin == 0)
     return;
-  uint8_t mval = val / 4;
+  int16_t mval = (pin == outputPins[0] ? 1023 - val : val);
   // set PWM value, do not use analogWrite for performance
-  *(volatile char*)(timermap->timerReg) |= _BV(timermap->outputMode);
-  // special treatment for halogen pin (invert)
-  *(volatile char*)(timermap->ocrReg) = (pin == outputPins[0] ? 255 - mval : mval);
+  if (mval <= 0)
+    // switch off PWM
+    *(volatile char*)(timermap->timerReg) &= ~_BV(timermap->outputMode);
+  else {
+    *(volatile char*)(timermap->timerReg) |= _BV(timermap->outputMode);
+    if (timermap->is8Bit) {
+      *(volatile char*)(timermap->ocrRegH) = mval / 4;
+    } else {
+      // special treatment for halogen pin (invert)
+      *(volatile char*)(timermap->ocrRegH) = mval / 256;
+      *(volatile char*)(timermap->ocrRegL) = mval % 256;
+    }
+  }
 }
 
 inline void setLightValues(channel_t* channel, uint16_t val) {
@@ -81,13 +93,14 @@ inline void setLightValues(channel_t* channel, uint16_t val) {
       // test bit if the pin is defined
       if ((mask & 1) == 1 && outputPins[b] > 0) {
         // bit is set, i. e. LED no. b is controlled by this channel
+/*  pin 4 cannot be used because it is controlled by TIMER0
         // special treatment for pin 4 (won't turn off completely on Mega)
         if (outputPins[b] == 4)
           analogWrite(outputPins[b], val / 4);
-        else {
-          // set PWM value, do not use analogWrite for performance
-          setPinValue(outputPins[b], &(timerMaps[b]), val);
-        }
+        else
+*/        
+        // set PWM value, do not use analogWrite for performance
+        setPinValue(outputPins[b], &(timerMaps[b]), val);
       }
       mask >>= 1;
       b++;
@@ -644,8 +657,12 @@ void fillTimerMaps() {
   for (int i = 0; i < LUCINDA_MAXCHANNELS; i++) {
     if (outputPins[i] == 0)
       continue;
-    if (!fillTimerMap(&(timerMaps[i]), outputPins[i])) {
-      Serial.print(F("Setup error: Pin not on timer: "));
+    // on the first pin (the halogen lamp pin) allow the use of an 8 bit timer
+    if (!fillTimerMap(&(timerMaps[i]), outputPins[i], i == 0)) {
+      if (i == 0)
+        Serial.print(F("Setup error: Pin not on a valid 8- or 10-bit PWM capable timer or on TIMER0: "));
+      else
+        Serial.print(F("Setup error: Pin not on a valid 10-bit PWM capable timer or on TIMER0: "));
       Serial.println(outputPins[i]);
       while (true);
     }
@@ -687,6 +704,14 @@ void setup()
 
   fillTimerMaps();
 
+  // setup timers for 10 bit non-inverted fast PWM
+  TCCR1A = (1 << WGM10) | (1 << WGM11) | (1 << COM1A1);
+  TCCR1B = (1 << WGM12) | (1 << CS11);
+  TCCR3A = (1 << WGM10) | (1 << WGM11) | (1 << COM1A1);
+  TCCR3B = (1 << WGM12) | (1 << CS11);
+  TCCR4A = (1 << WGM10) | (1 << WGM11) | (1 << COM1A1);
+  TCCR4B = (1 << WGM12) | (1 << CS11);
+  
   uint8_t code;
 	// setup Arducom system
   addCommand(new ArducomVersionCommand(DEVICE_NAME));

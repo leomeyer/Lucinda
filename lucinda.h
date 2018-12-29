@@ -109,14 +109,16 @@ typedef struct {
 typedef struct {
   uint16_t timerReg;
   uint8_t outputMode;
-  uint16_t ocrReg;
+  bool is8Bit;
+  uint16_t ocrRegH;
+  uint16_t ocrRegL;
 } timermap_t;
 
 /*******************************************************
 * Forward Declarations
 *******************************************************/
 
-bool fillTimerMap(timermap_t* timerMap, uint8_t pin);
+bool fillTimerMap(timermap_t* timerMap, uint8_t pin, bool canUse8Bit);
 
 #endif // ARDUINO
 

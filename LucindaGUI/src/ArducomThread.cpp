@@ -434,7 +434,7 @@ wxThread::ExitCode ArducomThread::Entry()
                     try {
                         arducom->close(false);
                     } catch (const std::exception& e) {
-                        comm->getContext()->logger->logDebug(msg);
+                        comm->getContext()->logger->logDebug(e.what());
                     }
                 }
                 setStatus(DEVICE_TERMINATED, "");
@@ -448,6 +448,8 @@ wxThread::ExitCode ArducomThread::Entry()
         msg << e.what();
         comm->getContext()->logger->logError(msg);
     }
+
+	return nullptr;
 }
 
 }; // namespace

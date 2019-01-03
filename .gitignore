@@ -26,3 +26,6 @@
 /LucindaGUI/*.save
 *.save
 /TableGenerator/x64/Debug
+/LucindaGUI/x64/Debug
+/LucindaGUI/Release
+/LucindaGUI/*.user

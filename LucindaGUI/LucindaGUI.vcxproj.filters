@@ -1,0 +1,351 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Quelldateien\ponder">
+      <UniqueIdentifier>{456980e4-ac85-4dda-ac12-b018490d5d92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\lua">
+      <UniqueIdentifier>{e599d5a2-6c8e-4d0b-9add-a17fb1c7c777}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Arducom">
+      <UniqueIdentifier>{a7f1db3f-5cc9-4f81-badf-b73819910861}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Application.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ArducomThread.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\atomicops.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BrightnessSlider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ChannelPanel.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ColorManagement.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Communication.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Configuration.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Context.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Controller.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DeviceInfo.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FrequencySlider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GlobalChannelPanel.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GlobalDefines.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GlobalFrequencySlider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IDeviceCommands.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Logger.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LuaHost.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MainGUIFrame.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PercentSlider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Processor.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\readerwriterqueue.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RegularChannelPanel.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SliderPanel.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UndoManager.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIFrame.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Application.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ArducomThread.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BrightnessSlider.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ChannelPanel.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ColorManagement.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Communication.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Configuration.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Context.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Controller.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrequencySlider.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GlobalChannelPanel.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Logger.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LuaHost.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainGUIFrame.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PercentSlider.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Processor.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RegularChannelPanel.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SliderPanel.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UndoManager.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIFrame.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lapi.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lauxlib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lbaselib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lbitlib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lcode.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lcorolib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lctype.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ldblib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ldebug.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ldo.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ldump.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lfunc.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lgc.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\linit.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\liolib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\llex.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lmathlib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lmem.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\loadlib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lobject.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lopcodes.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\loslib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lparser.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lstate.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lstring.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lstrlib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ltable.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ltablib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\ltm.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lua.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lundump.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lutf8lib.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lvm.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\lua\lzio.c">
+      <Filter>Quelldateien\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Arducom\src\master\ArducomMaster.cpp">
+      <Filter>Quelldateien\Arducom</Filter>
+    </ClCompile>
+    <ClCompile Include="Arducom\src\master\ArducomMasterSerialWin.cpp">
+      <Filter>Quelldateien\Arducom</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\args.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\arrayproperty.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\class.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\classcast.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\classmanager.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\classvisitor.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\enum.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\enumbuilder.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\enummanager.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\enumobject.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\enumproperty.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\error.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\errors.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\function.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\observer.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\observernotifier.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\pondertype.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\property.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\simpleproperty.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\type.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\userdata.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\userobject.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\userproperty.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\util.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\ponder\src\value.cpp">
+      <Filter>Quelldateien\ponder</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

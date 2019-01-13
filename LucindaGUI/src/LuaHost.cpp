@@ -2,17 +2,85 @@
 
 #include <memory>
 
-extern "C" {
-#include "lua/lua.h"
-#include "lua/lauxlib.h"
-#include "lua/lualib.h"
-}
+namespace lib
+{
+    static constexpr float FLOAT_EPSILON = 1e-5f;
+
+    struct Vec
+    {
+        float   x,y;
+
+        Vec()                       : x(0), y(0) {}
+        Vec(float x_, float y_)     : x(x_), y(y_) {}
+        Vec(const Vec& o)           : x(o.x), y(o.y) {}
+
+        bool operator == (const Vec& o) const {
+            const float dx = x - o.x, dy = y - o.y;
+            return std::abs(dx) < FLOAT_EPSILON && std::abs(dy) < FLOAT_EPSILON;
+        }
+
+        std::tuple<float,float> get() const { return std::make_tuple(x,y); }
+
+        void set(float x_, float y_) { x = x_, y = y_; }
+
+        Vec operator + (const Vec& o) const { return Vec(x + o.x, y + o.y); }
+        const Vec& operator += (const Vec& o) { x += o.x, y += o.y; return *this; }
+
+        float length() const        { return std::sqrt(x*x + y*y); }
+
+        float dot(const Vec &o) const {
+            return x*o.x + y*o.y;
+        }
+
+        static Vec up() { return Vec(0, 1.f); }     // static function
+
+        Vec& ref() { return *this; }                // return ref
+    };
+};
+
+//PONDER_TYPE(test::LuaTestClass)
+PONDER_TYPE(lib::Vec)
+
+void declare()
+    {
+        using namespace ponder;
+
+        ponder::Class::declare<lib::Vec>()
+            .constructor()
+            .constructor<float, float>()
+//            .constructor<const Vec&>()
+            .property("x", &lib::Vec::x)
+            .property("y", &lib::Vec::y)
+            .function("get", &lib::Vec::get, policy::ReturnMultiple()) // tuple
+            .function("set", &lib::Vec::set)
+            .function("add", &lib::Vec::operator+=)
+            .function("add2", &lib::Vec::operator+) //.tag("+")
+            .function("length", &lib::Vec::length)
+            .function("dot", &lib::Vec::dot)
+
+            .function("up", &lib::Vec::up)   // static
+
+            .function("funcRef", &lib::Vec::ref, policy::ReturnInternalRef())  // ref function
+            .property("propRef", &lib::Vec::ref)     // ref property
+            ;
+    }
+
 
 namespace APP_NAMESPACE {
 
 LuaHost::LuaHost()
 {
+    // using namespace ponder;
+
     state = nullptr;
+
+    // lib::declare();
+
+    /*
+    ponder::Class::declare<test::LuaTestClass>()
+        .function("printDebug", &test::LuaTestClass::printDebug)
+        ;
+*/
 }
 
 LuaHost::~LuaHost()

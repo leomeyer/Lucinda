@@ -63,11 +63,12 @@
 			<Add option="-DWIN32" />
 			<Add option="-DARDUCOM_DISABLE_TCPIP" />
 			<Add option="-DPONDER_STATIC" />
+			<Add option="-DPONDER_USING_LUA" />
 			<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
 			<Add directory="$(#wx312)/include" />
 			<Add directory="include" />
 			<Add directory="lib/ponder/include" />
-			<Add directory="lib" />
+			<Add directory="lib/lua" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="$(#wx312)/include" />
@@ -272,6 +273,15 @@
 		<Unit filename="lib/ponder/include/ponder/userobject.hpp" />
 		<Unit filename="lib/ponder/include/ponder/userobject.inl" />
 		<Unit filename="lib/ponder/include/ponder/userproperty.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/archive/rapidjson.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/archive/rapidxml.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/detail/lua.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/detail/runtime.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/lua.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/runtime.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/serialise.hpp" />
+		<Unit filename="lib/ponder/include/ponder/uses/serialise.inl" />
+		<Unit filename="lib/ponder/include/ponder/uses/uses.hpp" />
 		<Unit filename="lib/ponder/include/ponder/value.hpp" />
 		<Unit filename="lib/ponder/include/ponder/value.inl" />
 		<Unit filename="lib/ponder/include/ponder/valuemapper.hpp" />

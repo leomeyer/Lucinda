@@ -220,9 +220,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="lib/lua/ltm.h" />
-		<Unit filename="lib/lua/lua.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="lib/lua/lua.h" />
 		<Unit filename="lib/lua/lua.hpp" />
 		<Unit filename="lib/lua/luaconf.h" />

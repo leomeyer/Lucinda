@@ -91,7 +91,7 @@ LuaHost::~LuaHost()
 
 int LuaHost::myLuaFunction(lua_State* L)
 {
-
+	return 0;
 }
 
 int LuaHost::myLuaFunctionCallback(lua_State* L)
@@ -99,7 +99,7 @@ int LuaHost::myLuaFunctionCallback(lua_State* L)
     lua_getupvalue(L, lua_upvalueindex(1), 1); //pushes the light userdata
     LuaHost* obj = static_cast<LuaHost*>(lua_touserdata(L, -1)); //gets the value of the user data
     lua_pop(L, 1); //pop userdata
-    obj->myLuaFunction(L); //call actual function
+    return obj->myLuaFunction(L); //call actual function
 }
 
 void LuaHost::runFile(wxString filename)

@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{03F951A4-5525-4E68-87FB-2CB860C47F28}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>LucindaGUI</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;lib;lib/ponder/include;$(WXWIN)/include/msvc;$(WXWIN)/include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;lib;lib/ponder/include;$(WXWIN)/include/msvc;$(WXWIN)/include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;lib;lib/ponder/include;$(WXWIN)/include/msvc;$(WXWIN)/include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;lib;lib/ponder/include;$(WXWIN)/include/msvc;$(WXWIN)/include</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;WXUSINGDLL;wxMSVC_VERSION_AUTO;ARDUCOM_DISABLE_TCPIP;PONDER_STATIC</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(wxwin)\lib\vc140_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(wxwin)\lib\vc140_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;WXUSINGDLL;wxMSVC_VERSION_AUTO;ARDUCOM_DISABLE_TCPIP;PONDER_STATIC</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(wxwin)\lib\vc140_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(wxwin)\lib\vc140_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="GUIFrame.h" />
+    <ClInclude Include="include\Application.h" />
+    <ClInclude Include="include\ArducomThread.h" />
+    <ClInclude Include="include\atomicops.h" />
+    <ClInclude Include="include\BrightnessSlider.h" />
+    <ClInclude Include="include\ChannelPanel.h" />
+    <ClInclude Include="include\ColorManagement.h" />
+    <ClInclude Include="include\Communication.h" />
+    <ClInclude Include="include\Configuration.h" />
+    <ClInclude Include="include\Context.h" />
+    <ClInclude Include="include\Controller.h" />
+    <ClInclude Include="include\DeviceInfo.h" />
+    <ClInclude Include="include\FrequencySlider.h" />
+    <ClInclude Include="include\GlobalChannelPanel.h" />
+    <ClInclude Include="include\GlobalDefines.h" />
+    <ClInclude Include="include\GlobalFrequencySlider.h" />
+    <ClInclude Include="include\IDeviceCommands.h" />
+    <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\LuaHost.h" />
+    <ClInclude Include="include\MainGUIFrame.h" />
+    <ClInclude Include="include\PercentSlider.h" />
+    <ClInclude Include="include\Processor.h" />
+    <ClInclude Include="include\readerwriterqueue.h" />
+    <ClInclude Include="include\RegularChannelPanel.h" />
+    <ClInclude Include="include\SliderPanel.h" />
+    <ClInclude Include="include\UndoManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Arducom\src\master\ArducomMaster.cpp" />
+    <ClCompile Include="Arducom\src\master\ArducomMasterSerialWin.cpp" />
+    <ClCompile Include="GUIFrame.cpp" />
+    <ClCompile Include="lib\lua\lapi.c" />
+    <ClCompile Include="lib\lua\lauxlib.c" />
+    <ClCompile Include="lib\lua\lbaselib.c" />
+    <ClCompile Include="lib\lua\lbitlib.c" />
+    <ClCompile Include="lib\lua\lcode.c" />
+    <ClCompile Include="lib\lua\lcorolib.c" />
+    <ClCompile Include="lib\lua\lctype.c" />
+    <ClCompile Include="lib\lua\ldblib.c" />
+    <ClCompile Include="lib\lua\ldebug.c" />
+    <ClCompile Include="lib\lua\ldo.c" />
+    <ClCompile Include="lib\lua\ldump.c" />
+    <ClCompile Include="lib\lua\lfunc.c" />
+    <ClCompile Include="lib\lua\lgc.c" />
+    <ClCompile Include="lib\lua\linit.c" />
+    <ClCompile Include="lib\lua\liolib.c" />
+    <ClCompile Include="lib\lua\llex.c" />
+    <ClCompile Include="lib\lua\lmathlib.c" />
+    <ClCompile Include="lib\lua\lmem.c" />
+    <ClCompile Include="lib\lua\loadlib.c" />
+    <ClCompile Include="lib\lua\lobject.c" />
+    <ClCompile Include="lib\lua\lopcodes.c" />
+    <ClCompile Include="lib\lua\loslib.c" />
+    <ClCompile Include="lib\lua\lparser.c" />
+    <ClCompile Include="lib\lua\lstate.c" />
+    <ClCompile Include="lib\lua\lstring.c" />
+    <ClCompile Include="lib\lua\lstrlib.c" />
+    <ClCompile Include="lib\lua\ltable.c" />
+    <ClCompile Include="lib\lua\ltablib.c" />
+    <ClCompile Include="lib\lua\ltm.c" />
+    <ClCompile Include="lib\lua\lua.c" />
+    <ClCompile Include="lib\lua\lundump.c" />
+    <ClCompile Include="lib\lua\lutf8lib.c" />
+    <ClCompile Include="lib\lua\lvm.c" />
+    <ClCompile Include="lib\lua\lzio.c" />
+    <ClCompile Include="lib\ponder\src\args.cpp" />
+    <ClCompile Include="lib\ponder\src\arrayproperty.cpp" />
+    <ClCompile Include="lib\ponder\src\class.cpp" />
+    <ClCompile Include="lib\ponder\src\classcast.cpp" />
+    <ClCompile Include="lib\ponder\src\classmanager.cpp" />
+    <ClCompile Include="lib\ponder\src\classvisitor.cpp" />
+    <ClCompile Include="lib\ponder\src\enum.cpp" />
+    <ClCompile Include="lib\ponder\src\enumbuilder.cpp" />
+    <ClCompile Include="lib\ponder\src\enummanager.cpp" />
+    <ClCompile Include="lib\ponder\src\enumobject.cpp" />
+    <ClCompile Include="lib\ponder\src\enumproperty.cpp" />
+    <ClCompile Include="lib\ponder\src\error.cpp" />
+    <ClCompile Include="lib\ponder\src\errors.cpp" />
+    <ClCompile Include="lib\ponder\src\function.cpp" />
+    <ClCompile Include="lib\ponder\src\observer.cpp" />
+    <ClCompile Include="lib\ponder\src\observernotifier.cpp" />
+    <ClCompile Include="lib\ponder\src\pondertype.cpp" />
+    <ClCompile Include="lib\ponder\src\property.cpp" />
+    <ClCompile Include="lib\ponder\src\simpleproperty.cpp" />
+    <ClCompile Include="lib\ponder\src\type.cpp" />
+    <ClCompile Include="lib\ponder\src\userdata.cpp" />
+    <ClCompile Include="lib\ponder\src\userobject.cpp" />
+    <ClCompile Include="lib\ponder\src\userproperty.cpp" />
+    <ClCompile Include="lib\ponder\src\util.cpp" />
+    <ClCompile Include="lib\ponder\src\value.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\ArducomThread.cpp" />
+    <ClCompile Include="src\BrightnessSlider.cpp" />
+    <ClCompile Include="src\ChannelPanel.cpp" />
+    <ClCompile Include="src\ColorManagement.cpp" />
+    <ClCompile Include="src\Communication.cpp" />
+    <ClCompile Include="src\Configuration.cpp" />
+    <ClCompile Include="src\Context.cpp" />
+    <ClCompile Include="src\Controller.cpp" />
+    <ClCompile Include="src\FrequencySlider.cpp" />
+    <ClCompile Include="src\GlobalChannelPanel.cpp" />
+    <ClCompile Include="src\Logger.cpp" />
+    <ClCompile Include="src\LuaHost.cpp" />
+    <ClCompile Include="src\MainGUIFrame.cpp" />
+    <ClCompile Include="src\PercentSlider.cpp" />
+    <ClCompile Include="src\Processor.cpp" />
+    <ClCompile Include="src\RegularChannelPanel.cpp" />
+    <ClCompile Include="src\SliderPanel.cpp" />
+    <ClCompile Include="src\UndoManager.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

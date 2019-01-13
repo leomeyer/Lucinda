@@ -45,7 +45,7 @@ void Logger::logMessage(const wxString& msg, LogPriority priority)
     message.text = msg;
     messages.push_back(message);
 
-    OutputDebugStr(msg.c_str());
+//    OutputDebugStr(msg.c_str());
     std::cout << msg << std::endl;
     std::cout.flush();
 }

@@ -15,6 +15,7 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
@@ -37,6 +38,7 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
+					<Add directory="include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="$(#wx312)/lib/gcc_dll/mswu" />
@@ -101,6 +103,7 @@
 		<Unit filename="include/IDeviceCommands.h" />
 		<Unit filename="include/Logger.h" />
 		<Unit filename="include/LuaHost.h" />
+		<Unit filename="include/LuaIntegration.h" />
 		<Unit filename="include/MainGUIFrame.h" />
 		<Unit filename="include/PercentSlider.h" />
 		<Unit filename="include/Processor.h" />
@@ -327,6 +330,7 @@
 		<Unit filename="src/GlobalChannelPanel.cpp" />
 		<Unit filename="src/Logger.cpp" />
 		<Unit filename="src/LuaHost.cpp" />
+		<Unit filename="src/LuaIntegration.cpp" />
 		<Unit filename="src/MainGUIFrame.cpp" />
 		<Unit filename="src/PercentSlider.cpp" />
 		<Unit filename="src/Processor.cpp" />

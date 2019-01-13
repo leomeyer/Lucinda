@@ -4,10 +4,11 @@
 #include "GlobalDefines.h"
 #include "Context.h"
 #include "Logger.h"
-
+/*
 extern "C" {
 #include <lua.h>
 #include <lualib.h>
+#include <lauxlib.h>
 }
 
 #define PONDER_USES_LUA_IMPL
@@ -18,51 +19,21 @@ extern "C" {
 
 // required for Ponder
 static_assert(LUA_VERSION_NUM==503, "Expecting Lua 5.3");
-
+*/
 #include <wx/wx.h>
 
-namespace test {
-
-class LuaTestClass {
-public:
-    APP_NAMESPACE::Context* context;
-
-    LuaTestClass(APP_NAMESPACE::Context* context) {
-        this->context = context;
-    }
-
-    void printDebug(const char* str) {
-        context->logger->logDebug(wxString(str));
-    }
-};
-
-};
-
-
 namespace APP_NAMESPACE {
-
 
 class LuaHost
 {
     public:
         LuaHost();
         virtual ~LuaHost();
-/*
-        template <class T>
-        void exposeObject(const char* name) {
-            ponder::lua::expose<T>(state, name);
-        }
-*/
         // throws std::exceptions if something goes wrong
         void runFile(wxString filename);
 
-        int myLuaFunction(lua_State* L);
-
-        static int myLuaFunctionCallback(lua_State* L);
-
     protected:
-        lua_State* state;
- //       test::LuaTestClass* testClass;
+//        lua_State* state;
 
     private:
 };

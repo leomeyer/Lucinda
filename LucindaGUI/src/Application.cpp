@@ -27,6 +27,7 @@
 
 #include "Application.h"
 
+
 namespace APP_NAMESPACE {
 
 IMPLEMENT_APP(Application);
